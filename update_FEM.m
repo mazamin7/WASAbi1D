@@ -1,4 +1,4 @@
-function p_next = update_FEM(p_curr,p_prev,c,dt,dh,force,boundCond1,boundCond2)
+function p_next = update_FEM(p_curr,p_prev,c,dt,dh,force,isDamped,alpha_abs,boundCond1,boundCond2)
 %==========================================================================
 % Solution of the Wave Equation with linear finite elements 
 % coupled with the leap-frog scheme 
@@ -100,7 +100,13 @@ function p_next = update_FEM(p_curr,p_prev,c,dt,dh,force,boundCond1,boundCond2)
     end
     
     % Repeat steps 1) to 5) for the general time step
-    b_nbc = Dati.dt^2 * (b_nbc - A_nbc*u1) + 2 * M_nbc * u1 - M_nbc * u0;
+    if isDamped == false
+        b_nbc = Dati.dt^2 * (b_nbc - A_nbc*u1) + 2 * M_nbc * u1 - M_nbc * u0;
+    else
+        b_nbc = Dati.dt^2 * (b_nbc - A_nbc*u1) ...
+            - Dati.dt * alpha_abs * M_nbc * (u1 - u0) ...
+            + 2 * M_nbc * u1 - M_nbc * u0;
+    end
     
     if(strcmp(Dati.bc1,'D') || strcmp(Dati.bc2,'D'))
         [M,b,u_g] = C_bound_cond1D(M_nbc,b_nbc,femregion,Dati);
