@@ -25,10 +25,17 @@ function [A,b,u_g] = C_bound_cond1D(A,b,femregion,Dati)
 ndof = length(b);
 u_g = sparse(ndof,1);
 
-boundary_points = femregion.boundary_points;
-x = femregion.dof(boundary_points,1);
-t = Dati.t;
-u_g(boundary_points) = eval(Dati.exact_sol); % Compute the lifting operator ug
+if strcmp(Dati.bc1, "D") && strcmp(Dati.bc2, "D")
+    boundary_points = femregion.boundary_points;
+elseif strcmp(Dati.bc1, "D")
+    boundary_points = femregion.boundary_points(1);
+else
+    boundary_points = femregion.boundary_points(2);
+end
+
+% x = femregion.dof(boundary_points,1);
+% t = Dati.t;
+u_g(boundary_points) = 0; % Compute the lifting operator ug
 
 x_g = sparse(ndof,1);
 A_0 = A;

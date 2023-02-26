@@ -79,7 +79,7 @@ for n = 1:dur_samples
     elseif choice2 == 2
         p_next(1:N/2) = update_Fourier(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), choice4 == 1, alpha_abs);
     else
-        p_next(1:N/2) = update_FEM(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2));%, choice4 == 1, alpha_abs);
+        p_next(1:N/2) = update_FEM(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), "N", "N");%, choice4 == 1, alpha_abs);
     end
     
     % Update right
@@ -88,7 +88,7 @@ for n = 1:dur_samples
     elseif choice3 == 2
         p_next(N/2+1:N) = update_Fourier(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), choice5 == 1, alpha_abs);
     else
-        p_next(N/2+1:N) = update_FEM(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N));%, choice5 == 1, alpha_abs);
+        p_next(N/2+1:N) = update_FEM(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), "N", "D");%, choice5 == 1, alpha_abs);
     end
     
     % Post-merge
