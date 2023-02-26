@@ -9,16 +9,29 @@ opts2 = ["FDTD" "Fourier" "FEM"];
 choice2 = menu(msg2, opts2);
 
 msg3 = "Choose the update for right";
-opts3 = ["FDTD" "Fourier" "FEM"];
-choice3 = menu(msg3, opts3);
+choice3 = menu(msg3, opts2);
 
 msg4 = "Is left damped?";
 opts4 = ["Yes" "No"];
 choice4 = menu(msg4, opts4);
 
 msg5 = "Is right damped?";
-opts5 = ["Yes" "No"];
-choice5 = menu(msg5, opts5);
+choice5 = menu(msg5, opts4);
+
+if choice2 ~= 2
+    msg6 = "Choose boundary condition for left";
+    opts6 = ["N" "D"];
+    choice6 = menu(msg6, opts6);
+
+    boundCondLeft = opts6(choice6);
+end
+
+if choice3 ~= 2
+    msg7 = "Choose boundary condition for right";
+    choice7 = menu(msg7, opts6);
+
+    boundCondRight = opts6(choice7);
+end
 
 dh = 1/128;
 dt = 0.003;
@@ -75,20 +88,20 @@ for n = 1:dur_samples
     
     % Update left
     if choice2 == 1
-        p_next(1:N/2) = update_FDTD(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), choice4 == 1, alpha_abs, choice > 2, "N", "N");
+        p_next(1:N/2) = update_FDTD(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N");
     elseif choice2 == 2
         p_next(1:N/2) = update_Fourier(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), choice4 == 1, alpha_abs);
     else
-        p_next(1:N/2) = update_FEM(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), "N", "N");%, choice4 == 1, alpha_abs);
+        p_next(1:N/2) = update_FEM(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), boundCondLeft, "N");%, choice4 == 1, alpha_abs);
     end
     
     % Update right
     if choice3 == 1
-        p_next(N/2+1:N) = update_FDTD(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), choice5 == 1, alpha_abs, choice > 2, "N", "D");
+        p_next(N/2+1:N) = update_FDTD(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), choice5 == 1, alpha_abs, choice > 2, "N", boundCondRight);
     elseif choice3 == 2
         p_next(N/2+1:N) = update_Fourier(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), choice5 == 1, alpha_abs);
     else
-        p_next(N/2+1:N) = update_FEM(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), "N", "D");%, choice5 == 1, alpha_abs);
+        p_next(N/2+1:N) = update_FEM(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), "N", boundCondRight);%, choice5 == 1, alpha_abs);
     end
     
     % Post-merge
