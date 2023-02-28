@@ -53,7 +53,7 @@ p_prev = zeros(N,1);
 p_curr = p_prev * 0;
 p_next = p_prev * 0;
 
-pulse_width = 1/16;
+pulse_width = 1/2^3;
 pulse_pos = 3/4;
 
 pulse_width_x = pulse_width * N;

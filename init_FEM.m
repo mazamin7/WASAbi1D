@@ -42,7 +42,7 @@ function FEM_data = init_FEM(N,c,dt,dh,isDamped,alpha_abs,boundCond1,boundCond2)
 
     Dati.N = N;
 
-    Dati.domain(2) = N * dh;
+    Dati.domain(2) = (N - 1) * dh;
 
     c2 = c^2;
     Dati.c2 = c2;

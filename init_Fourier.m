@@ -1,16 +1,15 @@
 function Fourier_data = init_Fourier(N, c, dt, dh, isDamped, alpha_abs)
 
     % modal analysis
-    w = N * dh;
-    lx2 = w * w;
+    inv_lx = 1 / ((N - 1) * dh);
     
     cwt = zeros(N, 1);
     w2 = zeros(N, 1);
     
     for n = 1 : N
-        ww = c * pi * sqrt(n^2 / lx2);
-        disp(['mode ' num2str(n) ', freq [rad/s] = ' num2str(ww)])
-        w2(n) = ww^2;
+        ww = n * pi * c * inv_lx;
+        % disp(['mode ' num2str(n) ', freq [rad/s] = ' num2str(ww)])
+        w2(n) = ww * ww;
         cwt(n) = cos(ww * dt);
     end
 
