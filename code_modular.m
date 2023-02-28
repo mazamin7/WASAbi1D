@@ -46,7 +46,7 @@ len = 1;
 dur = 5000;
 
 dur_samples = floor(dur / dt);
-N = len/dh;
+N = floor(len / dh);
 x_axis = 1:N;
 
 p_prev = zeros(N,1);
@@ -133,13 +133,9 @@ for n = 1:dur_samples
         res1 = c^2 * dt^2 / dh^2 * p_curr(N/2-1);
         res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+2);
 
-        % Remove the residual part
-        p_next(N/2) = p_next(N/2) - res1;
-        p_next(N/2+1) = p_next(N/2+1) - res2;
-
-        % Transfer the removed residual part to the other domain
-        p_next(N/2) = p_next(N/2) + res2;
-        p_next(N/2+1) = p_next(N/2+1) + res1;
+        % Remove the residual part and transfer the removed residual part to the other domain
+        p_next(N/2) = p_next(N/2) - res1 + res2;
+        p_next(N/2+1) = p_next(N/2+1) - res2 + res1;
     elseif choice == 4
         % Compute residual parts
         res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-3:N/2-1);
