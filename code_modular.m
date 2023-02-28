@@ -56,8 +56,8 @@ p_next = p_prev * 0;
 pulse_width = 1/2^3;
 pulse_pos = 3/4;
 
-pulse_width_x = pulse_width * N;
-pulse_pos_x = pulse_pos * N;
+pulse_width_x = floor(pulse_width * N);
+pulse_pos_x = floor(pulse_pos * N);
 
 pulse_axis = 1:pulse_width_x;
 pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);

@@ -20,8 +20,10 @@ function [p_next, p_prev_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
     alpha_abs = Fourier_data.alpha_abs;
     isDamped = Fourier_data.isDamped;
 
-    p_prev_dct = dct(p_prev);
-    p_curr_dct = dct(p_curr);
+    DCT_type = 2;
+
+    p_prev_dct = dct(p_prev,'Type',DCT_type);
+    p_curr_dct = dct(p_curr,'Type',DCT_type);
     p_next_dct = zeros(1,N);
     force_dct = dct(force);
 
@@ -37,6 +39,6 @@ function [p_next, p_prev_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
         end
     end
 
-    p_next = idct(p_next_dct);
+    p_next = idct(p_next_dct,'Type',DCT_type);
 
 end
