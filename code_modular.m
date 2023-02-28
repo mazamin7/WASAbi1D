@@ -18,9 +18,10 @@ choice4 = menu(msg4, opts4);
 msg5 = "Is right damped?";
 choice5 = menu(msg5, opts4);
 
+opts6 = ["N" "D"];
+
 if choice2 ~= 2
     msg6 = "Choose boundary condition for left";
-    opts6 = ["N" "D"];
     choice6 = menu(msg6, opts6);
 
     boundCondLeft = opts6(choice6);
@@ -33,8 +34,8 @@ if choice3 ~= 2
     boundCondRight = opts6(choice7);
 end
 
-dh = 1/128;
-dt = 0.003;
+dh = 1/2^9;
+dt = 1/2^10;
 c = 1;
 
 assert(dt <= dh / sqrt(3) / c)
@@ -79,6 +80,24 @@ C(N/2+1,N/2-2:N/2+3) = -C(N/2,N/2-2:N/2+3);
 C(N/2+2,N/2-1:N/2+2) = -C(N/2-1,N/2-1:N/2+2);
 C(N/2+3,N/2:N/2+1) = -C(N/2-2,N/2:N/2+1);
 
+% Init
+if choice2 == 1
+    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N");
+elseif choice2 == 2
+    Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
+else
+    FEM_data_left = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
+end
+
+if choice3 == 1
+    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2, "N", boundCondRight);
+elseif choice3 == 2
+    Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
+else
+    FEM_data_right = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
+end
+
+% Time loop
 for n = 1:dur_samples
 
     % Pre-merge
@@ -88,20 +107,20 @@ for n = 1:dur_samples
     
     % Update left
     if choice2 == 1
-        p_next(1:N/2) = update_FDTD(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N");
+        p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     elseif choice2 == 2
-        p_next(1:N/2) = update_Fourier(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), choice4 == 1, alpha_abs);
+        p_next(1:N/2) = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     else
-        p_next(1:N/2) = update_FEM(p_curr(1:N/2), p_prev(1:N/2), c, dt, dh, force(1:N/2), choice4 == 1, alpha_abs, boundCondLeft, "N");
+        p_next(1:N/2) = update_FEM(FEM_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     end
     
     % Update right
     if choice3 == 1
-        p_next(N/2+1:N) = update_FDTD(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), choice5 == 1, alpha_abs, choice > 2, "N", boundCondRight);
+        p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     elseif choice3 == 2
-        p_next(N/2+1:N) = update_Fourier(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), choice5 == 1, alpha_abs);
+        p_next(N/2+1:N) = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     else
-        p_next(N/2+1:N) = update_FEM(p_curr(N/2+1:N), p_prev(N/2+1:N), c, dt, dh, force(N/2+1:N), choice4 == 1, alpha_abs, "N", boundCondRight);
+        p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     end
     
     % Post-merge

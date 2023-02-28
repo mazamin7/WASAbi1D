@@ -1,4 +1,4 @@
-function p_next = update_Fourier(p_curr, p_prev, c, dt, dh, force, isDamped, alpha_abs)
+function [p_next, p_prev_dct] = update_Fourier(Fourier_data, p_curr, p_prev, force)
 % Computes p_next given p_curr, p_prev, c, dt, and dh using the formula
 % p_next = 2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr
 %
@@ -13,20 +13,14 @@ function p_next = update_Fourier(p_curr, p_prev, c, dt, dh, force, isDamped, alp
 % Output:
 %   - p_next: the next pressure values (a column vector)
 
-    N = length(p_curr);
+    N = Fourier_data.N;
+    w2 = Fourier_data.w2;
+    cwt = Fourier_data.cwt;
+    dt = Fourier_data.dt;
+    alpha_abs = Fourier_data.alpha_abs;
+    isDamped = Fourier_data.isDamped;
 
-    % modal analysis
     w = N/2;
-    lx2 = w * w * dh * dh;
-    
-    cwt = zeros(w, 1);
-    w2 = zeros(w, 1);
-    
-    for i = 1 : w
-        ww = c * pi * sqrt(i^2 / lx2);
-        w2(i) = ww^2;
-        cwt(i) = cos(ww * dt);
-    end
 
     p_prev_dct = dct(p_prev);
     p_curr_dct = dct(p_curr);
