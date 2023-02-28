@@ -20,22 +20,20 @@ function [p_next, p_prev_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
     alpha_abs = Fourier_data.alpha_abs;
     isDamped = Fourier_data.isDamped;
 
-    w = N/2;
-
     p_prev_dct = dct(p_prev);
     p_curr_dct = dct(p_curr);
     p_next_dct = zeros(1,N);
     force_dct = dct(force);
 
-    for i = 1 : w
+    for n = 1 : N
         if isDamped == false
-            p_next_dct(i) = 2.0 * p_curr_dct(i) * cwt(i) - p_prev_dct(i) ...
-                + (2.0 * force_dct(i) / w2(i) ) * (1.0 - cwt(i));
+            p_next_dct(n) = 2.0 * p_curr_dct(n) * cwt(n) - p_prev_dct(n) ...
+                + (2.0 * force_dct(n) / w2(n) ) * (1.0 - cwt(n));
         else
-            lambda = w2(i);
-            p_next_dct(i) = (2 - lambda * dt^2)/(1 + alpha_abs*dt/2) ...
-                * p_curr_dct(i) - (1 - alpha_abs*dt/2) ...
-                / (1 + alpha_abs*dt/2) * p_prev_dct(i);
+            lambda = w2(n);
+            p_next_dct(n) = (2 - lambda * dt^2)/(1 + alpha_abs*dt/2) ...
+                * p_curr_dct(n) - (1 - alpha_abs*dt/2) ...
+                / (1 + alpha_abs*dt/2) * p_prev_dct(n);
         end
     end
 

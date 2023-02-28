@@ -34,8 +34,8 @@ if choice3 ~= 2
     boundCondRight = opts6(choice7);
 end
 
-dh = 1/2^9;
-dt = 1/2^10;
+dh = 1/2^8;
+dt = 1/2^9;
 c = 1;
 
 assert(dt <= dh / sqrt(3) / c)
@@ -52,7 +52,6 @@ x_axis = 1:N;
 p_prev = zeros(N,1);
 p_curr = p_prev * 0;
 p_next = p_prev * 0;
-force = p_prev * 0;
 
 pulse_width = 1/16;
 pulse_pos = 3/4;
@@ -100,9 +99,12 @@ end
 % Time loop
 for n = 1:dur_samples
 
+    force = zeros(N,1);
+    % force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
+
     % Pre-merge
     if choice == 1
-        force = (c / dh)^2 * C * p_curr;
+        force = force + (c / dh)^2 * C * p_curr;
     end
     
     % Update left
@@ -143,13 +145,9 @@ for n = 1:dur_samples
         res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-3:N/2-1);
         res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+2:N/2+4);
 
-        % Remove the residual part
-        p_next(N/2) = p_next(N/2) - res1;
-        p_next(N/2+1) = p_next(N/2+1) - res2;
-
-        % Transfer the removed residual part to the other domain
-        p_next(N/2) = p_next(N/2) + res2;
-        p_next(N/2+1) = p_next(N/2+1) + res1;
+        % Remove the residual part and transfer the removed residual part to the other domain
+        p_next(N/2) = p_next(N/2) - res1 + res2;
+        p_next(N/2+1) = p_next(N/2+1) - res2 + res1;
     end
     
     % Update

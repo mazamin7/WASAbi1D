@@ -1,4 +1,4 @@
-function p_next = update_FEM(FEM_data,p_curr,p_prev,force)
+function FEM_data = init_FEM(N,c,dt,dh,isDamped,alpha_abs,boundCond1,boundCond2)
 %==========================================================================
 % Solution of the Wave Equation with linear finite elements 
 % coupled with the leap-frog scheme 
@@ -38,61 +38,51 @@ function p_next = update_FEM(FEM_data,p_curr,p_prev,force)
     % LOAD DATA FOR TEST CASE
     %==========================================================================
     
-    M_nbc = FEM_data.M_nbc;
-    A_nbc = FEM_data.A_nbc;
-    alpha_abs = FEM_data.alpha_abs;
-    isDamped = FEM_data.isDamped;
-    Dati = FEM_data.Dati;
-    femregion = FEM_data.femregion;
+    Dati = C_dati();
 
-    Dati.force = force;
+    Dati.N = N;
+
+    Dati.domain(2) = N * dh;
+
+    c2 = c^2;
+    Dati.c2 = c2;
+    Dati.dt = dt;
+
+    Dati.bc1 = boundCond1;
+    Dati.bc2 = boundCond2;
     
-    u1 = p_curr;
-    u0 = p_prev;
-
     %==========================================================================
-    % BUILD FINITE ELEMENTS RHS a time t
+    % MESH GENERATION
     %==========================================================================
-    [b_nbc] = C_rhs1D(Dati,femregion);
     
-    if(strcmp(Dati.bc1,'N'))
-        b_nbc(1)   = b_nbc(1);%   + eval(Dati.neumann1);
-    elseif(strcmp(Dati.bc2,'R'))
-        b_nbc(1)   = b_nbc(1);%   - Dati.c2*eval(Dati.neumann1);
+    [Region] = C_create_mesh(Dati);
+    
+    %==========================================================================
+    % FINITE ELEMENT REGION
+    %==========================================================================
+    
+    [femregion] = C_create_femregion(Dati,Region);
+    
+    %==========================================================================
+    % BUILD FINITE ELEMENT MATRICES
+    %==========================================================================
+    
+    [M_nbc,A_nbc] = C_matrix1D(Dati,femregion);
+
+    if(strcmp(Dati.bc1,'R'))
+        A_nbc(1,1)     = A_nbc(1,1) + Dati.c2;
     end
 
-    if(strcmp(Dati.bc2,'N'))
-        b_nbc(end) = b_nbc(end);% + eval(Dati.neumann2);
-    elseif(strcmp(Dati.bc2,'R'))
-        b_nbc(end) = b_nbc(end);% + Dati.c2*eval(Dati.neumann2);
+    if(strcmp(Dati.bc2,'R'))
+        A_nbc(end,end) = A_nbc(end,end) + Dati.c2;
     end
     
-    % Repeat steps 1) to 5) for the general time step
-    if isDamped == false
-        b_nbc = Dati.dt^2 * (b_nbc - A_nbc*u1) + 2 * M_nbc * u1 - M_nbc * u0;
-    else
-        b_nbc = Dati.dt^2 * (b_nbc - A_nbc*u1) ...
-            - Dati.dt * alpha_abs * M_nbc * (u1 - u0) ...
-            + 2 * M_nbc * u1 - M_nbc * u0;
-    end
-    
-    if(strcmp(Dati.bc1,'D') || strcmp(Dati.bc2,'D'))
-        [M,b,u_g] = C_bound_cond1D(M_nbc,b_nbc,femregion,Dati);
-        u2 =  M\b;
-        u2 = u2 + u_g;
-    else
-        if strcmp(Dati.bc1,'A')
-            b_nbc(1)   = b_nbc(1)   - sqrt(Dati.c2)*(u1(1)-u0(1))*Dati.dt;
-        end
-
-        if strcmp(Dati.bc2,'A')
-            b_nbc(end) = b_nbc(end) - sqrt(Dati.c2)*(u1(end)-u0(end))*Dati.dt;
-        end
-
-        u2 =  M_nbc\b_nbc;
-    end
-    
-    p_next = u2;
+    FEM_data.M_nbc = M_nbc;
+    FEM_data.A_nbc = A_nbc;
+    FEM_data.alpha_abs = alpha_abs;
+    FEM_data.isDamped = isDamped;
+    FEM_data.Dati = Dati;
+    FEM_data.femregion = femregion;
     
 end
 
