@@ -6,33 +6,45 @@ opts = ["Pre 7 points" "Post 7 points" "Borrel 3 points" "Borrel 7 points"];
 choice = menu(msg, opts);
 
 msg2 = "Choose the update for left";
-opts2 = ["FDTD" "Fourier" "FEM"];
+opts2 = ["FDTD" "Fourier" "FEM" "PML"];
 choice2 = menu(msg2, opts2);
 
 msg3 = "Choose the update for right";
 choice3 = menu(msg3, opts2);
 
-msg4 = "Is left damped?";
-opts4 = ["Yes" "No"];
-choice4 = menu(msg4, opts4);
+if choice2 < 4
+    msg4 = "Is left damped?";
+    opts4 = ["Yes" "No"];
+    choice4 = menu(msg4, opts4);
+else
+    choice4 = 1;
+end
 
-msg5 = "Is right damped?";
-choice5 = menu(msg5, opts4);
+if choice3 < 4
+    msg5 = "Is right damped?";
+    choice5 = menu(msg5, opts4);
+else
+    choice5 = 1;
+end
 
 opts6 = ["N" "D"];
 
-if choice2 ~= 2
+if choice2 ~= 2 && choice2 ~= 4
     msg6 = "Choose boundary condition for left";
     choice6 = menu(msg6, opts6);
 
     boundCondLeft = opts6(choice6);
+elseif choice2 == 4
+    boundCondLeft = "N";
 end
 
-if choice3 ~= 2
+if choice3 ~= 2 && choice3 ~= 4
     msg7 = "Choose boundary condition for right";
     choice7 = menu(msg7, opts6);
 
     boundCondRight = opts6(choice7);
+elseif choice3 == 4
+    boundCondRight = "N";
 end
 
 % Simulation parameters
@@ -59,8 +71,8 @@ p_curr = p_prev * 0;
 p_next = p_prev * 0;
 
 % Imposing initial conditions
-pulse_width = 1/2^3;
-pulse_pos = 3/4;
+pulse_width = 1/2^4;
+pulse_pos = 1/4;
 
 pulse_width_x = floor(pulse_width * N);
 pulse_pos_x = floor(pulse_pos * N);
@@ -87,16 +99,16 @@ C(N/2+2,N/2-1:N/2+2) = -C(N/2-1,N/2-1:N/2+2);
 C(N/2+3,N/2:N/2+1) = -C(N/2-2,N/2:N/2+1);
 
 % Initializing update methods
-if choice2 == 1
-    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N");
+if choice2 == 1 || choice2 == 4
+    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N", choice2 == 4);
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
 else
     FEM_data_left = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
 end
 
-if choice3 == 1
-    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2, "N", boundCondRight);
+if choice3 == 1 || choice3 == 4
+    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2, "N", boundCondRight, choice3 == 4);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
 else
@@ -115,7 +127,7 @@ for n = 1:dur_samples
     end
     
     % Update left
-    if choice2 == 1
+    if choice2 == 1 || choice2 == 4
         p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     elseif choice2 == 2
         p_next(1:N/2) = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
@@ -124,7 +136,7 @@ for n = 1:dur_samples
     end
     
     % Update right
-    if choice3 == 1
+    if choice3 == 1 || choice3 == 4
         p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     elseif choice3 == 2
         p_next(N/2+1:N) = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));

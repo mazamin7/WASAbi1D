@@ -1,4 +1,4 @@
-function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boundCond1, boundCond2)
+function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boundCond1, boundCond2, isPML)
 
     alpha = 1/90;
     beta = -3/20;
@@ -43,6 +43,12 @@ function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boun
         A(i,i-3:i+3) = [alpha, beta, gamma, delta, gamma, beta, alpha];
     end
 
+    sigma = zeros(N,1);
+    
+    for i = 2:N
+        sigma(i) = sigma(i-1) + 1;
+    end
+
     FDTD_data.N = N;
     FDTD_data.A = A;
     FDTD_data.boundCond1 = boundCond1;
@@ -52,5 +58,7 @@ function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boun
     FDTD_data.dh = dh;
     FDTD_data.alpha_abs = alpha_abs;
     FDTD_data.isDamped = isDamped;
+    FDTD_data.isPML = isPML;
+    FDTD_data.sigma = sigma;
 
 end
