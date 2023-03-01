@@ -37,7 +37,7 @@ end
 
 % Simulation parameters
 N = 2^8;
-dt = 1/(2*N);
+dt = 1/(4*N);
 c = 1;
 
 alpha_abs = 10; % Absorption coefficient
