@@ -46,7 +46,7 @@ function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boun
     sigma = zeros(N,1);
     
     for i = 2:N
-        sigma(i) = sigma(i-1) + 1;
+        sigma(i) = sigma(i-1) + 2;
     end
 
     FDTD_data.N = N;

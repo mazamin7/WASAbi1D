@@ -29,7 +29,7 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force)
     elseif isDamped == true
         p_next = (2 * p_curr - p_prev + alpha_abs*dt/2 * p_prev ...
             + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt/2);
-    else
+    else % isPML == true
         p_next = 1 ./ (1 + dt * sigma) .* (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
             + dt * sigma .* p_prev - dt * dt * sigma .* sigma .* p_curr);
     end
