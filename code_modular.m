@@ -1,5 +1,6 @@
 clear all, close all, clc;
 
+% User menu
 msg = "Choose the merge approach";
 opts = ["Pre 7 points" "Post 7 points" "Borrel 3 points" "Borrel 7 points"];
 choice = menu(msg, opts);
@@ -34,25 +35,30 @@ if choice3 ~= 2
     boundCondRight = opts6(choice7);
 end
 
+% Simulation parameters
 dh = 1/2^8;
 dt = 1/2^9;
 c = 1;
 
+alpha_abs = 10; % Absorption coefficient
+
+len = 1; % Domain length
+dur = 50; % Simulation duration
+
+% Checking parameters validity
 assert(dt <= dh / sqrt(3) / c)
 
-alpha_abs = 10;
-
-len = 1;
-dur = 5000;
-
+% Defining time and space axis
 dur_samples = floor(dur / dt);
 N = floor(len / dh);
 x_axis = 1:N;
 
+% Initializing solution data
 p_prev = zeros(N,1);
 p_curr = p_prev * 0;
 p_next = p_prev * 0;
 
+% Imposing initial conditions
 pulse_width = 1/2^3;
 pulse_pos = 3/4;
 
@@ -65,6 +71,7 @@ pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 
+% Building pre/post-merge matrix
 alpha = 1/90;
 beta = -3/20;
 gamma = 3/2;
@@ -79,7 +86,7 @@ C(N/2+1,N/2-2:N/2+3) = -C(N/2,N/2-2:N/2+3);
 C(N/2+2,N/2-1:N/2+2) = -C(N/2-1,N/2-1:N/2+2);
 C(N/2+3,N/2:N/2+1) = -C(N/2-2,N/2:N/2+1);
 
-% Init
+% Initializing update methods
 if choice2 == 1
     FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N");
 elseif choice2 == 2
@@ -96,7 +103,7 @@ else
     FEM_data_right = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
 end
 
-% Time loop
+% Simulation loop
 for n = 1:dur_samples
 
     force = zeros(N,1);

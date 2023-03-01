@@ -1,13 +1,11 @@
 function [p_next, p_prev_dct] = update_Fourier(Fourier_data, p_curr, p_prev, force)
-% Computes p_next given p_curr, p_prev, c, dt, and dh using the formula
-% p_next = 2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr
+% Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
+%   - Fourier_data: data structure containing data needed for the
+%   computation
 %   - p_curr: the current pressure values (a column vector)
 %   - p_prev: the previous pressure values (a column vector)
-%   - c: the speed of sound in the medium (a scalar)
-%   - dt: the time step (a scalar)
-%   - dh: the spatial step (a scalar)
 %   - force: the applied force (a column vector)
 %
 % Output:

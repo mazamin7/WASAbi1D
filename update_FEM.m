@@ -1,32 +1,15 @@
 function p_next = update_FEM(FEM_data,p_curr,p_prev,force)
-%==========================================================================
-% Solution of the Wave Equation with linear finite elements 
-% coupled with the leap-frog scheme 
-% 
-%  u_tt - c^2 u_xx = f  in (a,b)x(0,T)
-%  u_t(x,0) = v_0       in (a,b) 
-%  u(x,0)   = u_0       in (a,b)
-%  + boundary conditions:
-%  Dirichlet:  u(s,t) = g  s=a,b
-%  Neumann  : c^2du/dn(s,t) = g s=a,b
-%  Periodic : u(a,t) = a(b,t)
-%  Absorbing: du/dt(s,t) + cdu/dn(s,t) = 0  s=a,b 
-%==========================================================================
+% Computes p_next given p_curr, p_prev, force and FEM_data
 %
-%    INPUT:
-%          TestName    : (string)  see C_dati.m
-%          nRef        : (int)     refinement level
+% Inputs:
+%   - FEM_data: data structure containing data needed for the
+%   computation
+%   - p_curr: the current pressure values (a column vector)
+%   - p_prev: the previous pressure values (a column vector)
+%   - force: the applied force (a column vector)
 %
-%    OUTPUT:
-%          errors      : (struct) contains the computed errors
-%          solutions   : (sparse) nodal values of the computed and exact
-%                        solution
-%          femregion   : (struct) infos about finite elements
-%                        discretization
-%          Dati        : (struct)  see C_dati.m
-%
-% Usage:
-%    [femregion,Dati] = C_main1D('Test1')
+% Output:
+%   - p_next: the next pressure values (a column vector)
 
     addpath FEMLib
     addpath FEMLib/Assembly
@@ -35,7 +18,7 @@ function p_next = update_FEM(FEM_data,p_curr,p_prev,force)
     addpath FEMLib/FESpace
     
     %==========================================================================
-    % LOAD DATA FOR TEST CASE
+    % LOAD DATA
     %==========================================================================
     
     M_nbc = FEM_data.M_nbc;
@@ -51,7 +34,7 @@ function p_next = update_FEM(FEM_data,p_curr,p_prev,force)
     u0 = p_prev;
 
     %==========================================================================
-    % BUILD FINITE ELEMENTS RHS a time t
+    % BUILD FINITE ELEMENTS RHS at current time instant
     %==========================================================================
     [b_nbc] = C_rhs1D(Dati,femregion);
     
