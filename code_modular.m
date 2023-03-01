@@ -36,8 +36,8 @@ if choice3 ~= 2
 end
 
 % Simulation parameters
-dh = 1/2^8;
-dt = 1/2^9;
+N = 2^8;
+dt = 1/(2*N);
 c = 1;
 
 alpha_abs = 10; % Absorption coefficient
@@ -45,13 +45,13 @@ alpha_abs = 10; % Absorption coefficient
 len = 1; % Domain length
 dur = 50; % Simulation duration
 
-% Checking parameters validity
-assert(dt <= dh / sqrt(3) / c)
-
 % Defining time and space axis
 dur_samples = floor(dur / dt);
-N = floor(len / dh);
+dh = len/(N-1);
 x_axis = 1:N;
+
+% Checking parameters validity
+assert(dt <= dh / sqrt(3) / c)
 
 % Initializing solution data
 p_prev = zeros(N,1);
@@ -160,7 +160,8 @@ for n = 1:dur_samples
     % Plot
     f = figure(1);
     f.Position = [100, 100, 1500, 400];
-    plot(x_axis*dh, p_next);
+    plot(x_axis*dh, full(p_next));
+    xlim([0,len])
     ylim([-1,1]);
 
     sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(dur, '%4.3f') ' ( ' num2str((n+1)/dur_samples*100, '%4.1f') '% )']);
