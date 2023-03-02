@@ -35,9 +35,19 @@ if choice3 ~= 2
     boundCondRight = opts6(choice7);
 end
 
+% Decide whether FDTD treats boundaries explicitly or not
+% Only configurable with Borrel-merge
+explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
+% false -> boundary at N/2
+% true -> boundary at N
+
+% Shift values for Borrel-merge (treat explicitly boundary)
+shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
+shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
+
 % Simulation parameters
-N = 2^8;
-dt = 1/(4*N);
+N = 2^7;
+dt = 1/(2*N);
 c = 1;
 
 alpha_abs = 10; % Absorption coefficient
@@ -88,7 +98,7 @@ C(N/2+3,N/2:N/2+1) = -C(N/2-2,N/2:N/2+1);
 
 % Initializing update methods
 if choice2 == 1
-    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N");
+    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, boundCondLeft, "N");
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
 else
@@ -96,7 +106,7 @@ else
 end
 
 if choice3 == 1
-    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2, "N", boundCondRight);
+    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, "N", boundCondRight);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
 else
@@ -137,16 +147,34 @@ for n = 1:dur_samples
         p_next = p_next + (c * dt / dh)^2 * C * p_curr;
     elseif choice == 3
         % Compute residual parts
-        res1 = c^2 * dt^2 / dh^2 * p_curr(N/2-1);
-        res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+2);
+        if shiftLeft == false
+            res1 = c^2 * dt^2 / dh^2 * p_curr(N/2);
+        else
+            res1 = c^2 * dt^2 / dh^2 * p_curr(N/2-1);
+        end
+
+        if shiftRight == false
+            res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+1);
+        else
+            res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+2);
+        end
 
         % Remove the residual part and transfer the removed residual part to the other domain
         p_next(N/2) = p_next(N/2) - res1 + res2;
         p_next(N/2+1) = p_next(N/2+1) - res2 + res1;
     elseif choice == 4
         % Compute residual parts
-        res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-3:N/2-1);
-        res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+2:N/2+4);
+        if shiftLeft == false
+            res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-2:N/2);
+        else
+            res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-3:N/2-1);
+        end
+
+        if shiftRight == false
+            res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+1:N/2+3);
+        else
+            res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+2:N/2+4);
+        end
 
         % Remove the residual part and transfer the removed residual part to the other domain
         p_next(N/2) = p_next(N/2) - res1 + res2;
