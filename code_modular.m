@@ -109,7 +109,7 @@ C(N/2+2,N/2-1:N/2+2) = -C(N/2-1,N/2-1:N/2+2);
 C(N/2+3,N/2:N/2+1) = -C(N/2-2,N/2:N/2+1);
 
 % Initializing update methods
-if choice2 == 1
+if choice2 == 1 || choice2 == 4
     FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
@@ -117,7 +117,7 @@ else
     FEM_data_left = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
 end
 
-if choice3 == 1
+if choice3 == 1 || choice3 == 4
     FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
