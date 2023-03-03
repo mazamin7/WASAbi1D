@@ -80,6 +80,9 @@ p_prev = zeros(N,1);
 p_curr = p_prev * 0;
 p_next = p_prev * 0;
 
+q_next_dct_left = zeros(N/2,1);
+q_next_dct_right = zeros(N/2,1);
+
 % Imposing initial conditions
 pulse_width = 1/2^4;
 pulse_pos = 1/4;
@@ -140,7 +143,7 @@ for n = 1:dur_samples
     if choice2 == 1 || choice2 == 4
         p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     elseif choice2 == 2
-        p_next(1:N/2) = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
+        [p_next(1:N/2),q_next_dct_left] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct_left);
     else
         p_next(1:N/2) = update_FEM(FEM_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     end
@@ -149,7 +152,7 @@ for n = 1:dur_samples
     if choice3 == 1 || choice3 == 4
         p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     elseif choice3 == 2
-        p_next(N/2+1:N) = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
+        [p_next(N/2+1:N),q_next_dct_right] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct_right);
     else
         p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     end
