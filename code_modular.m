@@ -47,9 +47,19 @@ elseif choice3 == 4
     boundCondRight = "N";
 end
 
+% Decide whether FDTD treats boundaries explicitly or not
+% Only configurable with Borrel-merge
+explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
+% false -> boundary at N/2
+% true -> boundary at N
+
+% Shift values for Borrel-merge (treat explicitly boundary)
+shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
+shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
+
 % Simulation parameters
-dh = 1/2^8;
-dt = 1/2^9;
+N = 2^7;
+dt = 1/(2*N);
 c = 1;
 
 alpha_abs = 10; % Absorption coefficient
@@ -57,13 +67,13 @@ alpha_abs = 10; % Absorption coefficient
 len = 1; % Domain length
 dur = 50; % Simulation duration
 
-% Checking parameters validity
-assert(dt <= dh / sqrt(3) / c)
-
 % Defining time and space axis
 dur_samples = floor(dur / dt);
-N = floor(len / dh);
+dh = len/(N-1);
 x_axis = 1:N;
+
+% Checking parameters validity
+assert(dt <= dh / sqrt(3) / c)
 
 % Initializing solution data
 p_prev = zeros(N,1);
@@ -99,16 +109,16 @@ C(N/2+2,N/2-1:N/2+2) = -C(N/2-1,N/2-1:N/2+2);
 C(N/2+3,N/2:N/2+1) = -C(N/2-2,N/2:N/2+1);
 
 % Initializing update methods
-if choice2 == 1 || choice2 == 4
-    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2, boundCondLeft, "N", choice2 == 4);
+if choice2 == 1
+    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
 else
     FEM_data_left = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
 end
 
-if choice3 == 1 || choice3 == 4
-    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2, "N", boundCondRight, choice3 == 4);
+if choice3 == 1
+    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
 else
@@ -149,16 +159,34 @@ for n = 1:dur_samples
         p_next = p_next + (c * dt / dh)^2 * C * p_curr;
     elseif choice == 3
         % Compute residual parts
-        res1 = c^2 * dt^2 / dh^2 * p_curr(N/2-1);
-        res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+2);
+        if shiftLeft == false
+            res1 = c^2 * dt^2 / dh^2 * p_curr(N/2);
+        else
+            res1 = c^2 * dt^2 / dh^2 * p_curr(N/2-1);
+        end
+
+        if shiftRight == false
+            res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+1);
+        else
+            res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+2);
+        end
 
         % Remove the residual part and transfer the removed residual part to the other domain
         p_next(N/2) = p_next(N/2) - res1 + res2;
         p_next(N/2+1) = p_next(N/2+1) - res2 + res1;
     elseif choice == 4
         % Compute residual parts
-        res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-3:N/2-1);
-        res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+2:N/2+4);
+        if shiftLeft == false
+            res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-2:N/2);
+        else
+            res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-3:N/2-1);
+        end
+
+        if shiftRight == false
+            res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+1:N/2+3);
+        else
+            res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+2:N/2+4);
+        end
 
         % Remove the residual part and transfer the removed residual part to the other domain
         p_next(N/2) = p_next(N/2) - res1 + res2;
@@ -172,7 +200,8 @@ for n = 1:dur_samples
     % Plot
     f = figure(1);
     f.Position = [100, 100, 1500, 400];
-    plot(x_axis*dh, p_next);
+    plot(x_axis*dh, full(p_next));
+    xlim([0,len])
     ylim([-1,1]);
 
     sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(dur, '%4.3f') ' ( ' num2str((n+1)/dur_samples*100, '%4.1f') '% )']);
