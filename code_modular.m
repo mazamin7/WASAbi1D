@@ -92,8 +92,8 @@ pulse_pos_x = floor(pulse_pos * N);
 pulse_axis = 1:pulse_width_x;
 pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 
-p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
-p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+% p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+% p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 
 % Building pre/post-merge matrix
 alpha = 1/90;
@@ -157,6 +157,9 @@ for n = 1:dur_samples
     force = zeros(N,1);
     % force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
+    g1_dirichlet = 0.2*sin(2*pi*4*n*dt);
+    g2_dirichlet = g1_dirichlet;
+
     % Pre-merge
     if choice == 1
         force = force + (c / dh)^2 * C * p_curr;
@@ -183,15 +186,25 @@ for n = 1:dur_samples
     % B.C. for Fourier
     if choice2 == 2
         if choice6 == 2
-            p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
-            % p_next(1) = 0;
+
+            % OLD METHOD
+            % p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
+
+            % NEW METHOD
+            p_next(2) = g1_dirichlet;
+
         end
     end
 
     if choice3 == 2
         if choice7 == 2
-            p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
-            % p_next(N) = 0;
+
+            % OLD METHOD
+            % p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
+
+            % NEW METHOD
+            p_next(N-1) = g2_dirichlet;
+
         end
     end
     
@@ -205,7 +218,7 @@ for n = 1:dur_samples
         p_next(N/2+1) = 0.5*(p_next(N/2) + p_next(N/2+1));
         p_next(N/2) = p_next(N/2+1);
     end
-    
+
     % Update
     p_prev = p_curr;
     p_curr = p_next;
@@ -219,6 +232,6 @@ for n = 1:dur_samples
 
     sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(dur, '%4.3f') ' ( ' num2str((n+1)/dur_samples*100, '%4.1f') '% )']);
 
-    pause(0.5);
+    pause(0.1);
 
 end
