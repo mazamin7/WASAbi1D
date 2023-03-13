@@ -57,7 +57,7 @@ shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
 shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
 
 % Simulation parameters
-N = 2^7;
+N = 2^9;
 dt = 1/(2*N);
 c = 1;
 
@@ -157,7 +157,7 @@ for n = 1:dur_samples
     force = zeros(N,1);
     % force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
-    g1_dirichlet = 0.2*sin(2*pi*4*n*dt);
+    g1_dirichlet = 0.5*sin(2*pi*4*n*dt);
     g2_dirichlet = g1_dirichlet;
 
     % Pre-merge
@@ -234,6 +234,6 @@ for n = 1:dur_samples
 
     sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(dur, '%4.3f') ' ( ' num2str((n+1)/dur_samples*100, '%4.1f') '% )']);
 
-    pause(0.1);
+    % pause(0.1);
 
 end
