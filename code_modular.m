@@ -184,14 +184,14 @@ for n = 1:dur_samples
     if choice2 == 2
         if choice6 == 2
             p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
-            %p_next(1) = 0;
+            % p_next(1) = 0;
         end
     end
 
     if choice3 == 2
         if choice7 == 2
             p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
-            %p_next(N) = 0;
+            % p_next(N) = 0;
         end
     end
     
