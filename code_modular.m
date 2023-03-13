@@ -92,8 +92,8 @@ pulse_pos_x = floor(pulse_pos * N);
 pulse_axis = 1:pulse_width_x;
 pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 
-% p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
-% p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 
 % Building pre/post-merge matrix
 alpha = 1/90;
@@ -157,7 +157,7 @@ for n = 1:dur_samples
     force = zeros(N,1);
     % force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
-    g1_dirichlet = 0.5*sin(2*pi*4*n*dt);
+    g1_dirichlet = 0; % 0.5*sin(2*pi*4*n*dt);
     g2_dirichlet = g1_dirichlet;
 
     % Pre-merge
