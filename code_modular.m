@@ -126,13 +126,13 @@ end
 C_leftBC = sparse(N,N);
 C_rightBC = sparse(N,N);
 
-C_leftBC(1,1) = -alpha;
+C_leftBC(1,1:3) = -[gamma beta alpha];
 C_leftBC(2,1:2) = -[beta alpha];
-C_leftBC(3,1:3) = -[gamma beta alpha];
+C_leftBC(3,1) = -alpha;
 
-C_rightBC(N-2,N-2:N) = -[gamma beta alpha];
+C_rightBC(N-2,N) = -alpha;
 C_rightBC(N-1,N-1:N) = -[beta alpha];
-C_rightBC(N,N) = -alpha;
+C_rightBC(N,N-2:N) = -[gamma beta alpha];
 
 % Initializing update methods
 if choice2 == 1 || choice2 == 4
@@ -183,15 +183,15 @@ for n = 1:dur_samples
     % B.C. for Fourier
     if choice2 == 2
         if choice6 == 2
-            p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_next;
-            p_next(1) = 0;
+            p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
+            %p_next(1) = 0;
         end
     end
 
     if choice3 == 2
         if choice7 == 2
-            p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_next;
-            p_next(N) = 0;
+            p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
+            %p_next(N) = 0;
         end
     end
     
