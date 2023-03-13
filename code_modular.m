@@ -2,7 +2,7 @@ clear all, close all, clc;
 
 % User menu
 msg = "Choose the merge approach";
-opts = ["Pre 7 points" "Post 7 points" "Borrel 3 points" "Borrel 7 points"];
+opts = ["Pre 7 points" "Post 7 points"];
 choice = menu(msg, opts);
 
 msg2 = "Choose the update for left";
@@ -48,7 +48,6 @@ elseif choice3 == 4
 end
 
 % Decide whether FDTD treats boundaries explicitly or not
-% Only configurable with Borrel-merge
 explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
 % false -> boundary at N/2
 % true -> boundary at N
@@ -104,16 +103,29 @@ delta = -49/18;
 
 C = sparse(N,N);
 
-C(N/2-2,N/2:N/2+1) = [-alpha, alpha];
-C(N/2-1,N/2-1:N/2+2) = [-alpha, -beta, beta, alpha];
-C(N/2,N/2-2:N/2+3) = [-alpha, -beta, -gamma, gamma, beta, alpha];
-C(N/2+1,N/2-2:N/2+3) = -C(N/2,N/2-2:N/2+3);
-C(N/2+2,N/2-1:N/2+2) = -C(N/2-1,N/2-1:N/2+2);
-C(N/2+3,N/2:N/2+1) = -C(N/2-2,N/2:N/2+1);
+if shiftLeft == false
+    C(N/2-2,N/2:N/2+1) = [-alpha, alpha];
+    C(N/2-1,N/2-1:N/2+2) = [-alpha, -beta, beta, alpha];
+    C(N/2,N/2-2:N/2+3) = [-alpha, -beta, -gamma, gamma, beta, alpha];
+else
+    C(N/2-2,N/2-1:N/2+2) = [-alpha, 0, 0, alpha];
+    C(N/2-1,N/2-2:N/2+3) = [-alpha, -beta, 0, 0, beta, alpha];
+    C(N/2,N/2-3:N/2+4) = [-alpha, -beta, -gamma, 0, 0, gamma, beta, alpha];
+end
+
+if shiftRight == false
+    C(N/2+1,N/2-2:N/2+3) = -[-alpha, -beta, -gamma, gamma, beta, alpha];
+    C(N/2+2,N/2-1:N/2+2) = -[-alpha, -beta, beta, alpha];
+    C(N/2+3,N/2:N/2+1) = -[-alpha, alpha];
+else
+    C(N/2+1,N/2-3:N/2+4) = -[-alpha, -beta, -gamma, 0, 0, gamma, beta, alpha];
+    C(N/2+2,N/2-2:N/2+3) = -[-alpha, -beta, 0, 0, beta, alpha];
+    C(N/2+3,N/2-1:N/2+2) = -[-alpha, 0, 0, alpha];
+end
 
 % Initializing update methods
 if choice2 == 1 || choice2 == 4
-    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
+    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
 else
@@ -121,7 +133,7 @@ else
 end
 
 if choice3 == 1 || choice3 == 4
-    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, choice > 2 && explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
+    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
 else
@@ -160,40 +172,12 @@ for n = 1:dur_samples
     % Post-merge
     if choice == 2
         p_next = p_next + (c * dt / dh)^2 * C * p_curr;
-    elseif choice == 3
-        % Compute residual parts
-        if shiftLeft == false
-            res1 = c^2 * dt^2 / dh^2 * p_curr(N/2);
-        else
-            res1 = c^2 * dt^2 / dh^2 * p_curr(N/2-1);
-        end
+    end
 
-        if shiftRight == false
-            res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+1);
-        else
-            res2 = c^2 * dt^2 / dh^2 * p_curr(N/2+2);
-        end
-
-        % Remove the residual part and transfer the removed residual part to the other domain
-        p_next(N/2) = p_next(N/2) - res1 + res2;
-        p_next(N/2+1) = p_next(N/2+1) - res2 + res1;
-    elseif choice == 4
-        % Compute residual parts
-        if shiftLeft == false
-            res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-2:N/2);
-        else
-            res1 = c^2 * dt^2 / dh^2 * [alpha, beta, gamma] * p_curr(N/2-3:N/2-1);
-        end
-
-        if shiftRight == false
-            res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+1:N/2+3);
-        else
-            res2 = c^2 * dt^2 / dh^2 * [gamma, beta, alpha] * p_curr(N/2+2:N/2+4);
-        end
-
-        % Remove the residual part and transfer the removed residual part to the other domain
-        p_next(N/2) = p_next(N/2) - res1 + res2;
-        p_next(N/2+1) = p_next(N/2+1) - res2 + res1;
+    % Fixing interfaces
+    if shiftLeft == true && shiftRight == true
+        p_next(N/2+1) = 0.5*(p_next(N/2) + p_next(N/2+1));
+        p_next(N/2) = p_next(N/2+1);
     end
     
     % Update
