@@ -190,7 +190,10 @@ for n = 1:dur_samples
         if choice6 == 2
 
             % METHOD 1
-            p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
+            if choice2 == 2
+                p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
+            end
+
             p_next(1) = g1_dirichlet;
 
             % METHOD 2
@@ -203,7 +206,10 @@ for n = 1:dur_samples
         if choice7 == 2
 
             % METHOD 1
-            p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
+            if choice3 == 2
+                p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
+            end
+            
             p_next(N) = g2_dirichlet;
 
             % METHOD 2
