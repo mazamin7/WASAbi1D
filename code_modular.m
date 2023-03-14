@@ -57,7 +57,7 @@ shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
 shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
 
 % Simulation parameters
-N = 2^9;
+N = 2^8;
 dt = 1/(2*N);
 c = 1;
 
@@ -92,8 +92,8 @@ pulse_pos_x = floor(pulse_pos * N);
 pulse_axis = 1:pulse_width_x;
 pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 
-p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
-p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+% p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+% p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 
 % Building pre/post-merge matrix
 alpha = 1/90;
@@ -155,10 +155,10 @@ end
 for n = 1:dur_samples
 
     force = zeros(N,1);
-    % force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
+%     force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
-    g1_dirichlet = 0; % 0.5*sin(2*pi*4*n*dt);
-    g2_dirichlet = g1_dirichlet;
+    g1_dirichlet = 0.5*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    g2_dirichlet = 0 * g1_dirichlet;
 
     % Pre-merge
     if choice == 1
@@ -183,8 +183,10 @@ for n = 1:dur_samples
         p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     end
 
-    % B.C. for Fourier
-    if choice2 == 2
+    % FOR NOW, FEM DOES NOT SUPPORT NON-HOMOGENEOUS DIRICHLET
+
+    % B.C. for Fourier and FDTD
+    if choice2 <= 2
         if choice6 == 2
 
             % METHOD 1
@@ -197,7 +199,7 @@ for n = 1:dur_samples
         end
     end
 
-    if choice3 == 2
+    if choice3 <= 2
         if choice7 == 2
 
             % METHOD 1
