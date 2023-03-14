@@ -41,14 +41,14 @@ function Fourier_data = init_Fourier(N, c, dt, dh, isDamped, alpha, boundCond, i
     end
 
     C1 = sparse(N,N);
-    C1(1,1:3) = -[gamma beta alpha];
-    C1(2,1:2) = -[beta alpha];
-    C1(3,1) = -alpha;
+    C1(1,1:3) = [gamma beta alpha];
+    C1(2,1:2) = [beta alpha];
+    C1(3,1) = alpha;
     
     C2 = sparse(N,N);
-    C2(N-2,N) = -alpha;
-    C2(N-1,N-1:N) = -[beta alpha];
-    C2(N,N-2:N) = -[gamma beta alpha];
+    C2(N-2,N) = alpha;
+    C2(N-1,N-1:N) = [beta alpha];
+    C2(N,N-2:N) = [gamma beta alpha];
 
     Fourier_data.N = N;
     Fourier_data.w2 = w2;

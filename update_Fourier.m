@@ -60,7 +60,7 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
     % impose boundary conditions
     if strcmp(boundCond1, "D")
         % reversing Neumann
-        p_next = p_next + (c * dt / dh)^2 * C1 * p_curr;
+        p_next = p_next - (c * dt / dh)^2 * C1 * p_curr;
 
         % imposing Dirichlet
         p_next(1) = g;
@@ -73,7 +73,7 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
 
     if strcmp(boundCond2, "D")
         % reversing Neumann
-        p_next = p_next + (c * dt / dh)^2 * C2 * p_curr;
+        p_next = p_next - (c * dt / dh)^2 * C2 * p_curr;
 
         % imposing Dirichlet
         p_next(N) = g;
