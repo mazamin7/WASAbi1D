@@ -136,7 +136,7 @@ C_rightBC(N,N-2:N) = -[gamma beta alpha];
 
 % Initializing update methods
 if choice2 == 1 || choice2 == 4
-    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
+    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, choice2 == 4, true);
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
 else
@@ -144,7 +144,7 @@ else
 end
 
 if choice3 == 1 || choice3 == 4
-    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
+    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondRight, choice3 == 4, false);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
 else
@@ -157,8 +157,8 @@ for n = 1:dur_samples
     force = zeros(N,1);
 %     force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
-    g1_dirichlet = 0.5*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
-    g2_dirichlet = 0 * g1_dirichlet;
+    g2 = 5*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    g1 = 0 * g2;
 
     % Pre-merge
     if choice == 1
@@ -167,34 +167,33 @@ for n = 1:dur_samples
     
     % Update left
     if choice2 == 1 || choice2 == 4
-        p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
+        p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), g1);
     elseif choice2 == 2
-        [p_next(1:N/2),q_next_dct_left] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct_left);
+        [p_next(1:N/2),q_next_dct_left] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct_left, g1);
     else
         p_next(1:N/2) = update_FEM(FEM_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     end
     
     % Update right
     if choice3 == 1 || choice3 == 4
-        p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
+        p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), g2);
     elseif choice3 == 2
-        [p_next(N/2+1:N),q_next_dct_right] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct_right);
+        [p_next(N/2+1:N),q_next_dct_right] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct_right, g2);
     else
         p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     end
 
-    % FOR NOW, FEM DOES NOT SUPPORT NON-HOMOGENEOUS DIRICHLET
+    % FOR NOW, FEM DOES NOT SUPPORT NON-HOMOGENEOUS DIRICHLET/NEUMANN
+    % FOURIER DOES NOT SUPPORT NON-HOMOGENEOUS NEUMANN
 
     % B.C. for Fourier and FDTD
-    if choice2 <= 2
+    if choice2 == 2
         if choice6 == 2
 
             % METHOD 1
-            if choice2 == 2
-                p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
-            end
+            p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
 
-            p_next(1) = g1_dirichlet;
+            p_next(1) = g1;
 
             % METHOD 2
             % p_next(2) = g1_dirichlet;
@@ -202,15 +201,13 @@ for n = 1:dur_samples
         end
     end
 
-    if choice3 <= 2
+    if choice3 == 2
         if choice7 == 2
 
             % METHOD 1
-            if choice3 == 2
-                p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
-            end
+            p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
             
-            p_next(N) = g2_dirichlet;
+            p_next(N) = g2;
 
             % METHOD 2
             % p_next(N-1) = g2_dirichlet;
@@ -223,7 +220,7 @@ for n = 1:dur_samples
         p_next = p_next + (c * dt / dh)^2 * C * p_curr;
     end
 
-    % Fixing interfaces
+    % Fixing interfaces if explicit boundaries
     if shiftLeft == true && shiftRight == true
         p_next(N/2+1) = 0.5*(p_next(N/2) + p_next(N/2+1));
         p_next(N/2) = p_next(N/2+1);

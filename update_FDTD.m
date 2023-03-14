@@ -1,4 +1,4 @@
-function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force)
+function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -22,6 +22,7 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force)
     isDamped = FDTD_data.isDamped;
     isPML = FDTD_data.isPML;
     sigma = FDTD_data.sigma;
+    isLeft = FDTD_data.isLeft;
 
     % Compute p_next using the formula
     if isDamped == false && isPML == false
@@ -35,11 +36,15 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force)
     end
 
     if strcmp(boundCond1, "D")
-        p_next(1) = 0;
+        p_next(1) = g;
+    elseif isLeft
+        p_next(1) = p_next(2) + dh * g;
     end
 
     if strcmp(boundCond2, "D")
-        p_next(N) = 0;
+        p_next(N) = g;
+    elseif isLeft == false
+        p_next(N) = p_next(N-1) + dh * g;
     end
 
 end

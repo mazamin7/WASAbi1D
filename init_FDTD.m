@@ -1,4 +1,4 @@
-function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boundCond1, boundCond2, isPML)
+function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boundCond, isPML, isLeft)
 
     alpha = 1/90;
     beta = -3/20;
@@ -6,9 +6,17 @@ function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boun
     delta = -49/18;
     
     A = sparse(N,N);
-    
+
+    if isLeft
+        boundCond1 = boundCond;
+        boundCond2 = "N";
+    else
+        boundCond1 = "N";
+        boundCond2 = boundCond;
+    end
+
     if strcmp(boundCond1, "N")
-        if isBorrel == false
+        if isBorrel == false || (isBorrel == true && isLeft)
             A(1,1:4) = [delta + gamma, gamma + beta, beta + alpha, alpha];
             A(2,1:5) = [gamma + beta, delta + alpha, gamma, beta, alpha];
             A(3,1:6) = [beta + alpha, gamma, delta, gamma, beta, alpha];
@@ -24,7 +32,7 @@ function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boun
     end
 
     if strcmp(boundCond2, "N")
-        if isBorrel == false
+        if isBorrel == false || (isBorrel == true && isLeft == false)
             A(N-2,N-5:N) = [alpha, beta, gamma, delta, gamma, beta + alpha];
             A(N-1,N-4:N) = [alpha, beta, gamma, delta + alpha, gamma + beta];
             A(N,N-3:N) = [alpha, beta + alpha, gamma + beta, delta + gamma];
@@ -58,7 +66,9 @@ function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boun
     FDTD_data.dh = dh;
     FDTD_data.alpha_abs = alpha_abs;
     FDTD_data.isDamped = isDamped;
+    FDTD_data.isBorrel = isBorrel;
     FDTD_data.isPML = isPML;
     FDTD_data.sigma = sigma;
+    FDTD_data.isLeft = isLeft;
 
 end
