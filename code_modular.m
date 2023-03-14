@@ -47,6 +47,9 @@ else
     boundCondRight = "N";
 end
 
+% Impose transmittance of the middle boundary
+T = 0.5;
+
 % Decide whether FDTD treats boundaries explicitly or not
 explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
 % false -> boundary at N/2
@@ -83,7 +86,7 @@ q_next_dct = zeros(N,1);
 
 % Imposing initial conditions
 pulse_width = 1/2^4;
-pulse_pos = 1/2;
+pulse_pos = 1/4;
 
 pulse_width_x = floor(pulse_width * N);
 pulse_pos_x = floor(pulse_pos * N);
@@ -91,8 +94,8 @@ pulse_pos_x = floor(pulse_pos * N);
 pulse_axis = 1:pulse_width_x;
 pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 
-% p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
-% p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 
 % Building pre/post-merge matrix
 alpha = 1/90;
@@ -145,12 +148,12 @@ for n = 1:dur_samples
     force = zeros(N,1);
 %     force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
-    g2 = 0.2*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    g2 = 0 * 0.2*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
     g1 = 0 * g2;
 
     % Pre-merge
     if choice == 1
-        force = force + (c / dh)^2 * C * p_curr;
+        force = force + T^2 * (c / dh)^2 * C * p_curr;
     end
     
     % Update left
@@ -175,7 +178,7 @@ for n = 1:dur_samples
     
     % Post-merge
     if choice == 2
-        p_next = p_next + (c * dt / dh)^2 * C * p_curr;
+        p_next = p_next + T^2 * (c * dt / dh)^2 * C * p_curr;
     end
 
     % Fixing interfaces if explicit boundaries
