@@ -37,14 +37,18 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g)
 
     if strcmp(boundCond1, "D")
         p_next(1) = g;
-    elseif isLeft
-        p_next(1) = p_next(2) + dh * g;
+    elseif isLeft && strcmp(boundCond1, "N")
+        p_next(1) = p_next(1) - dh * 0.5 * g;
+        p_next(2) = p_next(2) - dh * 1.5 * g;
+        p_next(3) = p_next(3) - dh * 2.5 * g;
     end
 
     if strcmp(boundCond2, "D")
         p_next(N) = g;
-    elseif isLeft == false
-        p_next(N) = p_next(N-1) + dh * g;
+    elseif isLeft == false && strcmp(boundCond2, "N")
+        p_next(N-2) = p_next(N-2) + dh * 2.5 * g;
+        p_next(N-1) = p_next(N-1) + dh * 1.5 * g;
+        p_next(N) = p_next(N) + dh * 0.5 * g;
     end
 
 end

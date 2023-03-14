@@ -79,8 +79,7 @@ p_prev = zeros(N,1);
 p_curr = p_prev * 0;
 p_next = p_prev * 0;
 
-q_next_dct_left = zeros(N/2,1);
-q_next_dct_right = zeros(N/2,1);
+q_next_dct = zeros(N,1);
 
 % Imposing initial conditions
 pulse_width = 1/2^4;
@@ -123,22 +122,11 @@ else
     C(N/2+3,N/2-1:N/2+2) = -[-alpha, 0, 0, alpha];
 end
 
-C_leftBC = sparse(N,N);
-C_rightBC = sparse(N,N);
-
-C_leftBC(1,1:3) = -[gamma beta alpha];
-C_leftBC(2,1:2) = -[beta alpha];
-C_leftBC(3,1) = -alpha;
-
-C_rightBC(N-2,N) = -alpha;
-C_rightBC(N-1,N-1:N) = -[beta alpha];
-C_rightBC(N,N-2:N) = -[gamma beta alpha];
-
 % Initializing update methods
 if choice2 == 1 || choice2 == 4
     FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, choice2 == 4, true);
 elseif choice2 == 2
-    Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
+    Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, true);
 else
     FEM_data_left = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
 end
@@ -146,7 +134,7 @@ end
 if choice3 == 1 || choice3 == 4
     FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondRight, choice3 == 4, false);
 elseif choice3 == 2
-    Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
+    Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs, boundCondRight, false);
 else
     FEM_data_right = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
 end
@@ -157,7 +145,7 @@ for n = 1:dur_samples
     force = zeros(N,1);
 %     force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
-    g2 = 5*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    g2 = 0.2*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
     g1 = 0 * g2;
 
     % Pre-merge
@@ -169,7 +157,7 @@ for n = 1:dur_samples
     if choice2 == 1 || choice2 == 4
         p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), g1);
     elseif choice2 == 2
-        [p_next(1:N/2),q_next_dct_left] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct_left, g1);
+        [p_next(1:N/2),q_next_dct(1:N/2)] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct(1:N/2), g1);
     else
         p_next(1:N/2) = update_FEM(FEM_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     end
@@ -178,42 +166,12 @@ for n = 1:dur_samples
     if choice3 == 1 || choice3 == 4
         p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), g2);
     elseif choice3 == 2
-        [p_next(N/2+1:N),q_next_dct_right] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct_right, g2);
+        [p_next(N/2+1:N),q_next_dct(N/2+1:N)] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct(N/2+1:N), g2);
     else
         p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     end
 
     % FOR NOW, FEM DOES NOT SUPPORT NON-HOMOGENEOUS DIRICHLET/NEUMANN
-    % FOURIER DOES NOT SUPPORT NON-HOMOGENEOUS NEUMANN
-
-    % B.C. for Fourier and FDTD
-    if choice2 == 2
-        if choice6 == 2
-
-            % METHOD 1
-            p_next = p_next + (c * dt / dh)^2 * C_leftBC * p_curr;
-
-            p_next(1) = g1;
-
-            % METHOD 2
-            % p_next(2) = g1_dirichlet;
-
-        end
-    end
-
-    if choice3 == 2
-        if choice7 == 2
-
-            % METHOD 1
-            p_next = p_next + (c * dt / dh)^2 * C_rightBC * p_curr;
-            
-            p_next(N) = g2;
-
-            % METHOD 2
-            % p_next(N-1) = g2_dirichlet;
-
-        end
-    end
     
     % Post-merge
     if choice == 2
