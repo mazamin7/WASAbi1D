@@ -40,18 +40,18 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
     if strcmp(boundCond1, "D")
         p_curr(1:3) = [1 1 1] * g1;
     elseif strcmp(boundCond1, "N")
-        p_curr(3) = p_curr(3) - dh * g1;
-        p_curr(4) = p_curr(4) - dh * 2 * g1;
-        p_curr(5) = p_curr(5) - dh * 3 * g1;
+        p_curr(3) = p_curr(3) - 0.5 * dh * g1;
+        p_curr(4) = p_curr(4) - 1.5 * dh * g1;
+        p_curr(5) = p_curr(5) - 2.5 * dh * g1;
     end
 
     % Imposing b.c. on the right
     if strcmp(boundCond2, "D")
         p_curr(end-2:end) = [1 1 1] * g2;
     elseif strcmp(boundCond2, "N")
-        p_curr(end-5) = p_curr(end-5) - dh * g2;
-        p_curr(end-4) = p_curr(end-4) - dh * 2 * g2;
-        p_curr(end-3) = p_curr(end-3) - dh * 3 * g2;
+        p_curr(end-5) = p_curr(end-5) - 0.5 * dh * g2;
+        p_curr(end-4) = p_curr(end-4) - 1.5 * dh * g2;
+        p_curr(end-3) = p_curr(end-3) - 2.5 * dh * g2;
     end
 
     % Compute p_next using the formula
