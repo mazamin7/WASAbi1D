@@ -1,4 +1,4 @@
-function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g)
+function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -22,7 +22,37 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g)
     isDamped = FDTD_data.isDamped;
     isPML = FDTD_data.isPML;
     sigma = FDTD_data.sigma;
-    isLeft = FDTD_data.isLeft;
+
+    % Extending solutions to include ghost points
+    p_curr_old = p_curr;
+    p_curr = zeros(N+4,1);
+    p_curr(3:end-2) = p_curr_old;
+
+    p_prev_old = p_prev;
+    p_prev = zeros(N+4,1);
+    p_prev(3:end-2) = p_prev_old;
+
+    force_old = force;
+    force = zeros(N+4,1);
+    force(3:end-2) = force_old;
+
+    % Imposing b.c. on the left
+    if strcmp(boundCond1, "D")
+        p_curr(1:3) = [1 1 1] * g1;
+    elseif strcmp(boundCond1, "N")
+        p_curr(3) = p_curr(3) - dh * g1;
+        p_curr(4) = p_curr(4) - dh * 2 * g1;
+        p_curr(5) = p_curr(5) - dh * 3 * g1;
+    end
+
+    % Imposing b.c. on the right
+    if strcmp(boundCond2, "D")
+        p_curr(end-2:end) = [1 1 1] * g2;
+    elseif strcmp(boundCond2, "N")
+        p_curr(end-5) = p_curr(end-5) - dh * g2;
+        p_curr(end-4) = p_curr(end-4) - dh * 2 * g2;
+        p_curr(end-3) = p_curr(end-3) - dh * 3 * g2;
+    end
 
     % Compute p_next using the formula
     if isDamped == false && isPML == false
@@ -35,20 +65,7 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g)
             + dt * sigma .* p_prev - dt * dt * sigma .* sigma .* p_curr);
     end
 
-    if strcmp(boundCond1, "D")
-        p_next(1) = g;
-    elseif isLeft && strcmp(boundCond1, "N")
-        p_next(1) = p_next(1) - dh * 0.5 * g;
-        p_next(2) = p_next(2) - dh * 1.5 * g;
-        p_next(3) = p_next(3) - dh * 2.5 * g;
-    end
-
-    if strcmp(boundCond2, "D")
-        p_next(N) = g;
-    elseif isLeft == false && strcmp(boundCond2, "N")
-        p_next(N-2) = p_next(N-2) + dh * 2.5 * g;
-        p_next(N-1) = p_next(N-1) + dh * 1.5 * g;
-        p_next(N) = p_next(N) + dh * 0.5 * g;
-    end
+    % Truncating ghost points
+    p_next = p_next(3:end-2);
 
 end

@@ -94,8 +94,8 @@ pulse_pos_x = floor(pulse_pos * N);
 pulse_axis = 1:pulse_width_x;
 pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 
-p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
-p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+% p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+% p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 
 % Building pre/post-merge matrix
 alpha = 1/90;
@@ -127,7 +127,7 @@ end
 
 % Initializing update methods
 if choice2 == 1 || choice2 == 4
-    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, choice2 == 4, true);
+    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
 else
@@ -135,7 +135,7 @@ else
 end
 
 if choice3 == 1 || choice3 == 4
-    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondRight, choice3 == 4, false);
+    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
 else
@@ -148,8 +148,8 @@ for n = 1:dur_samples
     force = zeros(N,1);
 %     force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
 
-    g2 = 0 * 0.2*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
-    g1 = 0 * g2;
+    g1 = 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    g2 = 0 * g1;
 
     % Pre-merge
     if choice == 1
@@ -158,7 +158,7 @@ for n = 1:dur_samples
     
     % Update left
     if choice2 == 1 || choice2 == 4
-        p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), g1);
+        p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), g1, 0);
     elseif choice2 == 2
         [p_next(1:N/2),q_next_dct(1:N/2)] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct(1:N/2));
     else
@@ -167,7 +167,7 @@ for n = 1:dur_samples
     
     % Update right
     if choice3 == 1 || choice3 == 4
-        p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), g2);
+        p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), 0, g2);
     elseif choice3 == 2
         [p_next(N/2+1:N),q_next_dct(N/2+1:N)] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct(N/2+1:N));
     else
