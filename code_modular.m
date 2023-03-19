@@ -29,7 +29,7 @@ end
 
 opts6 = ["N" "D"];
 
-if choice2 ~= 4
+if choice2 ~= 4 && choice2 ~= 2
     msg6 = "Choose boundary condition for left";
     choice6 = menu(msg6, opts6);
 
@@ -38,7 +38,7 @@ else
     boundCondLeft = "N";
 end
 
-if choice3 ~= 4
+if choice3 ~= 4 && choice3 ~= 2
     msg7 = "Choose boundary condition for right";
     choice7 = menu(msg7, opts6);
 
@@ -48,7 +48,7 @@ else
 end
 
 % Impose transmittance of the middle boundary
-T = 0.5;
+T = 1;
 
 % Decide whether FDTD treats boundaries explicitly or not
 explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
@@ -129,7 +129,7 @@ end
 if choice2 == 1 || choice2 == 4
     FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, choice2 == 4, true);
 elseif choice2 == 2
-    Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, true);
+    Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
 else
     FEM_data_left = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
 end
@@ -137,7 +137,7 @@ end
 if choice3 == 1 || choice3 == 4
     FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondRight, choice3 == 4, false);
 elseif choice3 == 2
-    Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs, boundCondRight, false);
+    Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
 else
     FEM_data_right = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
 end
@@ -160,7 +160,7 @@ for n = 1:dur_samples
     if choice2 == 1 || choice2 == 4
         p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), g1);
     elseif choice2 == 2
-        [p_next(1:N/2),q_next_dct(1:N/2)] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct(1:N/2), g1);
+        [p_next(1:N/2),q_next_dct(1:N/2)] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct(1:N/2));
     else
         p_next(1:N/2) = update_FEM(FEM_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     end
@@ -169,12 +169,12 @@ for n = 1:dur_samples
     if choice3 == 1 || choice3 == 4
         p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), g2);
     elseif choice3 == 2
-        [p_next(N/2+1:N),q_next_dct(N/2+1:N)] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct(N/2+1:N), g2);
+        [p_next(N/2+1:N),q_next_dct(N/2+1:N)] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct(N/2+1:N));
     else
         p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     end
 
-    % FOR NOW, FEM DOES NOT SUPPORT NON-HOMOGENEOUS DIRICHLET/NEUMANN
+    % FOR NOW, ONLY FDTD SUPPORTS NON-HOMOGENEOUS DIRICHLET/NEUMANN
     
     % Post-merge
     if choice == 2

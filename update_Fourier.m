@@ -1,4 +1,4 @@
-function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr_dct, g)
+function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr_dct)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -24,13 +24,6 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
     w = Fourier_data.w;
     inv_w = Fourier_data.inv_w;
     inv_w2 = Fourier_data.inv_w2;
-    boundCond1 = Fourier_data.boundCond1;
-    boundCond2 = Fourier_data.boundCond2;
-    isLeft = Fourier_data.isLeft;
-    dh = Fourier_data.dh;
-    c = Fourier_data.c;
-    C1 = Fourier_data.C1;
-    C2 = Fourier_data.C2;
 
     % performing DCT
     DCT_type = 2;
@@ -56,32 +49,5 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
 
     % perform IDCT
     p_next = idct(p_next_dct,'Type',DCT_type);
-
-    % impose boundary conditions
-    if strcmp(boundCond1, "D")
-        % reversing Neumann
-        p_next = p_next - (c * dt / dh)^2 * C1 * p_curr;
-
-        % imposing Dirichlet
-        p_next(1) = g;
-    elseif isLeft && strcmp(boundCond1, "N")
-        % imposing Neumann deviation from homogeneity
-        p_next(1) = p_next(1) - dh * 0.5 * g;
-        p_next(2) = p_next(2) - dh * 1.5 * g;
-        p_next(3) = p_next(3) - dh * 2.5 * g;
-    end
-
-    if strcmp(boundCond2, "D")
-        % reversing Neumann
-        p_next = p_next - (c * dt / dh)^2 * C2 * p_curr;
-
-        % imposing Dirichlet
-        p_next(N) = g;
-    elseif isLeft == false && strcmp(boundCond2, "N")
-        % imposing Neumann deviation from homogeneity
-        p_next(N-2) = p_next(N-2) + dh * 2.5 * g;
-        p_next(N-1) = p_next(N-1) + dh * 1.5 * g;
-        p_next(N) = p_next(N) + dh * 0.5 * g;
-    end
 
 end
