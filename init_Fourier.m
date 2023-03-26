@@ -14,7 +14,7 @@ function Fourier_data = init_Fourier(N, c, dt, dh, isDamped, alpha)
     inv_w2 = zeros(N, 1);
     
     for n = 1 : N
-        ww = n * pi * c * inv_lx;
+        ww = (n-1) * pi * c * inv_lx;
         % disp(['mode ' num2str(n) ', freq [rad/s] = ' num2str(ww)])
         w(n) = ww;
         inv_w(n) = 1/ww;

@@ -50,7 +50,7 @@ choice6 = 1;
 % 
 %     boundCondRight = opts6(choice7);
 % else
-%     boundCondRight = "N";
+    boundCondRight = "N";
 % end
 choice7 = 1;
 
@@ -64,6 +64,7 @@ explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
 
 % Decide whether Fourier method uses exact solution for viscous damping
 exact_damping = false;
+% exact solution only works if T = 0 (interface not working)
 
 % Shift values for Borrel-merge (treat explicitly boundary)
 shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
@@ -74,7 +75,7 @@ N = 2^9;
 dt = 1/(2*N);
 c = 1;
 
-alpha_abs = 30; % Absorption coefficient
+alpha_abs = 10; % Absorption coefficient
 
 len = 1; % Domain length
 dur = 50; % Simulation duration

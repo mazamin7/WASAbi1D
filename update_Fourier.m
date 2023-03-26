@@ -36,7 +36,7 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
     q_next_dct = zeros(N,1);
 
     % update solution in Fourier domain
-    for n = 1 : N
+    for n = 2 : N
         if isDamped == false
             p_next_dct(n) = 2 * p_curr_dct(n) * cwt(n) - p_prev_dct(n) ...
                 + (2 * force_dct(n) / w2(n) ) * (1 - cwt(n));
