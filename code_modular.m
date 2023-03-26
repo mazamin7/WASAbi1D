@@ -71,7 +71,7 @@ shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
 shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
 
 % Simulation parameters
-N = 2^9;
+N = 2^10;
 dt = 1/(2*N);
 c = 1;
 
@@ -111,7 +111,7 @@ pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 x_axis = linspace(0,len,N);
 
 mu = len/4;           % mean of Gaussian
-sigma = len/120;       % standard deviation of Gaussian
+sigma = len/120 / 4;       % standard deviation of Gaussian
 
 gauss = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
 
@@ -174,7 +174,7 @@ force = zeros(N,1);
 % Simulation loop
 for n = 1:dur_samples
 
-    force = 20 * sin(2*pi*10*n*dt) * force_envelope * (n*dt <= 0.1);
+    force = 200 * sin(2*pi*50*n*dt) * force_envelope * (n*dt <= 1/50);
 
     g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
     g2 = 0; % g1;
