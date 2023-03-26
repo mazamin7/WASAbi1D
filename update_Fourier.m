@@ -1,4 +1,4 @@
-function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr_dct)
+function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr_dct, exact_damped)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -38,12 +38,16 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
     % update solution in Fourier domain
     for n = 1 : N
         if isDamped == false
-            p_next_dct(n) = 2.0 * p_curr_dct(n) * cwt(n) - p_prev_dct(n) ...
-                + (2.0 * force_dct(n) / w2(n) ) * (1.0 - cwt(n));
-        else
+            p_next_dct(n) = 2 * p_curr_dct(n) * cwt(n) - p_prev_dct(n) ...
+                + (2 * force_dct(n) / w2(n) ) * (1 - cwt(n));
+        elseif isDamped == true && exact_damped == false
+            p_next_dct(n) = (2 - w2(n) * dt^2)/(1 + alpha_abs*dt/2) ...
+                * p_curr_dct(n) - (1 - alpha_abs*dt/2) ...
+                / (1 + alpha_abs*dt/2) * p_prev_dct(n);
+        elseif isDamped == true && exact_damped == true
             xe = force_dct(n) * inv_w2(n);
-            p_next_dct(n) = xe + eatm(n) * ((p_curr_dct(n) - xe) * (cwt(n) + alpha_abs(n) * inv_w(n) * swt(n)) + swt(n) * inv_w(n) * q_curr_dct(n));
-            q_next_dct(n) = eatm(n) * (q_curr_dct(n) * (cwt(n) - alpha_abs(n) * inv_w(n) * swt(n)) - (w(n) + alpha2(n) * inv_w(n)) * (p_curr_dct(n) - xe) * swt(n));
+            p_next_dct(n) = xe + eatm * ((p_curr_dct(n) - xe) * (cwt(n) + alpha_abs * inv_w(n) * swt(n)) + swt(n) * inv_w(n) * q_curr_dct(n));
+            q_next_dct(n) = eatm * (q_curr_dct(n) * (cwt(n) - alpha_abs * inv_w(n) * swt(n)) - (w(n) + alpha2 * inv_w(n)) * (p_curr_dct(n) - xe) * swt(n));
         end
     end
 

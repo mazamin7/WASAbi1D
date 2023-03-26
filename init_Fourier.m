@@ -6,9 +6,9 @@ function Fourier_data = init_Fourier(N, c, dt, dh, isDamped, alpha)
     cwt = zeros(N, 1);
     w2 = zeros(N, 1);
     swt = zeros(N, 1);
-    alpha_abs = zeros(N, 1);
-    alpha2 = zeros(N, 1);
-    eatm = zeros(N, 1);
+    alpha_abs = 0;
+    alpha2 = 0;
+    eatm = 0;
     w = zeros(N, 1);
     inv_w = zeros(N, 1);
     inv_w2 = zeros(N, 1);
@@ -22,9 +22,9 @@ function Fourier_data = init_Fourier(N, c, dt, dh, isDamped, alpha)
         w2(n) = ww * ww;
         cwt(n) = cos(ww * dt);
         swt(n) = sin(ww * dt);
-        alpha_abs(n) = alpha;
-        alpha2(n) = alpha_abs(n) * alpha_abs(n);
-        eatm(n) = exp(- alpha_abs(n) * dt);
+        alpha_abs = alpha;
+        alpha2 = alpha_abs * alpha_abs;
+        eatm = exp(- alpha_abs * dt);
     end
 
     Fourier_data.N = N;

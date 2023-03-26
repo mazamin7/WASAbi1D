@@ -1,51 +1,58 @@
 clear all, close all, clc;
 
 % User menu
-msg = "Choose the merge approach";
-opts = ["Pre 7 points" "Post 7 points"];
-choice = menu(msg, opts);
+% msg = "Choose the merge approach";
+% opts = ["Pre 7 points" "Post 7 points"];
+% choice = menu(msg, opts);
+choice = 2;
 
-msg2 = "Choose the update for left";
-opts2 = ["FDTD" "Fourier" "FEM" "PML"];
-choice2 = menu(msg2, opts2);
+% msg2 = "Choose the update for left";
+% opts2 = ["FDTD" "Fourier" "FEM" "PML"];
+% choice2 = menu(msg2, opts2);
+choice2 = 2;
 
-msg3 = "Choose the update for right";
-choice3 = menu(msg3, opts2);
+% msg3 = "Choose the update for right";
+% choice3 = menu(msg3, opts2);
+choice3 = 2;
 
-if choice2 < 4
-    msg4 = "Is left damped?";
-    opts4 = ["Yes" "No"];
-    choice4 = menu(msg4, opts4);
-else
-    choice4 = 1;
-end
+% if choice2 < 4
+%     msg4 = "Is left damped?";
+%     opts4 = ["Yes" "No"];
+%     choice4 = menu(msg4, opts4);
+% else
+%     choice4 = 1;
+% end
+choice4 = 2;
 
-if choice3 < 4
-    msg5 = "Is right damped?";
-    choice5 = menu(msg5, opts4);
-else
-    choice5 = 1;
-end
+% if choice3 < 4
+%     msg5 = "Is right damped?";
+%     choice5 = menu(msg5, opts4);
+% else
+%     choice5 = 1;
+% end
+choice5 = 1;
 
 opts6 = ["N" "D"];
 
-if choice2 ~= 4 && choice2 ~= 2
-    msg6 = "Choose boundary condition for left";
-    choice6 = menu(msg6, opts6);
-
-    boundCondLeft = opts6(choice6);
-else
+% if choice2 ~= 4 && choice2 ~= 2
+%     msg6 = "Choose boundary condition for left";
+%     choice6 = menu(msg6, opts6);
+% 
+%     boundCondLeft = opts6(choice6);
+% else
     boundCondLeft = "N";
-end
+% end
+choice6 = 1;
 
-if choice3 ~= 4 && choice3 ~= 2
-    msg7 = "Choose boundary condition for right";
-    choice7 = menu(msg7, opts6);
-
-    boundCondRight = opts6(choice7);
-else
-    boundCondRight = "N";
-end
+% if choice3 ~= 4 && choice3 ~= 2
+%     msg7 = "Choose boundary condition for right";
+%     choice7 = menu(msg7, opts6);
+% 
+%     boundCondRight = opts6(choice7);
+% else
+%     boundCondRight = "N";
+% end
+choice7 = 1;
 
 % Impose transmittance of the middle boundary
 T = 1;
@@ -55,16 +62,19 @@ explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
 % false -> boundary at N/2
 % true -> boundary at N
 
+% Decide whether Fourier method uses exact solution for viscous damping
+exact_damping = false;
+
 % Shift values for Borrel-merge (treat explicitly boundary)
 shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
 shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
 
 % Simulation parameters
-N = 2^8;
+N = 2^9;
 dt = 1/(2*N);
 c = 1;
 
-alpha_abs = 10; % Absorption coefficient
+alpha_abs = 30; % Absorption coefficient
 
 len = 1; % Domain length
 dur = 50; % Simulation duration
@@ -142,14 +152,15 @@ else
     FEM_data_right = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
 end
 
+force = zeros(N,1);
+
 % Simulation loop
 for n = 1:dur_samples
 
-    force = zeros(N,1);
-%     force(floor(N/2)) = 1000*sin(2*pi*6.2832*n*dt);
+    force(floor(N/3)) = 9000*sin(2*pi*10*n*dt) * (n*dt <= 0.1);
 
-    g1 = 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
-    g2 = 0 * g1;
+    g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    g2 = 0; % g1;
 
     % Pre-merge
     if choice == 1
@@ -160,7 +171,7 @@ for n = 1:dur_samples
     if choice2 == 1 || choice2 == 4
         p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), g1, 0);
     elseif choice2 == 2
-        [p_next(1:N/2),q_next_dct(1:N/2)] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct(1:N/2));
+        [p_next(1:N/2),q_next_dct(1:N/2)] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct(1:N/2), exact_damping);
     else
         p_next(1:N/2) = update_FEM(FEM_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
     end
@@ -169,7 +180,7 @@ for n = 1:dur_samples
     if choice3 == 1 || choice3 == 4
         p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), 0, g2);
     elseif choice3 == 2
-        [p_next(N/2+1:N),q_next_dct(N/2+1:N)] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct(N/2+1:N));
+        [p_next(N/2+1:N),q_next_dct(N/2+1:N)] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct(N/2+1:N), exact_damping);
     else
         p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
     end
