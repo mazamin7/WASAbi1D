@@ -30,7 +30,7 @@ choice4 = 2;
 % else
 %     choice5 = 1;
 % end
-choice5 = 1;
+choice5 = 2;
 
 opts6 = ["N" "D"];
 
@@ -83,7 +83,6 @@ dur = 50; % Simulation duration
 % Defining time and space axis
 dur_samples = floor(dur / dt);
 dh = len/(N-1);
-x_axis = 1:N;
 
 % Checking parameters validity
 assert(dt <= dh / sqrt(3) / c)
@@ -107,6 +106,23 @@ pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 
 % p_curr(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 % p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
+
+% Defining force spatial envelope
+x_axis = linspace(0,len,N);
+
+mu = len/4;           % mean of Gaussian
+sigma = len/120;       % standard deviation of Gaussian
+
+gauss = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
+
+force_envelope = gauss(x_axis)';
+
+% Plot force envelope
+figure(1);
+plot(x_axis, force_envelope)
+xlabel('Position')
+ylabel('Intensity')
+title('Gaussian Force Envelope')
 
 % Building pre/post-merge matrix
 alpha = 1/90;
@@ -158,7 +174,7 @@ force = zeros(N,1);
 % Simulation loop
 for n = 1:dur_samples
 
-    force(floor(N/3)) = 9000*sin(2*pi*10*n*dt) * (n*dt <= 0.1);
+    force = 20 * sin(2*pi*10*n*dt) * force_envelope * (n*dt <= 0.1);
 
     g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
     g2 = 0; % g1;
@@ -204,9 +220,9 @@ for n = 1:dur_samples
     p_curr = p_next;
     
     % Plot
-    f = figure(1);
+    f = figure(2);
     f.Position = [100, 100, 1500, 400];
-    plot(x_axis*dh, full(p_next));
+    plot(x_axis, full(p_next));
     xlim([0,len])
     ylim([-1,1]);
 

@@ -51,6 +51,8 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
         end
     end
 
+    assert(p_next_dct(1) == 0);
+
     % perform IDCT
     p_next = idct(p_next_dct,'Type',DCT_type);
 
