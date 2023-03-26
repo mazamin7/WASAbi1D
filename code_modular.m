@@ -30,7 +30,7 @@ choice4 = 2;
 % else
 %     choice5 = 1;
 % end
-choice5 = 2;
+choice5 = 1;
 
 opts6 = ["N" "D"];
 
@@ -116,6 +116,7 @@ sigma = len/120 / 4;       % standard deviation of Gaussian
 gauss = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
 
 force_envelope = gauss(x_axis)';
+force_envelope(force_envelope < 1e-3) = 0;
 
 % Plot force envelope
 figure(1);
