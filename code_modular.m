@@ -34,7 +34,7 @@ right_damped = false;
 % Source
 freq_source = 300;
 source_fun = @(n) 8e5 * sin(2*pi*freq_source*n*dt) * (n*dt <= 1/freq_source);
-source_pos_ratio_x = 5/10;
+source_pos_ratio_x = 3/10;
 sigma = len_x/40;       % standard deviation of force spatial envelope (Gaussian)
 mach_x = 0;
 
