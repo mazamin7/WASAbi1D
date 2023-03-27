@@ -53,7 +53,7 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
 
     n = 1;
 
-    if isDamped == true
+    if isDamped == false
         p_next_dct(n) = 2 * p_curr_dct(n) - p_prev_dct(n) + dt*dt * force_dct(n);
     else
         p_next_dct(n) = 2/(1 + alpha_abs*dt/2) ...
