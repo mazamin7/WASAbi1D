@@ -30,7 +30,7 @@ choice4 = 2;
 % else
 %     choice5 = 1;
 % end
-choice5 = 1;
+choice5 = 2;
 
 opts6 = ["N" "D"];
 
@@ -59,47 +59,68 @@ T = 1;
 
 % Decide whether FDTD treats boundaries explicitly or not
 explicitBoundariesFDTD = false; % WORKS BETTER IF SET TO FALSE
-% false -> boundary at N/2
-% true -> boundary at N
-
-% Decide whether Fourier method uses exact solution for viscous damping
-exact_damping = false;
-% exact solution only works if T = 0 (interface not working)
+% false -> boundary at N_x/2
+% true -> boundary at N_x
 
 % Shift values for Borrel-merge (treat explicitly boundary)
 shiftLeft = choice2 == 3 || (choice2 == 1 && explicitBoundariesFDTD == true);
 shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
 
 % Simulation parameters
-N = 2^10;
-dt = 1/(2*N);
-c = 1;
-
+c0 = 343;
+len_x = 20; % Domain length
+T_sec = 0.07; % Simulation duration
 alpha_abs = 10; % Absorption coefficient
+exact_damping = false; % exact damping only works without interfaces
 
-len = 1; % Domain length
-dur = 50; % Simulation duration
+% msg8 = "Choose the refinement";
+% opts8 = ["Finest" "Finer" "Fine" "Coarse" "Custom"];
+% choice8 = menu(msg3, opts3);
+choice8 = 3;
+
+% SIMULATION PARAMETERS
+if choice8 == 1
+    dh = 0.05;
+elseif choice8 == 2
+    dh = 0.1;
+elseif choice8 == 3
+    dh = 0.2;
+elseif choice8 == 4
+    dh = 0.5;
+end
+
+dh = 1/2^4;
+dt = dh / 4 / c0;
+
+disp(['Simulating with dh = ' num2str(dh) ', dt = ' num2str(dt)]);
+
+% SOURCE
+freq_source = 300;
+source_pos_ratio_x = 3/10;
+mach_x = 0;
 
 % Defining time and space axis
-dur_samples = floor(dur / dt);
-dh = len/(N-1);
+dur_samples = floor(T_sec / dt);
 
 % Checking parameters validity
-assert(dt <= dh / sqrt(3) / c)
+assert(dt <= dh / sqrt(3) / c0)
 
 % Initializing solution data
-p_prev = zeros(N,1);
+N_x = floor(len_x/dh);
+N_x = 2 * floor(N_x/2);
+
+p_prev = zeros(N_x,1);
 p_curr = p_prev * 0;
 p_next = p_prev * 0;
 
-q_next_dct = zeros(N,1);
+q_next_dct = zeros(N_x,1);
 
 % Imposing initial conditions
 pulse_width = 1/2^4;
 pulse_pos = 1/4;
 
-pulse_width_x = floor(pulse_width * N);
-pulse_pos_x = floor(pulse_pos * N);
+pulse_width_x = floor(pulse_width * N_x);
+pulse_pos_x = floor(pulse_pos * N_x);
 
 pulse_axis = 1:pulse_width_x;
 pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
@@ -108,10 +129,10 @@ pulse = 1/2 - 1/2 * cos(2*pi*pulse_axis/pulse_width_x);
 % p_prev(pulse_pos_x-pulse_width_x/2+1:pulse_pos_x+pulse_width_x/2) = pulse;
 
 % Defining force spatial envelope
-x_axis = linspace(0,len,N);
+x_axis = linspace(0,len_x,N_x);
 
-mu = len/4;           % mean of Gaussian
-sigma = len/120 / 4;       % standard deviation of Gaussian
+mu = len_x * source_pos_ratio_x;           % mean of Gaussian
+sigma = len_x/40;       % standard deviation of Gaussian
 
 gauss = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
 
@@ -131,89 +152,89 @@ beta = -3/20;
 gamma = 3/2;
 delta = -49/18;
 
-C = sparse(N,N);
+C = sparse(N_x,N_x);
 
 if shiftLeft == false
-    C(N/2-2,N/2:N/2+1) = [-alpha, alpha];
-    C(N/2-1,N/2-1:N/2+2) = [-alpha, -beta, beta, alpha];
-    C(N/2,N/2-2:N/2+3) = [-alpha, -beta, -gamma, gamma, beta, alpha];
+    C(N_x/2-2,N_x/2:N_x/2+1) = [-alpha, alpha];
+    C(N_x/2-1,N_x/2-1:N_x/2+2) = [-alpha, -beta, beta, alpha];
+    C(N_x/2,N_x/2-2:N_x/2+3) = [-alpha, -beta, -gamma, gamma, beta, alpha];
 else
-    C(N/2-2,N/2-1:N/2+2) = [-alpha, 0, 0, alpha];
-    C(N/2-1,N/2-2:N/2+3) = [-alpha, -beta, 0, 0, beta, alpha];
-    C(N/2,N/2-3:N/2+4) = [-alpha, -beta, -gamma, 0, 0, gamma, beta, alpha];
+    C(N_x/2-2,N_x/2-1:N_x/2+2) = [-alpha, 0, 0, alpha];
+    C(N_x/2-1,N_x/2-2:N_x/2+3) = [-alpha, -beta, 0, 0, beta, alpha];
+    C(N_x/2,N_x/2-3:N_x/2+4) = [-alpha, -beta, -gamma, 0, 0, gamma, beta, alpha];
 end
 
 if shiftRight == false
-    C(N/2+1,N/2-2:N/2+3) = -[-alpha, -beta, -gamma, gamma, beta, alpha];
-    C(N/2+2,N/2-1:N/2+2) = -[-alpha, -beta, beta, alpha];
-    C(N/2+3,N/2:N/2+1) = -[-alpha, alpha];
+    C(N_x/2+1,N_x/2-2:N_x/2+3) = -[-alpha, -beta, -gamma, gamma, beta, alpha];
+    C(N_x/2+2,N_x/2-1:N_x/2+2) = -[-alpha, -beta, beta, alpha];
+    C(N_x/2+3,N_x/2:N_x/2+1) = -[-alpha, alpha];
 else
-    C(N/2+1,N/2-3:N/2+4) = -[-alpha, -beta, -gamma, 0, 0, gamma, beta, alpha];
-    C(N/2+2,N/2-2:N/2+3) = -[-alpha, -beta, 0, 0, beta, alpha];
-    C(N/2+3,N/2-1:N/2+2) = -[-alpha, 0, 0, alpha];
+    C(N_x/2+1,N_x/2-3:N_x/2+4) = -[-alpha, -beta, -gamma, 0, 0, gamma, beta, alpha];
+    C(N_x/2+2,N_x/2-2:N_x/2+3) = -[-alpha, -beta, 0, 0, beta, alpha];
+    C(N_x/2+3,N_x/2-1:N_x/2+2) = -[-alpha, 0, 0, alpha];
 end
 
 % Initializing update methods
 if choice2 == 1 || choice2 == 4
-    FDTD_data_left = init_FDTD(N/2, c, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
+    FDTD_data_left = init_FDTD(len_x/2, c0, dt, dh, choice4 == 1, alpha_abs, explicitBoundariesFDTD == true, boundCondLeft, "N", choice2 == 4);
 elseif choice2 == 2
-    Fourier_data_left = init_Fourier(N/2, c, dt, dh, choice4 == 1, alpha_abs);
+    Fourier_data_left = init_Fourier(len_x/2, c0, dt, dh, choice4 == 1, alpha_abs);
 else
-    FEM_data_left = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
+    FEM_data_left = init_FEM(N_x/2, c0, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
 end
 
 if choice3 == 1 || choice3 == 4
-    FDTD_data_right = init_FDTD(N/2, c, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
+    FDTD_data_right = init_FDTD(len_x/2, c0, dt, dh, choice5 == 1, alpha_abs, explicitBoundariesFDTD == true, "N", boundCondRight, choice3 == 4);
 elseif choice3 == 2
-    Fourier_data_right = init_Fourier(N/2, c, dt, dh, choice5 == 1, alpha_abs);
+    Fourier_data_right = init_Fourier(len_x/2, c0, dt, dh, choice5 == 1, alpha_abs);
 else
-    FEM_data_right = init_FEM(N/2, c, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
+    FEM_data_right = init_FEM(N_x/2, c0, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
 end
 
-force = zeros(N,1);
+force = zeros(N_x,1);
 
 % Simulation loop
 for n = 1:dur_samples
 
-    force = 200 * sin(2*pi*50*n*dt) * force_envelope * (n*dt <= 1/50);
+    force = 6e5 * sin(2*pi*freq_source*n*dt) * force_envelope * (n*dt <= 1/freq_source);
 
-    g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
-    g2 = 0; % g1;
+    % g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    % g2 = 0; % g1;
 
     % Pre-merge
     if choice == 1
-        force = force + T^2 * (c / dh)^2 * C * p_curr;
+        force = force + T^2 * (c0 / dh)^2 * C * p_curr;
     end
     
     % Update left
     if choice2 == 1 || choice2 == 4
-        p_next(1:N/2) = update_FDTD(FDTD_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), g1, 0);
+        p_next(1:N_x/2) = update_FDTD(FDTD_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), g1, 0);
     elseif choice2 == 2
-        [p_next(1:N/2),q_next_dct(1:N/2)] = update_Fourier(Fourier_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2), q_next_dct(1:N/2), exact_damping);
+        [p_next(1:N_x/2),q_next_dct(1:N_x/2)] = update_Fourier(Fourier_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_next_dct(1:N_x/2), exact_damping);
     else
-        p_next(1:N/2) = update_FEM(FEM_data_left, p_curr(1:N/2), p_prev(1:N/2), force(1:N/2));
+        p_next(1:N_x/2) = update_FEM(FEM_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2));
     end
     
     % Update right
     if choice3 == 1 || choice3 == 4
-        p_next(N/2+1:N) = update_FDTD(FDTD_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), 0, g2);
+        p_next(N_x/2+1:N_x) = update_FDTD(FDTD_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), 0, g2);
     elseif choice3 == 2
-        [p_next(N/2+1:N),q_next_dct(N/2+1:N)] = update_Fourier(Fourier_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N), q_next_dct(N/2+1:N), exact_damping);
+        [p_next(N_x/2+1:N_x),q_next_dct(N_x/2+1:N_x)] = update_Fourier(Fourier_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_next_dct(N_x/2+1:N_x), exact_damping);
     else
-        p_next(N/2+1:N) = update_FEM(FEM_data_right, p_curr(N/2+1:N), p_prev(N/2+1:N), force(N/2+1:N));
+        p_next(N_x/2+1:N_x) = update_FEM(FEM_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x));
     end
 
     % FOR NOW, ONLY FDTD SUPPORTS NON-HOMOGENEOUS DIRICHLET/NEUMANN
     
     % Post-merge
     if choice == 2
-        p_next = p_next + T^2 * (c * dt / dh)^2 * C * p_curr;
+        p_next = p_next + T^2 * (c0 * dt / dh)^2 * C * p_curr;
     end
 
     % Fixing interfaces if explicit boundaries
     if shiftLeft == true && shiftRight == true
-        p_next(N/2+1) = 0.5*(p_next(N/2) + p_next(N/2+1));
-        p_next(N/2) = p_next(N/2+1);
+        p_next(N_x/2+1) = 0.5*(p_next(N_x/2) + p_next(N_x/2+1));
+        p_next(N_x/2) = p_next(N_x/2+1);
     end
 
     % Update
@@ -224,10 +245,10 @@ for n = 1:dur_samples
     f = figure(2);
     f.Position = [100, 100, 1500, 400];
     plot(x_axis, full(p_next));
-    xlim([0,len])
+    xlim([0,len_x])
     ylim([-1,1]);
 
-    sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(dur, '%4.3f') ' ( ' num2str((n+1)/dur_samples*100, '%4.1f') '% )']);
+    sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(T_sec, '%4.3f') ' ( ' num2str((n+1)/dur_samples*100, '%4.1f') '% )']);
 
     % pause(0.1);
 

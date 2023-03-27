@@ -1,14 +1,13 @@
-function Fourier_data = init_Fourier(N, c, dt, dh, isDamped, alpha)
+function Fourier_data = init_Fourier(len_x, c, dt, dh, isDamped, alpha)
 
     % modal analysis
-    inv_lx = 1 / ((N - 1) * dh);
+    inv_lx = 1 / len_x;
+
+    N = floor(len_x / dh);
     
     cwt = zeros(N, 1);
     w2 = zeros(N, 1);
     swt = zeros(N, 1);
-    alpha_abs = 0;
-    alpha2 = 0;
-    eatm = 0;
     w = zeros(N, 1);
     inv_w = zeros(N, 1);
     inv_w2 = zeros(N, 1);
