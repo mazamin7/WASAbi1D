@@ -1,4 +1,7 @@
-function FDTD_data = init_FDTD(N, c, dt, dh, isDamped, alpha_abs, isBorrel, boundCond1, boundCond2, isPML)
+function FDTD_data = init_FDTD(len_x, c, dt, dh, isDamped, alpha_abs, isBorrel, boundCond1, boundCond2, isPML)
+
+    N = floor(len_x/dh);
+    N = 2 * floor(N/2);
 
     alpha = 1/90;
     beta = -3/20;

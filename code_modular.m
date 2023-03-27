@@ -90,7 +90,7 @@ elseif choice8 == 4
 end
 
 dh = 1/2^4;
-dt = dh / 4 / c0;
+dt = dh / 2 / c0;
 
 disp(['Simulating with dh = ' num2str(dh) ', dt = ' num2str(dt)]);
 
@@ -180,7 +180,7 @@ if choice2 == 1 || choice2 == 4
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(len_x/2, c0, dt, dh, choice4 == 1, alpha_abs);
 else
-    FEM_data_left = init_FEM(N_x/2, c0, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
+    FEM_data_left = init_FEM(len_x/2, c0, dt, dh, choice4 == 1, alpha_abs, boundCondLeft, "N");
 end
 
 if choice3 == 1 || choice3 == 4
@@ -188,7 +188,7 @@ if choice3 == 1 || choice3 == 4
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(len_x/2, c0, dt, dh, choice5 == 1, alpha_abs);
 else
-    FEM_data_right = init_FEM(N_x/2, c0, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
+    FEM_data_right = init_FEM(len_x/2, c0, dt, dh, choice4 == 1, alpha_abs, "N", boundCondRight);
 end
 
 force = zeros(N_x,1);
@@ -198,8 +198,8 @@ for n = 1:dur_samples
 
     force = 6e5 * sin(2*pi*freq_source*n*dt) * force_envelope * (n*dt <= 1/freq_source);
 
-    % g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
-    % g2 = 0; % g1;
+    g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
+    g2 = 0; % g1;
 
     % Pre-merge
     if choice == 1
