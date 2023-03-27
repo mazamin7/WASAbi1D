@@ -4,7 +4,7 @@ clear all, close all, clc;
 % msg = "Choose the merge approach";
 % opts = ["Pre 7 points" "Post 7 points"];
 % choice = menu(msg, opts);
-choice = 2;
+choice = 1;
 
 % msg2 = "Choose the update for left";
 % opts2 = ["FDTD" "Fourier" "FEM" "PML"];
@@ -69,7 +69,7 @@ shiftRight = choice3 == 3 || (choice3 == 1 && explicitBoundariesFDTD == true);
 % Simulation parameters
 c0 = 343;
 len_x = 20; % Domain length
-T_sec = 0.07; % Simulation duration
+T_sec = 0.2; % Simulation duration
 alpha_abs = 10; % Absorption coefficient
 exact_damping = false; % exact damping only works without interfaces
 
@@ -89,14 +89,14 @@ elseif choice8 == 4
     dh = 0.5;
 end
 
-dh = 1/2^4;
+dh = 1/2^3;
 dt = dh / 2 / c0;
 
 disp(['Simulating with dh = ' num2str(dh) ', dt = ' num2str(dt)]);
 
 % SOURCE
 freq_source = 300;
-source_pos_ratio_x = 3/10;
+source_pos_ratio_x = 5/10;
 mach_x = 0;
 
 % Defining time and space axis
@@ -196,7 +196,7 @@ force = zeros(N_x,1);
 % Simulation loop
 for n = 1:dur_samples
 
-    force = 6e5 * sin(2*pi*freq_source*n*dt) * force_envelope * (n*dt <= 1/freq_source);
+    force = 8e5 * sin(2*pi*freq_source*n*dt) * force_envelope * (n*dt <= 1/freq_source);
 
     g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
     g2 = 0; % g1;
