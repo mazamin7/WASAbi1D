@@ -61,7 +61,7 @@ force_envelope = @(x,mu) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2));
 
 % Initializing update methods
 if choice2 == 1 || choice2 == 4
-    FDTD_data_left = init_FDTD(len_x/2, c0, dt, dh, left_damped, alpha_abs, explicitBoundariesFDTD == true, bc_left, "N", choice2 == 4);
+    FDTD_data_left = init_FDTD(len_x/2, c0, dt, dh, left_damped, alpha_abs, bc_left, "N", choice2 == 4);
 elseif choice2 == 2
     Fourier_data_left = init_Fourier(len_x/2, c0, dt, dh, left_damped, alpha_abs);
 else
@@ -69,7 +69,7 @@ else
 end
 
 if choice3 == 1 || choice3 == 4
-    FDTD_data_right = init_FDTD(len_x/2, c0, dt, dh, right_damped, alpha_abs, explicitBoundariesFDTD == true, "N", bc_right, choice3 == 4);
+    FDTD_data_right = init_FDTD(len_x/2, c0, dt, dh, right_damped, alpha_abs, "N", bc_right, choice3 == 4);
 elseif choice3 == 2
     Fourier_data_right = init_Fourier(len_x/2, c0, dt, dh, right_damped, alpha_abs);
 else

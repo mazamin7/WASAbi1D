@@ -13,8 +13,8 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
 
     N = FDTD_data.N;
     A = FDTD_data.A;
-    boundCond1 = FDTD_data.boundCond1;
-    boundCond2 = FDTD_data.boundCond2;
+    bc_left = FDTD_data.bc_left;
+    bc_right = FDTD_data.bc_right;
     c = FDTD_data.c;
     dt = FDTD_data.dt;
     dh = FDTD_data.dh;
@@ -37,18 +37,18 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
     force(3:end-2) = force_old;
 
     % Imposing b.c. on the left
-    if strcmp(boundCond1, "D")
+    if strcmp(bc_left, "D")
         p_curr(1:3) = [1 1 1] * g1;
-    elseif strcmp(boundCond1, "N")
+    elseif strcmp(bc_left, "N")
         p_curr(3) = p_curr(3) - 0.5 * dh * g1;
         p_curr(4) = p_curr(4) - 1.5 * dh * g1;
         p_curr(5) = p_curr(5) - 2.5 * dh * g1;
     end
 
     % Imposing b.c. on the right
-    if strcmp(boundCond2, "D")
+    if strcmp(bc_right, "D")
         p_curr(end-2:end) = [1 1 1] * g2;
-    elseif strcmp(boundCond2, "N")
+    elseif strcmp(bc_right, "N")
         p_curr(end-5) = p_curr(end-5) - 0.5 * dh * g2;
         p_curr(end-4) = p_curr(end-4) - 1.5 * dh * g2;
         p_curr(end-3) = p_curr(end-3) - 2.5 * dh * g2;

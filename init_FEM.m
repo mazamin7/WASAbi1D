@@ -1,4 +1,4 @@
-function FEM_data = init_FEM(len,c,dt,dh,isDamped,alpha_abs,boundCond1,boundCond2)
+function FEM_data = init_FEM(len_x,c,dt,dh,isDamped,alpha_abs,boundCond1,boundCond2)
 
     % Loading FEMLib dependencies
     addpath FEMLib
@@ -17,7 +17,7 @@ function FEM_data = init_FEM(len,c,dt,dh,isDamped,alpha_abs,boundCond1,boundCond
     N = 2 * floor(N/2);
     Dati.N = N;
 
-    Dati.domain(2) = len;
+    Dati.domain(2) = len_x;
 
     c2 = c^2;
     Dati.c2 = c2;
