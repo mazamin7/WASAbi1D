@@ -17,16 +17,15 @@ function Fourier_data = init_Fourier(len_x, c, dt, dh, isDamped, alpha)
     alpha2 = alpha_abs * alpha_abs;
     eatm = exp(- alpha_abs * dt);
     
-    for n = 1 : N
-        ww = (n-1) * pi * c * inv_lx;
-        % disp(['mode ' num2str(n) ', freq [rad/s] = ' num2str(ww)])
-        w(n) = ww;
-        inv_w(n) = 1/ww;
-        inv_w2(n) = inv_w(n) * inv_w(n);
-        w2(n) = ww * ww;
-        cwt(n) = cos(ww * dt);
-        swt(n) = sin(ww * dt);
-    end
+	% first element is empty but no one cares
+	n = 2:N;
+	
+    w(n) = (n-1) * pi * c * inv_lx;
+    inv_w(n) = 1./w(n);
+    inv_w2(n) = inv_w(n) .* inv_w(n);
+    w2(n) = w(n) .* w(n);
+    cwt(n) = cos(w(n) * dt);
+    swt(n) = sin(w(n) * dt);
 
     Fourier_data.N = N;
     Fourier_data.w2 = w2;

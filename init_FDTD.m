@@ -29,7 +29,7 @@ function FDTD_data = init_FDTD(len_x, c, dt, dh, isDamped, alpha_abs, bc_left, b
     sigma = zeros(N,1);
     
     for i = 2:N
-        sigma(i) = sigma(i-1) + 2;
+        sigma(i) = 2*i;
     end
 
     FDTD_data.N = N;

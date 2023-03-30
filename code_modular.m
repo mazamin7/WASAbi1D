@@ -12,6 +12,8 @@ choice2 = menu(msg2, opts2);
 msg3 = "Choose the update for right";
 choice3 = menu(msg3, opts2);
 
+assert(choice2 ~= 3 && choice3 ~= 3, 'FEM not supported');
+
 % Simulation parameters
 c0 = 343;
 len_x = 20; % Domain length
@@ -84,7 +86,7 @@ for n = 1:N_t
 
     % Impose force
     force_envelope_temp = force_envelope(x_axis,force_pos);
-    force = source_fun(n) * force_envelope_temp;
+    force = source_fun(n) * force_envelope_temp';
 
 %     % Plot force envelope
 %     figure(1);

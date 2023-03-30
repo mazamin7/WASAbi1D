@@ -32,9 +32,13 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
     p_prev = zeros(N+4,1);
     p_prev(3:end-2) = p_prev_old;
 
-    force_old = force;
+    force_old = force';
     force = zeros(N+4,1);
     force(3:end-2) = force_old;
+
+    sigma_old = sigma';
+    sigma = zeros(N+4,1);
+    sigma(3:end-2) = sigma_old;
 
     % Imposing b.c. on the left
     if strcmp(bc_left, "D")
