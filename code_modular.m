@@ -22,7 +22,7 @@ alpha_abs_left = 0; % Absorption coefficient
 alpha_abs_right = 50;
 exact_damping = true; % Use exact damping
 dh = 1/2^5;
-transmittivity = 0.1; % Transmittance of the middle boundary
+transmittivity = 1; % Transmittance of the middle boundary
 
 dt = dh / 2 / c0;
 
