@@ -51,7 +51,7 @@ N_t = floor(T_sec / dt);
 N_x = floor(len_x / dh);
 
 % Building residue matrix
-C = get_residue_matrix(N_x);
+C = get_residue_matrix(N_x, 8);
 
 % Initialize solution data
 p_prev = zeros(N_x,1);
