@@ -1,4 +1,4 @@
-function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr_dct, exact_damped)
+function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr, exact_damped)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -31,7 +31,10 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
     p_prev_dct = dct(p_prev,'Type',DCT_type);
     p_curr_dct = dct(p_curr,'Type',DCT_type);
     p_next_dct = zeros(N,1);
+
     force_dct = dct(force);
+
+    q_curr_dct = dct(q_curr,'Type',DCT_type);
     q_next_dct = zeros(N,1);
 
 	n = 2:N;
@@ -62,5 +65,6 @@ function [p_next, q_next_dct] = update_Fourier(Fourier_data, p_curr, p_prev, for
 
     % perform IDCT
     p_next = idct(p_next_dct,'Type',DCT_type);
+    q_next = idct(q_next_dct,'Type',DCT_type);
 
 end
