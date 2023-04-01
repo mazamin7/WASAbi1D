@@ -22,7 +22,7 @@ alpha_abs_left = 0; % Absorption coefficient
 alpha_abs_right = 50;
 exact_damping = true; % Use exact damping
 dh = 1/2^5;
-transmittivity = 1; % Transmittance of the middle boundary
+transmittivity = 0.1; % Transmittance of the middle boundary
 
 dt = dh / 2 / c0;
 
@@ -129,8 +129,8 @@ for n = 1:N_t
 
     % Post-merge
     if choice == 2
-        p_next = p_next + transmittivity^2 * (c0 * dt / dh)^2 * C * p_curr;
-        q_next = q_next + transmittivity^2 * (c0 * dt / dh)^2 * C * q_curr;
+        p_next = p_next + transmittivity * (c0 * dt / dh)^2 * C * p_curr;
+        q_next = q_next + (c0 * dt / dh)^2 * C * q_curr;
     end
 
     % Update
@@ -148,11 +148,11 @@ for n = 1:N_t
     sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(T_sec, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
 
     % Plot q
-    f = figure(3);
-    f.Position = [100, 600, 1500, 400];
-    plot(x_axis, q_next);
-    xlim([0,len_x]);
-    ylim([-c0,c0]);
+%     f = figure(3);
+%     f.Position = [100, 600, 1500, 400];
+%     plot(x_axis, q_next);
+%     xlim([0,len_x]);
+%     ylim([-c0,c0]);
 
     % pause(0.1);
 
