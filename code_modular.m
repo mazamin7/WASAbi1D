@@ -20,7 +20,6 @@ len_x = 20; % Domain length
 T_sec = 0.2; % Simulation duration
 alpha_abs_left = 0; % Absorption coefficient
 alpha_abs_right = 50;
-exact_damping = true; % Use exact damping
 dh = 1/2^5;
 transmittivity = 1; % Transmittance of the middle boundary
 
@@ -34,7 +33,8 @@ bc_right = "N";
 left_damped = true;
 right_damped = true;
 
-assert(exact_damping == false || left_damped == right_damped);
+assert(left_damped == right_damped);
+% otherwise domain decomposition doesn't work
 
 % Source
 freq_source = 300;
@@ -113,7 +113,7 @@ for n = 1:N_t
     if choice2 == 1 || choice2 == 4
         p_next(1:N_x/2) = update_FDTD(FDTD_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), g1, 0);
     elseif choice2 == 2
-        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(Fourier_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), exact_damping);
+        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(Fourier_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2));
     else
         p_next(1:N_x/2) = update_FEM(FEM_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2));
     end
@@ -122,7 +122,7 @@ for n = 1:N_t
     if choice3 == 1 || choice3 == 4
         p_next(N_x/2+1:N_x) = update_FDTD(FDTD_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), 0, g2);
     elseif choice3 == 2
-        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(Fourier_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), exact_damping);
+        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(Fourier_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x));
     else
         p_next(N_x/2+1:N_x) = update_FEM(FEM_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x));
     end
@@ -130,7 +130,10 @@ for n = 1:N_t
     % Post-merge
     if choice == 2
         p_next = p_next + transmittivity * (c0 * dt / dh)^2 * C * p_curr;
-        q_next = q_next + (c0 * dt / dh)^2 * C * q_next;
+
+        if left_damped
+            q_next = q_next + (c0 * dt / dh)^2 * C * q_next;
+        end
     end
 
     % Update
@@ -140,17 +143,21 @@ for n = 1:N_t
     
     % Plot
     f = figure(2);
-    f.Position = [100, 100, 1500, 400];
+    f.Position = [100, 100, 1500, 900];
+    sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' ...
+        num2str(T_sec, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
+
+    % Plot p
+    subplot(2,1,1);
     plot(x_axis, p_next);
+    title('Pressure');
     xlim([0,len_x]);
     ylim([-1,1]);
 
-    sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' num2str(T_sec, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
-
     % Plot q
-    f = figure(3);
-    f.Position = [100, 600, 1500, 400];
+    subplot(2,1,2);
     plot(x_axis, q_next);
+    title('Velocity');
     xlim([0,len_x]);
     ylim([-c0,c0]);
 
