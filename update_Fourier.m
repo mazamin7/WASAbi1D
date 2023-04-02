@@ -1,4 +1,4 @@
-function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr)
+function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr, q_prev)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -34,6 +34,7 @@ function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
 
     force_dct = dct(force);
 
+    q_prev_dct = dct(q_prev,'Type',DCT_type);
     q_curr_dct = dct(q_curr,'Type',DCT_type);
     q_next_dct = zeros(N,1);
 
@@ -59,9 +60,14 @@ function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
 
     if isDamped == false
         p_next_dct(n) = 2 * p_curr_dct(n) - p_prev_dct(n) + dt*dt * force_dct(n);
+        q_next_dct(n) = q_prev_dct(n) + 2 * dt * force_dct(n);
     else
         p_next_dct(n) = 1/(1 + alpha_abs*dt) * (2 * p_curr_dct(n) ...
             - (1 - alpha_abs*dt) * p_prev_dct(n) + dt*dt * force_dct(n));
+        % p_next_dct(n) = p_prev_dct(n) + 2 * dt * q_curr_dct(n);
+        q_next_dct(n) = q_prev_dct(n) - 4 * dt * alpha_abs * q_curr_dct(n) ...
+            + 2 * dt * force_dct(n);
+        % q_next_dct(n) = (p_next_dct(n) - p_curr_dct(n))/(2*dt);
     end
 
     % perform IDCT

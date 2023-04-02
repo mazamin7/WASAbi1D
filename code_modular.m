@@ -19,7 +19,7 @@ c0 = 343;
 len_x = 20; % Domain length
 T_sec = 0.2; % Simulation duration
 alpha_abs_left = 0; % Absorption coefficient
-alpha_abs_right = 50;
+alpha_abs_right = 0;
 dh = 1/2^5;
 transmittivity = 1; % Transmittance of the middle boundary
 
@@ -30,6 +30,8 @@ bc_left = "N";
 bc_right = "N";
 
 % Is partition damped?
+% left_damped = false;
+% right_damped = false;
 left_damped = true;
 right_damped = true;
 
@@ -39,7 +41,7 @@ assert(left_damped == right_damped);
 % Source
 freq_source = 300;
 source_fun = @(n) 8e5 * sin(2*pi*freq_source*n*dt) * (n*dt <= 1/freq_source);
-source_pos_ratio_x = 2/10;
+source_pos_ratio_x = 1/10;
 sigma = len_x/40;       % standard deviation of force spatial envelope (Gaussian)
 mach_x = 0;
 
@@ -57,8 +59,9 @@ C = get_residue_matrix(N_x, 8);
 p_prev = zeros(N_x,1);
 p_curr = zeros(N_x,1);
 p_next = zeros(N_x,1);
-q_next = zeros(N_x,1); % for exact viscous damping
+q_prev = zeros(N_x,1); % for exact viscous damping
 q_curr = zeros(N_x,1); % for exact viscous damping
+q_next = zeros(N_x,1); % for exact viscous damping
 
 % Defining force spatial envelope
 x_axis = linspace(0,len_x,N_x);
@@ -113,7 +116,7 @@ for n = 1:N_t
     if choice2 == 1 || choice2 == 4
         p_next(1:N_x/2) = update_FDTD(FDTD_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), g1, 0);
     elseif choice2 == 2
-        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(Fourier_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2));
+        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(Fourier_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
     else
         p_next(1:N_x/2) = update_FEM(FEM_data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2));
     end
@@ -122,7 +125,7 @@ for n = 1:N_t
     if choice3 == 1 || choice3 == 4
         p_next(N_x/2+1:N_x) = update_FDTD(FDTD_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), 0, g2);
     elseif choice3 == 2
-        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(Fourier_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x));
+        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(Fourier_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
     else
         p_next(N_x/2+1:N_x) = update_FEM(FEM_data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x));
     end
@@ -139,6 +142,8 @@ for n = 1:N_t
     % Update
     p_prev = p_curr;
     p_curr = p_next;
+
+    q_prev = q_curr;
     q_curr = q_next;
     
     % Plot
