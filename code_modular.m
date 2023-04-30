@@ -6,7 +6,7 @@ opts = ["Pre 7 points" "Post 7 points"];
 choice = menu(msg, opts);
 
 msg2 = "Choose the update for left";
-opts2 = ["FDTD 2ord" "Fourier" "PML" "FDTD 1ord"];
+opts2 = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
 choice2 = menu(msg2, opts2);
 
 msg3 = "Choose the update for right";
@@ -34,17 +34,20 @@ bc_right = "N";
 left_damped = true;
 right_damped = true;
 
-if (left_damped == true && choice2 == 2) || (choice2 == 4)
+if (choice2 == 2) || (choice2 == 4)
     order_left = 1;
 else
     order_left = 2;
 end
 
-if (right_damped == true && choice3 == 2) || (choice3 == 4)
+if (choice3 == 2) || (choice3 == 4)
     order_right = 1;
 else
     order_right = 2;
 end
+
+assert(~(choice2 == 3 && left_damped));
+assert(~(choice3 == 3 && right_damped));
 
 assert(order_left == order_right);
 % otherwise domain decomposition doesn't work
@@ -52,8 +55,8 @@ assert(order_left == order_right);
 % Source
 freq_source = 1;
 source_fun = @(n) sin(2*pi*freq_source*n*dt) * (n*dt <= 1/freq_source);
-source_pos_ratio_x = 1/4;
-sigma = len_x/40;       % standard deviation of force spatial envelope (Gaussian)
+source_mu_ratio_x = 1/4;
+source_sigma_ratio_x = 1/40;
 mach_x = 0;
 
 % Checking parameters validity
@@ -76,34 +79,35 @@ q_next = zeros(N_x,1); % for exact viscous damping
 
 % Defining force spatial envelope
 x_axis = linspace(0,len_x,N_x);
-force_pos = len_x * source_pos_ratio_x;
+mu = len_x * source_mu_ratio_x;
+sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatial envelope (Gaussian)
 force_envelope = @(x,mu) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
 
 % Initializing update methods
-if choice2 == 1 || choice2 == 3
-    data_left = init_FDTD(len_x/2, c0, dt, dh, left_damped, alpha_abs_left, bc_left, "N", choice2 == 3);
+if choice2 == 1 || choice2 == 5
+    data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_left, bc_left, "N", choice2 == 5);
 elseif choice2 == 2
-    data_left = init_Fourier(len_x/2, c0, dt, dh, left_damped, alpha_abs_left);
-elseif choice2 == 4
     data_left = init_FDTD_1ord(len_x/2, c0, dt, dh, alpha_abs_left);
+elseif choice2 >= 3
+    data_left = init_Fourier(len_x/2, c0, dt, dh, order_left, alpha_abs_left);
 end
 
-if choice3 == 1 || choice3 == 3
-    data_right = init_FDTD(len_x/2, c0, dt, dh, right_damped, alpha_abs_right, "N", bc_right, choice3 == 3);
+if choice3 == 1 || choice3 == 5
+    data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_right, "N", bc_right, choice3 == 5);
 elseif choice3 == 2
-    data_right = init_Fourier(len_x/2, c0, dt, dh, right_damped, alpha_abs_right);
-elseif choice3 == 4
     data_right = init_FDTD_1ord(len_x/2, c0, dt, dh, alpha_abs_right);
+elseif choice3 >= 3
+    data_right = init_Fourier(len_x/2, c0, dt, dh, order_right, alpha_abs_right);
 end
 
 % Simulation loop
 for n = 1:N_t
 
     % Update force position
-    force_pos = force_pos + mach_x * c0 * dt;
+    mu = mu + mach_x * c0 * dt;
 
     % Impose force
-    force_envelope_temp = force_envelope(x_axis,force_pos);
+    force_envelope_temp = force_envelope(x_axis,mu);
     force = source_fun(n) * force_envelope_temp';
 
 %     % Plot force envelope
@@ -124,21 +128,21 @@ for n = 1:N_t
     end
     
     % Update left
-    if choice2 == 1 || choice2 == 3
+    if choice2 == 1 || choice2 == 5
         [p_next(1:N_x/2),q_next(1:N_x/2)] = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), g1, 0);
     elseif choice2 == 2
-        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
-    elseif choice2 == 4
         [p_next(1:N_x/2),q_next(1:N_x/2)] = update_FDTD_1ord(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
+    elseif choice2 >= 3
+        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
     end
     
     % Update right
-    if choice3 == 1 || choice3 == 3
+    if choice3 == 1 || choice3 == 5
         [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), 0, g2);
     elseif choice3 == 2
-        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
-    elseif choice3 == 4
         [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_FDTD_1ord(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
+    elseif choice3 >= 3
+        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
     end
 
     % Post-merge

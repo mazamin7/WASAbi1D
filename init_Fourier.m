@@ -1,4 +1,4 @@
-function Fourier_data = init_Fourier(len_x, c, dt, dh, isDamped, alpha)
+function Fourier_data = init_Fourier(len_x, c, dt, dh, order, alpha)
 
     % modal analysis
     inv_lx = 1 / len_x;
@@ -31,7 +31,7 @@ function Fourier_data = init_Fourier(len_x, c, dt, dh, isDamped, alpha)
     Fourier_data.w2 = w2;
     Fourier_data.cwt = cwt;
     Fourier_data.dt = dt;
-    Fourier_data.isDamped = isDamped;
+    Fourier_data.order = order;
     Fourier_data.swt = swt;
     Fourier_data.alpha_abs = alpha_abs;
     Fourier_data.alpha2 = alpha2;

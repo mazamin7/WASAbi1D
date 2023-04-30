@@ -16,7 +16,7 @@ function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
     w2 = Fourier_data.w2;
     cwt = Fourier_data.cwt;
     dt = Fourier_data.dt;
-    isDamped = Fourier_data.isDamped;
+    order = Fourier_data.order;
     swt = Fourier_data.swt;
     alpha_abs = Fourier_data.alpha_abs;
     alpha2 = Fourier_data.alpha2;
@@ -41,15 +41,11 @@ function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
 	n = 2:N;
 
     % update solution in Fourier domain
-    if isDamped == false
+    if order == 2
         p_next_dct(n) = 2 * p_curr_dct(n) .* cwt(n) - p_prev_dct(n) ...
             + (2 * force_dct(n) ./ w2(n) ) .* (1 - cwt(n));
         q_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
             .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
-%     elseif isDamped == true && exact_damped == false
-%         p_next_dct(n) = 1/(1 + alpha_abs*dt) * ((2 - w2(n) * dt*dt) ...
-%             .* p_curr_dct(n) - (1 - alpha_abs*dt) * p_prev_dct(n) ...
-%             + dt*dt * force_dct(n));
     else
         xe = force_dct(n) .* inv_w2(n);
         p_next_dct(n) = xe + eatm * ((p_curr_dct(n) - xe) .* (cwt(n) + alpha_abs * inv_w(n) .* swt(n)) + swt(n) .* inv_w(n) .* q_curr_dct(n));
@@ -58,17 +54,12 @@ function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
 
     n = 1;
 
-    if isDamped == false
-        p_next_dct(n) = 2 * p_curr_dct(n) - p_prev_dct(n) + dt*dt * force_dct(n);
-        q_next_dct(n) = q_prev_dct(n) + 2 * dt * force_dct(n);
-    else
-        p_next_dct(n) = 1/(1 + alpha_abs*dt) * (2 * p_curr_dct(n) ...
-            - (1 - alpha_abs*dt) * p_prev_dct(n) + dt*dt * force_dct(n));
-        % p_next_dct(n) = p_prev_dct(n) + 2 * dt * q_curr_dct(n);
-        q_next_dct(n) = q_prev_dct(n) - 4 * dt * alpha_abs * q_curr_dct(n) ...
-            + 2 * dt * force_dct(n);
-        % q_next_dct(n) = (p_next_dct(n) - p_curr_dct(n))/(2*dt);
-    end
+    p_next_dct(n) = 1/(1 + alpha_abs*dt) * (2 * p_curr_dct(n) ...
+        - (1 - alpha_abs*dt) * p_prev_dct(n) + dt*dt * force_dct(n));
+    % p_next_dct(n) = p_prev_dct(n) + 2 * dt * q_curr_dct(n);
+    q_next_dct(n) = q_prev_dct(n) - 4 * dt * alpha_abs * q_curr_dct(n) ...
+        + 2 * dt * force_dct(n);
+    % q_next_dct(n) = (p_next_dct(n) - p_curr_dct(n))/(2*dt);
 
     % perform IDCT
     p_next = idct(p_next_dct,'Type',DCT_type);

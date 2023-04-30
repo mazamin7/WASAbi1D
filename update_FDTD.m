@@ -19,7 +19,6 @@ function [p_next, q_next] = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2
     dt = FDTD_data.dt;
     dh = FDTD_data.dh;
     alpha_abs = FDTD_data.alpha_abs;
-    isDamped = FDTD_data.isDamped;
     isPML = FDTD_data.isPML;
     sigma = FDTD_data.sigma;
 
@@ -59,9 +58,7 @@ function [p_next, q_next] = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2
     end
 
     % Compute p_next using the formula
-    if isDamped == false && isPML == false
-        p_next = 2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr + dt^2 * force;
-    elseif isDamped == true
+    if isPML == false
         p_next = (2 * p_curr - p_prev + alpha_abs*dt/2 * p_prev ...
             + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt/2);
     else % isPML == true

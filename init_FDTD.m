@@ -1,4 +1,4 @@
-function FDTD_data = init_FDTD(len_x, c, dt, dh, isDamped, alpha_abs, bc_left, bc_right, isPML)
+function FDTD_data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML)
 
     N = floor(len_x/dh);
     N = 2 * floor(N/2);
@@ -40,7 +40,6 @@ function FDTD_data = init_FDTD(len_x, c, dt, dh, isDamped, alpha_abs, bc_left, b
     FDTD_data.dt = dt;
     FDTD_data.dh = dh;
     FDTD_data.alpha_abs = alpha_abs;
-    FDTD_data.isDamped = isDamped;
     FDTD_data.isPML = isPML;
     FDTD_data.sigma = sigma;
 
