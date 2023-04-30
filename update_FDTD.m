@@ -1,4 +1,4 @@
-function [p_next, q_next] = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
+function [p_next, q_next] = update_FDTD(data, p_curr, p_prev, force, q_curr, q_prev, g1, g2)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -11,16 +11,17 @@ function [p_next, q_next] = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2
 % Output:
 %   - p_next: the next pressure values (a column vector)
 
-    N = FDTD_data.N;
-    A = FDTD_data.A;
-    bc_left = FDTD_data.bc_left;
-    bc_right = FDTD_data.bc_right;
-    c = FDTD_data.c;
-    dt = FDTD_data.dt;
-    dh = FDTD_data.dh;
-    alpha_abs = FDTD_data.alpha_abs;
-    isPML = FDTD_data.isPML;
-    sigma = FDTD_data.sigma;
+    N = data.N;
+    A = data.A;
+    bc_left = data.bc_left;
+    bc_right = data.bc_right;
+    c = data.c;
+    dt = data.dt;
+    dh = data.dh;
+    alpha_abs = data.alpha_abs;
+    isPML = data.isPML;
+    sigma = data.sigma;
+    order = data.order;
 
     % Extending solutions to include ghost points
     p_curr_old = p_curr;
@@ -30,6 +31,14 @@ function [p_next, q_next] = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2
     p_prev_old = p_prev;
     p_prev = zeros(N+4,1);
     p_prev(3:end-2) = p_prev_old;
+
+    q_curr_old = q_curr;
+    q_curr = zeros(N+4,1);
+    q_curr(3:end-2) = q_curr_old;
+
+    q_prev_old = q_prev;
+    q_prev = zeros(N+4,1);
+    q_prev(3:end-2) = q_prev_old;
 
     force_old = force';
     force = zeros(N+4,1);
@@ -57,19 +66,25 @@ function [p_next, q_next] = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2
         p_curr(end-3) = p_curr(end-3) - 2.5 * dh * g2;
     end
 
-    % Compute p_next using the formula
-    if isPML == false
-        p_next = (2 * p_curr - p_prev + alpha_abs*dt/2 * p_prev ...
-            + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt/2);
-    else % isPML == true
-        p_next = 1 ./ (1 + dt * sigma) .* (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
-            + dt * sigma .* p_prev - dt * dt * sigma .* sigma .* p_curr);
+    if order == 2
+        % Compute p_next using the formula
+        if isPML == false
+            p_next = (2 * p_curr - p_prev + alpha_abs*dt/2 * p_prev ...
+                + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt/2);
+        else % isPML == true
+            p_next = 1 ./ (1 + dt * sigma) .* (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
+                + dt * sigma .* p_prev - dt * dt * sigma .* sigma .* p_curr);
+        end
+    
+        q_next = (p_next-p_curr)/(2*dt);
+    elseif order == 1
+        % Compute p_next and q_next using the formula
+        q_next = 2 * c^2 * dt / dh^2 * A * p_curr + q_prev - 4 * dt * alpha_abs * q_curr + 2 * dt * force;
+        p_next = 2 * dt * q_curr + p_prev;
     end
 
     % Truncating ghost points
-    p_curr = p_curr(3:end-2);
     p_next = p_next(3:end-2);
-
-    q_next = (p_next-p_curr)/(2*dt);
+    q_next = q_next(3:end-2);
 
 end

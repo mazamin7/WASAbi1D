@@ -16,8 +16,8 @@ choice3 = menu(msg3, opts2);
 c0 = 1;
 len_x = 10; % Domain length
 T_sec = 10; % Simulation duration
-alpha_abs_left = 0; % Absorption coefficient
-alpha_abs_right = 0;
+alpha_abs_left = 0.5; % Absorption coefficient
+alpha_abs_right = 0.5;
 dh = 0.1;
 dt = 0.005;
 transmittivity = 1; % Transmittance of the middle boundary
@@ -84,18 +84,14 @@ sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatia
 force_envelope = @(x,mu) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
 
 % Initializing update methods
-if choice2 == 1 || choice2 == 5
-    data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_left, bc_left, "N", choice2 == 5);
-elseif choice2 == 2
-    data_left = init_FDTD_1ord(len_x/2, c0, dt, dh, alpha_abs_left);
+if choice2 <= 2 || choice2 == 5
+    data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_left, bc_left, "N", choice2 == 5, order_left);
 elseif choice2 >= 3
     data_left = init_Fourier(len_x/2, c0, dt, dh, order_left, alpha_abs_left);
 end
 
-if choice3 == 1 || choice3 == 5
-    data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_right, "N", bc_right, choice3 == 5);
-elseif choice3 == 2
-    data_right = init_FDTD_1ord(len_x/2, c0, dt, dh, alpha_abs_right);
+if choice3 <= 2 || choice3 == 5
+    data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_right, "N", bc_right, choice3 == 5, order_right);
 elseif choice3 >= 3
     data_right = init_Fourier(len_x/2, c0, dt, dh, order_right, alpha_abs_right);
 end
@@ -128,19 +124,15 @@ for n = 1:N_t
     end
     
     % Update left
-    if choice2 == 1 || choice2 == 5
-        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), g1, 0);
-    elseif choice2 == 2
-        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_FDTD_1ord(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
+    if choice2 <= 2 || choice2 == 5
+        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2), g1, 0);
     elseif choice2 >= 3
         [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
     end
     
     % Update right
-    if choice3 == 1 || choice3 == 5
-        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), 0, g2);
-    elseif choice3 == 2
-        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_FDTD_1ord(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
+    if choice3 <= 2 || choice3 == 5
+        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x), 0, g2);
     elseif choice3 >= 3
         [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
     end

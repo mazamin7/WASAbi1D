@@ -1,4 +1,4 @@
-function FDTD_data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML)
+function data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML, order)
 
     N = floor(len_x/dh);
     N = 2 * floor(N/2);
@@ -32,15 +32,16 @@ function FDTD_data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, i
         sigma(i) = 2*i;
     end
 
-    FDTD_data.N = N;
-    FDTD_data.A = A;
-    FDTD_data.bc_left = bc_left;
-    FDTD_data.bc_right = bc_right;
-    FDTD_data.c = c;
-    FDTD_data.dt = dt;
-    FDTD_data.dh = dh;
-    FDTD_data.alpha_abs = alpha_abs;
-    FDTD_data.isPML = isPML;
-    FDTD_data.sigma = sigma;
+    data.N = N;
+    data.A = A;
+    data.bc_left = bc_left;
+    data.bc_right = bc_right;
+    data.c = c;
+    data.dt = dt;
+    data.dh = dh;
+    data.alpha_abs = alpha_abs;
+    data.isPML = isPML;
+    data.sigma = sigma;
+    data.order = order;
 
 end
