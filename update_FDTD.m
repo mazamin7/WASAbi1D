@@ -1,4 +1,4 @@
-function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
+function [p_next, q_next] = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -70,6 +70,9 @@ function p_next = update_FDTD(FDTD_data, p_curr, p_prev, force, g1, g2)
     end
 
     % Truncating ghost points
+    p_curr = p_curr(3:end-2);
     p_next = p_next(3:end-2);
+
+    q_next = (p_next-p_curr)/(2*dt);
 
 end

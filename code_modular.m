@@ -125,7 +125,7 @@ for n = 1:N_t
     
     % Update left
     if choice2 == 1 || choice2 == 3
-        p_next(1:N_x/2) = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), g1, 0);
+        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), g1, 0);
     elseif choice2 == 2
         [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
     elseif choice2 == 4
@@ -134,7 +134,7 @@ for n = 1:N_t
     
     % Update right
     if choice3 == 1 || choice3 == 3
-        p_next(N_x/2+1:N_x) = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), 0, g2);
+        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), 0, g2);
     elseif choice3 == 2
         [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
     elseif choice3 == 4
