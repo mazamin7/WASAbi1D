@@ -18,15 +18,15 @@ len_x = 10; % Domain length
 T_sec = 10; % Simulation duration
 alpha_abs_left = 0.2; % Absorption coefficient
 alpha_abs_right = 0.2;
-dh = 0.05;
-dt = 0.002;
+dh = 0.1;
+dt = 0.02;
 transmittivity = 1; % Transmittance of the middle boundary
 
 assert(dt < dh / 2 / c0);
 
 % Boundary conditions
-bc_left = "N";
-bc_right = "N";
+bc_left = "D";
+bc_right = "D";
 
 % Is partition damped?
 % left_damped = false;
@@ -164,8 +164,8 @@ for n = 1:N_t
     % Plot
     f = figure(2);
     f.Position = [100, 100, 1500, 900];
-    sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' ...
-        num2str(T_sec, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
+    sgtitle(['instant [s]: ' num2str(n*dt, '%4.3f') ' / ' ...
+        num2str(T_sec, '%4.3f') ' ( ' num2str(n/N_t*100, '%4.1f') '% )']);
 
     % Plot p
     subplot(2,1,1);
