@@ -29,10 +29,18 @@ bc_left = "N";
 bc_right = "N";
 
 % Is partition damped?
-% left_damped = false;
-% right_damped = false;
-left_damped = true;
-right_damped = true;
+left_damped = false;
+right_damped = false;
+% left_damped = true;
+% right_damped = true;
+
+if left_damped == false
+    alpha_abs_left = 0;
+end
+
+if right_damped == false
+    alpha_abs_right = 0;
+end
 
 if (choice2 == 2) || (choice2 == 4)
     order_left = 1;
