@@ -15,15 +15,16 @@ choice3 = menu(msg3, opts2);
 assert(choice2 ~= 3 && choice3 ~= 3, 'FEM not supported');
 
 % Simulation parameters
-c0 = 343;
-len_x = 20; % Domain length
-T_sec = 0.2; % Simulation duration
+c0 = 1;
+len_x = 10; % Domain length
+T_sec = 10; % Simulation duration
 alpha_abs_left = 0; % Absorption coefficient
 alpha_abs_right = 0;
-dh = 1/2^5;
+dh = 0.1;
+dt = 0.02;
 transmittivity = 1; % Transmittance of the middle boundary
 
-dt = dh / 2 / c0;
+assert(dt < dh / 2 / c0);
 
 % Boundary conditions
 bc_left = "N";
@@ -39,9 +40,9 @@ assert(left_damped == right_damped);
 % otherwise domain decomposition doesn't work
 
 % Source
-freq_source = 300;
-source_fun = @(n) 8e5 * sin(2*pi*freq_source*n*dt) * (n*dt <= 1/freq_source);
-source_pos_ratio_x = 1/10;
+freq_source = 1;
+source_fun = @(n) sin(2*pi*freq_source*n*dt) * (n*dt <= 1/freq_source);
+source_pos_ratio_x = 1/4;
 sigma = len_x/40;       % standard deviation of force spatial envelope (Gaussian)
 mach_x = 0;
 
@@ -53,7 +54,7 @@ N_t = floor(T_sec / dt);
 N_x = floor(len_x / dh);
 
 % Building residue matrix
-C = get_residue_matrix(N_x, 8);
+C = get_residue_matrix(N_x, 6);
 
 % Initialize solution data
 p_prev = zeros(N_x,1);
@@ -132,10 +133,10 @@ for n = 1:N_t
 
     % Post-merge
     if choice == 2
-        p_next = p_next + transmittivity * (c0 * dt / dh)^2 * C * p_curr;
-
-        if left_damped
-            q_next = q_next + (c0 * dt / dh)^2 * C * q_next;
+        if left_damped == 1
+            q_next = q_next + 2 * dt * (c0 / dh)^2 * C * p_curr;
+        else
+            p_next = p_next + transmittivity * (c0 * dt / dh)^2 * C * p_curr;
         end
     end
 
@@ -157,14 +158,14 @@ for n = 1:N_t
     plot(x_axis, p_next);
     title('Pressure');
     xlim([0,len_x]);
-    ylim([-1,1]);
+    ylim([-1,1]*2e-1);
 
     % Plot q
     subplot(2,1,2);
     plot(x_axis, q_next);
     title('Velocity');
     xlim([0,len_x]);
-    ylim([-c0,c0]);
+    ylim([-c0,c0]*5e-1);
 
     % pause(0.1);
 
