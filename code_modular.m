@@ -19,7 +19,7 @@ T_sec = 10; % Simulation duration
 alpha_abs_left = 0.2; % Absorption coefficient
 alpha_abs_right = 0.2;
 dh = 0.1;
-dt = 0.02;
+dt = 0.005;
 transmittivity = 1; % Transmittance of the middle boundary
 
 assert(dt < dh / 2 / c0);
