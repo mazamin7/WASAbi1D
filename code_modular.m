@@ -81,9 +81,9 @@ C = get_residue_matrix(N_x, 6);
 p_prev = zeros(N_x,1);
 p_curr = zeros(N_x,1);
 p_next = zeros(N_x,1);
-q_prev = zeros(N_x,1); % for exact viscous damping
-q_curr = zeros(N_x,1); % for exact viscous damping
-q_next = zeros(N_x,1); % for exact viscous damping
+v_prev = zeros(N_x,1); % for exact viscous damping
+v_curr = zeros(N_x,1); % for exact viscous damping
+v_next = zeros(N_x,1); % for exact viscous damping
 
 % Defining force spatial envelope
 x_axis = linspace(0,len_x,N_x);
@@ -133,22 +133,22 @@ for n = 1:N_t
     
     % Update left
     if choice2 <= 2 || choice2 == 5
-        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2), g1, 0);
+        [p_next(1:N_x/2),v_next(1:N_x/2)] = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), v_curr(1:N_x/2), v_prev(1:N_x/2), g1, 0);
     elseif choice2 >= 3
-        [p_next(1:N_x/2),q_next(1:N_x/2)] = update_Fourier(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), q_curr(1:N_x/2), q_prev(1:N_x/2));
+        [p_next(1:N_x/2),v_next(1:N_x/2)] = update_Fourier(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), v_curr(1:N_x/2), v_prev(1:N_x/2));
     end
     
     % Update right
     if choice3 <= 2 || choice3 == 5
-        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x), 0, g2);
+        [p_next(N_x/2+1:N_x),v_next(N_x/2+1:N_x)] = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), v_curr(N_x/2+1:N_x), v_prev(N_x/2+1:N_x), 0, g2);
     elseif choice3 >= 3
-        [p_next(N_x/2+1:N_x),q_next(N_x/2+1:N_x)] = update_Fourier(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), q_curr(N_x/2+1:N_x), q_prev(N_x/2+1:N_x));
+        [p_next(N_x/2+1:N_x),v_next(N_x/2+1:N_x)] = update_Fourier(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), v_curr(N_x/2+1:N_x), v_prev(N_x/2+1:N_x));
     end
 
     % Post-merge
     if choice == 2
         if order_left == 1
-            q_next = q_next + 2 * dt * (c0 / dh)^2 * C * p_curr;
+            v_next = v_next + transmittivity * 2 * dt * (c0 / dh)^2 * C * p_curr;
         elseif order_left == 2
             p_next = p_next + transmittivity * (c0 * dt / dh)^2 * C * p_curr;
         end
@@ -158,8 +158,8 @@ for n = 1:N_t
     p_prev = p_curr;
     p_curr = p_next;
 
-    q_prev = q_curr;
-    q_curr = q_next;
+    v_prev = v_curr;
+    v_curr = v_next;
     
     % Plot
     f = figure(2);
@@ -176,7 +176,7 @@ for n = 1:N_t
 
     % Plot q
     subplot(2,1,2);
-    plot(x_axis, q_next);
+    plot(x_axis, v_next);
     title('Velocity');
     xlim([0,len_x]);
     ylim([-c0,c0]*5e-1);

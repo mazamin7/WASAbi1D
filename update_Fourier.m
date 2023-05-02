@@ -1,4 +1,4 @@
-function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, q_curr, q_prev)
+function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, v_curr, v_prev)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -34,9 +34,9 @@ function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
 
     force_dct = dct(force);
 
-    q_prev_dct = dct(q_prev,'Type',DCT_type);
-    q_curr_dct = dct(q_curr,'Type',DCT_type);
-    q_next_dct = zeros(N,1);
+    v_prev_dct = dct(v_prev,'Type',DCT_type);
+    v_curr_dct = dct(v_curr,'Type',DCT_type);
+    v_next_dct = zeros(N,1);
 
 	n = 2:N;
 
@@ -44,25 +44,26 @@ function [p_next, q_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
     if order == 2
         p_next_dct(n) = 2 * p_curr_dct(n) .* cwt(n) - p_prev_dct(n) ...
             + (2 * force_dct(n) ./ w2(n) ) .* (1 - cwt(n));
-        q_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
+        v_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
             .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
     else
         xe = force_dct(n) .* inv_w2(n);
-        p_next_dct(n) = xe + eatm * ((p_curr_dct(n) - xe) .* (cwt(n) + alpha_abs * inv_w(n) .* swt(n)) + swt(n) .* inv_w(n) .* q_curr_dct(n));
-        q_next_dct(n) = eatm * (q_curr_dct(n) .* (cwt(n) - alpha_abs * inv_w(n) .* swt(n)) - (w(n) + alpha2 * inv_w(n)) .* (p_curr_dct(n) - xe) .* swt(n));
+        p_next_dct(n) = xe + eatm * ((p_curr_dct(n) - xe) .* (cwt(n) + alpha_abs * inv_w(n) .* swt(n)) + swt(n) .* inv_w(n) .* v_curr_dct(n));
+        v_next_dct(n) = eatm * (v_curr_dct(n) .* (cwt(n) - alpha_abs * inv_w(n) .* swt(n)) - (w(n) + alpha2 * inv_w(n)) .* (p_curr_dct(n) - xe) .* swt(n));
     end
 
     n = 1;
 
-    p_next_dct(n) = 1/(1 + alpha_abs*dt) * (2 * p_curr_dct(n) ...
-        - (1 - alpha_abs*dt) * p_prev_dct(n) + dt*dt * force_dct(n));
-    % p_next_dct(n) = p_prev_dct(n) + 2 * dt * q_curr_dct(n);
-    q_next_dct(n) = q_prev_dct(n) - 4 * dt * alpha_abs * q_curr_dct(n) ...
-        + 2 * dt * force_dct(n);
-    % q_next_dct(n) = (p_next_dct(n) - p_curr_dct(n))/(2*dt);
+    if order == 2
+        p_next_dct(n) = 2 * p_curr_dct(n) - p_prev_dct(n) + dt*dt * force_dct(n);
+        v_next_dct(n) = v_prev_dct(n) + 2 * dt * force_dct(n);
+    else
+        p_next_dct(n) = p_prev_dct(n) + 2 * dt * v_curr_dct(n);
+        v_next_dct(n) = v_prev_dct(n) + 2 * dt * (-2 * alpha_abs * v_curr_dct(n) + force_dct(n));
+    end
 
     % perform IDCT
     p_next = idct(p_next_dct,'Type',DCT_type);
-    q_next = idct(q_next_dct,'Type',DCT_type);
+    v_next = idct(v_next_dct,'Type',DCT_type);
 
 end
