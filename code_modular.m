@@ -177,19 +177,21 @@ for n = 3:N_t
 
 end
 
+t_axis = linspace(0,T_sec,N_t);
+
 % Plot p
-figure;
-surf(p,'EdgeColor','none','FaceColor','interp');
-xlabel('Time');
-ylabel('Space');
+figure(3);
+surf(t_axis, x_axis, p,'EdgeColor','none','FaceColor','interp');
+xlabel('Time [s]');
+ylabel('Space [m]');
 zlabel('Pressure');
 title('Pressure Solution');
 
 % Plot v
-figure;
-surf(v,'EdgeColor','none','FaceColor','interp');
-xlabel('Time');
-ylabel('Space');
+figure(4);
+surf(t_axis, x_axis, v,'EdgeColor','none','FaceColor','interp');
+xlabel('Time [s]');
+ylabel('Space [m]');
 zlabel('Velocity');
 title('Velocity Solution');
 
