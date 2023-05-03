@@ -15,7 +15,7 @@ choice3 = menu(msg3, opts2);
 % Simulation parameters
 c0 = 1;
 len_x = 10; % Domain length
-T_sec = 2; % Simulation duration
+T_sec = 10; % Simulation duration
 alpha_abs_left = 0.05; % Absorption coefficient
 alpha_abs_right = 0.05;
 dh = 0.2;
@@ -27,6 +27,14 @@ assert(dt < dh / 2 / c0);
 % Boundary conditions
 bc_left = "D";
 bc_right = "D";
+
+if choice2 == 3 || choice2 == 4
+    bc_left = "N";
+end
+
+if choice3 == 3 || choice3 == 4
+    bc_right = "N";
+end
 
 % Is partition damped?
 left_damped = false;
@@ -147,15 +155,15 @@ for n = 3:N_t
     % Post-merge
     if choice == 2
         if order_left == 1
-            v = v + transmittivity^2 * 2 * dt * residual;
+            v(:,n) = v(:,n) + transmittivity^2 * 2 * dt * residual;
         elseif order_left == 2
-            p = p + transmittivity^2 * dt*dt * residual;
+            p(:,n) = p(:,n) + transmittivity^2 * dt*dt * residual;
         end
     end
     
     % Plot
     f = figure(2);
-    f.Position = [100, 100, 1500, 900];
+    f.Position = [100, 100, 1200, 700];
     sgtitle(['instant [s]: ' num2str(n*dt, '%4.3f') ' / ' ...
         num2str(T_sec, '%4.3f') ' ( ' num2str(n/N_t*100, '%4.1f') '% )']);
 
@@ -186,6 +194,7 @@ xlabel('Time [s]');
 ylabel('Space [m]');
 zlabel('Pressure');
 title('Pressure Solution');
+view(0, 90);  % set view to show from the top
 
 % Plot v
 figure(4);
@@ -194,5 +203,14 @@ xlabel('Time [s]');
 ylabel('Space [m]');
 zlabel('Velocity');
 title('Velocity Solution');
+view(0, 90);  % set view to show from the top
+
+% Save simulation as figures and animation
+save_plots(choice, choice2, choice3, left_damped, right_damped, bc_left, bc_right, dh, dt);
+
+
+
+
+
 
 
