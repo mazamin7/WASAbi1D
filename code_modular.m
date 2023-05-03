@@ -198,7 +198,7 @@ title('Ground Truth Pressure Solution');
 view(0, 90);  % set view to show from the top
 
 % Plot p_gt
-figure(5);
+figure(6);
 surf(t_axis, x_axis, v_gt,'EdgeColor','none','FaceColor','interp');
 xlabel('Time [s]');
 ylabel('Space [m]');

@@ -92,8 +92,8 @@ switch test_case
         % Defining ground truth solution
         k_force = pi;
         omega_force = k_force * c0;
-        p_gt_fun = @(x,t) 0.2*sin(omega_force*t) * cos(k_force * x);
-        v_gt_fun = @(x,t) 0.2*omega_force*cos(omega_force*t) * cos(k_force * x);
+        p_gt_fun = @(x,t) 0.1*sin(omega_force*t) * cos(k_force * x);
+        v_gt_fun = @(x,t) 0.1*omega_force*cos(omega_force*t) * cos(k_force * x);
 
         % Defining force
         force_fun = @(x, t) 0;
