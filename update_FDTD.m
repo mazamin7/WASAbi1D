@@ -76,7 +76,7 @@ function [p_next, q_next] = update_FDTD(data, p_curr, p_prev, force, q_curr, q_p
                 + dt * sigma .* p_prev - dt * dt * sigma .* sigma .* p_curr);
         end
     
-        q_next = (p_next-p_curr)/(2*dt);
+        q_next = (p_next - p_curr)/dt;
     elseif order == 1
         % Compute p_next and q_next using the formula
         q_next = 2 * c^2 * dt / dh^2 * A * p_curr + q_prev - 4 * dt * alpha_abs * q_curr + 2 * dt * force;

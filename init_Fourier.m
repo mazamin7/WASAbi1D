@@ -4,7 +4,6 @@ function Fourier_data = init_Fourier(len_x, c, dt, dh, order, alpha)
     inv_lx = 1 / len_x;
 
     N = floor(len_x/dh);
-    N = 2 * floor(N/2);
     
     cwt = zeros(N, 1);
     w2 = zeros(N, 1);

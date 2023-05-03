@@ -1,7 +1,6 @@
 function data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML, order)
 
     N = floor(len_x/dh);
-    N = 2 * floor(N/2);
 
     alpha = 1/90;
     beta = -3/20;

@@ -15,11 +15,11 @@ choice3 = menu(msg3, opts2);
 % Simulation parameters
 c0 = 1;
 len_x = 10; % Domain length
-T_sec = 10; % Simulation duration
+T_sec = 20; % Simulation duration
 alpha_abs_left = 0.2; % Absorption coefficient
 alpha_abs_right = 0.2;
-dh = 0.1;
-dt = 0.005;
+dh = 0.2;
+dt = 0.02;
 transmittivity = 1; % Transmittance of the middle boundary
 
 assert(dt < dh / 2 / c0);
@@ -29,10 +29,10 @@ bc_left = "D";
 bc_right = "D";
 
 % Is partition damped?
-% left_damped = false;
-% right_damped = false;
-left_damped = true;
-right_damped = true;
+left_damped = false;
+right_damped = false;
+% left_damped = true;
+% right_damped = true;
 
 if left_damped == false
     alpha_abs_left = 0;
@@ -126,9 +126,12 @@ for n = 1:N_t
     g2 = 0; % g1;
     % FOR NOW, ONLY FDTD SUPPORTS NON-HOMOGENEOUS DIRICHLET/NEUMANN
 
+    % Residual calculation
+    residual = (c0 / dh)^2 * C * p_curr;
+
     % Pre-merge
     if choice == 1
-        force = force + transmittivity^2 * (c0 / dh)^2 * C * p_curr;
+        force = force + transmittivity^2 * residual;
     end
     
     % Update left
@@ -148,9 +151,9 @@ for n = 1:N_t
     % Post-merge
     if choice == 2
         if order_left == 1
-            v_next = v_next + transmittivity * 2 * dt * (c0 / dh)^2 * C * p_curr;
+            v_next = v_next + transmittivity^2 * 2 * dt * residual;
         elseif order_left == 2
-            p_next = p_next + transmittivity * (c0 * dt / dh)^2 * C * p_curr;
+            p_next = p_next + transmittivity^2 * dt*dt * residual;
         end
     end
 
