@@ -1,4 +1,4 @@
-function save_plots(choice, choice2, choice3, left_damped, right_damped, bc_left, bc_right, dh, dt)
+function save_plots(choice, choice2, choice3, left_damped, right_damped, bc_left, bc_right, dh, dt, test_case)
 
     % Save figures as images
     if choice == 1
@@ -56,7 +56,7 @@ function save_plots(choice, choice2, choice3, left_damped, right_damped, bc_left
     end
     
     % Create folder with current filename
-    foldername = sprintf('dh=%.2f_dt=%.2f__%s__left=%s_%s_%s__right=%s_%s_%s', dh, dt, merge_str, method_left_str, damping_left_str, bc_left_str, method_right_str, damping_right_str, bc_right_str);
+    foldername = sprintf('test=%s__dh=%.2f_dt=%.2f__%s__left=%s_%s_%s__right=%s_%s_%s', test_case, dh, dt, merge_str, method_left_str, damping_left_str, bc_left_str, method_right_str, damping_right_str, bc_right_str);
     
     % Create images folder if not exists
     if ~exist('images', 'dir')

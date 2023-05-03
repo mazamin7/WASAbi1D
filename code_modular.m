@@ -1,6 +1,10 @@
 clear all, close all, clc;
 
 % User menu
+msg4 = "Choose the test case";
+opts4 = ["1" "2"];
+choice4 = menu(msg4, opts4);
+
 msg = "Choose the merge approach";
 opts = ["Pre 7 points" "Post 7 points"];
 choice = menu(msg, opts);
@@ -33,7 +37,7 @@ dt = 0.08;
 
 [len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, ...
     bc_left, bc_right, force_time_fun, force_envelope, ...
-    g1_time_fun, g2_time_fun] = get_test_case(1);
+    g1_time_fun, g2_time_fun] = get_test_case(choice4);
 
 % Checking compatibility between simulation parameters and test case
 assert(dt < dh / 2 / c0);
@@ -178,7 +182,7 @@ title('Velocity Solution');
 view(0, 90);  % set view to show from the top
 
 % Save simulation as figures and animation
-save_plots(choice, choice2, choice3, left_damped, right_damped, bc_left, bc_right, dh, dt);
+save_plots(choice, choice2, choice3, left_damped, right_damped, bc_left, bc_right, dh, dt, opts4(choice4));
 
 
 
