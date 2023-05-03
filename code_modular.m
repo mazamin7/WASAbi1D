@@ -15,10 +15,10 @@ choice3 = menu(msg3, opts2);
 % Simulation parameters
 c0 = 1;
 len_x = 10; % Domain length
-T_sec = 20; % Simulation duration
+T_sec = 2; % Simulation duration
 alpha_abs_left = 0.05; % Absorption coefficient
 alpha_abs_right = 0.05;
-dh = 0.05;
+dh = 0.2;
 dt = 0.02;
 transmittivity = 1; % Transmittance of the middle boundary
 
@@ -29,10 +29,10 @@ bc_left = "D";
 bc_right = "D";
 
 % Is partition damped?
-% left_damped = false;
-% right_damped = false;
-left_damped = true;
-right_damped = true;
+left_damped = false;
+right_damped = false;
+% left_damped = true;
+% right_damped = true;
 
 if left_damped == false
     alpha_abs_left = 0;
@@ -78,12 +78,8 @@ N_x = floor(len_x / dh);
 C = get_residue_matrix(N_x, 6);
 
 % Initialize solution data
-p_prev = zeros(N_x,1);
-p_curr = zeros(N_x,1);
-p_next = zeros(N_x,1);
-v_prev = zeros(N_x,1); % for exact viscous damping
-v_curr = zeros(N_x,1); % for exact viscous damping
-v_next = zeros(N_x,1); % for exact viscous damping
+p = zeros(N_x,N_t);
+v = zeros(N_x,N_t);
 
 % Defining force spatial envelope
 x_axis = linspace(0,len_x,N_x);
@@ -105,7 +101,7 @@ elseif choice3 >= 3
 end
 
 % Simulation loop
-for n = 1:N_t
+for n = 3:N_t
 
     % Update force position
     mu = mu + mach_x * c0 * dt;
@@ -127,7 +123,7 @@ for n = 1:N_t
     % FOR NOW, ONLY FDTD SUPPORTS NON-HOMOGENEOUS DIRICHLET/NEUMANN
 
     % Residual calculation
-    residual = (c0 / dh)^2 * C * p_curr;
+    residual = (c0 / dh)^2 * C * p(:,n-1);
 
     % Pre-merge
     if choice == 1
@@ -136,33 +132,26 @@ for n = 1:N_t
     
     % Update left
     if choice2 <= 2 || choice2 == 5
-        [p_next(1:N_x/2),v_next(1:N_x/2)] = update_FDTD(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), v_curr(1:N_x/2), v_prev(1:N_x/2), g1, 0);
+        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_FDTD(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2), g1, 0);
     elseif choice2 >= 3
-        [p_next(1:N_x/2),v_next(1:N_x/2)] = update_Fourier(data_left, p_curr(1:N_x/2), p_prev(1:N_x/2), force(1:N_x/2), v_curr(1:N_x/2), v_prev(1:N_x/2));
+        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_Fourier(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2));
     end
     
     % Update right
     if choice3 <= 2 || choice3 == 5
-        [p_next(N_x/2+1:N_x),v_next(N_x/2+1:N_x)] = update_FDTD(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), v_curr(N_x/2+1:N_x), v_prev(N_x/2+1:N_x), 0, g2);
+        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_FDTD(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2), 0, g2);
     elseif choice3 >= 3
-        [p_next(N_x/2+1:N_x),v_next(N_x/2+1:N_x)] = update_Fourier(data_right, p_curr(N_x/2+1:N_x), p_prev(N_x/2+1:N_x), force(N_x/2+1:N_x), v_curr(N_x/2+1:N_x), v_prev(N_x/2+1:N_x));
+        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_Fourier(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2));
     end
 
     % Post-merge
     if choice == 2
         if order_left == 1
-            v_next = v_next + transmittivity^2 * 2 * dt * residual;
+            v = v + transmittivity^2 * 2 * dt * residual;
         elseif order_left == 2
-            p_next = p_next + transmittivity^2 * dt*dt * residual;
+            p = p + transmittivity^2 * dt*dt * residual;
         end
     end
-
-    % Update
-    p_prev = p_curr;
-    p_curr = p_next;
-
-    v_prev = v_curr;
-    v_curr = v_next;
     
     % Plot
     f = figure(2);
@@ -172,14 +161,14 @@ for n = 1:N_t
 
     % Plot p
     subplot(2,1,1);
-    plot(x_axis, p_next);
+    plot(x_axis, p(:,n));
     title('Pressure');
     xlim([0,len_x]);
     ylim([-1,1]*2e-1);
 
-    % Plot q
+    % Plot v
     subplot(2,1,2);
-    plot(x_axis, v_next);
+    plot(x_axis, v(:,n));
     title('Velocity');
     xlim([0,len_x]);
     ylim([-c0,c0]*5e-1);
@@ -187,3 +176,21 @@ for n = 1:N_t
     % pause(0.1);
 
 end
+
+% Plot p
+figure;
+surf(p,'EdgeColor','none','FaceColor','interp');
+xlabel('Time');
+ylabel('Space');
+zlabel('Pressure');
+title('Pressure Solution');
+
+% Plot v
+figure;
+surf(v,'EdgeColor','none','FaceColor','interp');
+xlabel('Time');
+ylabel('Space');
+zlabel('Velocity');
+title('Velocity Solution');
+
+
