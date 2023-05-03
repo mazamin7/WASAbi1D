@@ -1,4 +1,4 @@
-function [len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, bc_left, bc_right, force_time_fun, force_envelope, g1_time_fun, g2_time_fun] = get_test_case(test_case)
+function [len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, bc_left, bc_right, force_fun, g1_time_fun, g2_time_fun, p_gt_fun, v_gt_fun] = get_test_case(test_case)
 
 switch test_case
     
@@ -30,10 +30,17 @@ switch test_case
         mu = len_x * source_mu_ratio_x;
         sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatial envelope (Gaussian)
         force_envelope = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
+
+        % Defining force
+        force_fun = @(x, t) force_time_fun(t) * force_envelope(x);
         
         % Defining boundary conditions time evolution
         g1_time_fun = @(t) 0;
         g2_time_fun = @(t) 0;
+
+        % Defining initial conditions
+        p_gt_fun = @(x,t) 0;
+        v_gt_fun = @(x,t) 0;
     
     case 2
         len_x = 10; % Domain length
@@ -53,17 +60,49 @@ switch test_case
         bc_left = "D";
         bc_right = "D";
         
-        % Defining force time evolution
-        force_time_fun = @(t) 0;
-        
-        % Defining force spatial envelope
-        force_envelope = @(x) 0; % Gaussian function
+        % Defining force
+        force_fun = @(x, t) 0;
         
         % Defining boundary conditions time evolution
         g1_time_fun = @(t) 0.1*cos(2*pi*1*t);
         g2_time_fun = @(t) 0;
 
+        % Defining initial conditions
+        p_gt_fun = @(x,t) 0;
+        v_gt_fun = @(x,t) 0;
+
+    case 3
+        len_x = 1; % Domain length
+        len_t = 2; % Simulation duration
+
+        % Speed of propagation
+        c0 = 1;
+
+        % Absorption coefficients
+        alpha_abs_left = 0;
+        alpha_abs_right = 0;
+
+        % Transmittance of the middle boundary
+        transmittivity = 1;
+        
+        % Boundary conditions
+        bc_left = "N";
+        bc_right = "N";
+        
+        % Defining ground truth solution
+        k_force = pi;
+        omega_force = k_force * c0;
+        p_gt_fun = @(x,t) 0.2*sin(omega_force*t) * cos(k_force * x);
+        v_gt_fun = @(x,t) 0.2*omega_force*cos(omega_force*t) * cos(k_force * x);
+
+        % Defining force
+        force_fun = @(x, t) 0;
+        
+        % Defining boundary conditions time evolution
+        g1_time_fun = @(t) 0;
+        g2_time_fun = @(t) 0;
+
     otherwise
-        error("Invalid test case number.");
+        error("Invalid test case number");
         
 end

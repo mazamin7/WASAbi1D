@@ -2,7 +2,7 @@ clear all, close all, clc;
 
 % User menu
 msg4 = "Choose the test case";
-opts4 = ["1" "2"];
+opts4 = ["1" "2" "3"];
 choice4 = menu(msg4, opts4);
 
 msg = "Choose the merge approach";
@@ -32,12 +32,12 @@ assert(order_left == order_right, 'The order of left and right method must be th
 % otherwise domain decomposition doesn't work
 
 % Simulation parameters
-dh = 0.2;
-dt = 0.08;
+dh = 0.1;
+dt = 0.008;
 
 [len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, ...
-    bc_left, bc_right, force_time_fun, force_envelope, ...
-    g1_time_fun, g2_time_fun] = get_test_case(choice4);
+    bc_left, bc_right, force_fun, ...
+    g1_time_fun, g2_time_fun, p_gt_fun, v_gt_fun] = get_test_case(choice4);
 
 % Checking compatibility between simulation parameters and test case
 assert(dt < dh / 2 / c0);
@@ -80,12 +80,19 @@ v = zeros(N_x,N_t);
 force = zeros(N_x,N_t);
 g1 = zeros(N_t,1);
 g2 = zeros(N_t,1);
+p_gt = zeros(N_x,N_t);
 
 for n = 1:N_t
-    force(:,n) = force_envelope(x_axis) * force_time_fun(t_axis(n));
+    force(:,n) = force_fun(x_axis, t_axis(n));
     g1(n) = g1_time_fun(t_axis(n));
     g2(n) = g2_time_fun(t_axis(n));
+    p_gt(:,n) = p_gt_fun(x_axis, t_axis(n));
+    v_gt(:,n) = v_gt_fun(x_axis, t_axis(n));
 end
+
+% Imposing initial conditions
+p(:,1:2) = p_gt(:,1:2);
+v(:,1:2) = v_gt(:,1:2);
 
 if (choice2 == 3 || choice2 == 4 || choice3 == 3 || choice3 == 4)
     assert(all(g1 == 0), 'Boundary conditions must be Neumann HOMOGENEOUS with Fourier method');
@@ -179,6 +186,24 @@ xlabel('Time [s]');
 ylabel('Space [m]');
 zlabel('Velocity');
 title('Velocity Solution');
+view(0, 90);  % set view to show from the top
+
+% Plot p_gt
+figure(5);
+surf(t_axis, x_axis, p_gt,'EdgeColor','none','FaceColor','interp');
+xlabel('Time [s]');
+ylabel('Space [m]');
+zlabel('Velocity');
+title('Ground Truth Pressure Solution');
+view(0, 90);  % set view to show from the top
+
+% Plot p_gt
+figure(5);
+surf(t_axis, x_axis, v_gt,'EdgeColor','none','FaceColor','interp');
+xlabel('Time [s]');
+ylabel('Space [m]');
+zlabel('Velocity');
+title('Ground Truth Velocity Solution');
 view(0, 90);  % set view to show from the top
 
 % Save simulation as figures and animation
