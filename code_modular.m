@@ -12,44 +12,6 @@ choice2 = menu(msg2, opts2);
 msg3 = "Choose the update for right";
 choice3 = menu(msg3, opts2);
 
-% Simulation parameters
-c0 = 1;
-len_x = 10; % Domain length
-T_sec = 10; % Simulation duration
-alpha_abs_left = 0.05; % Absorption coefficient
-alpha_abs_right = 0.05;
-dh = 0.2;
-dt = 0.02;
-transmittivity = 1; % Transmittance of the middle boundary
-
-assert(dt < dh / 2 / c0);
-
-% Boundary conditions
-bc_left = "N";
-bc_right = "D";
-
-if choice2 == 3 || choice2 == 4
-    bc_left = "N";
-end
-
-if choice3 == 3 || choice3 == 4
-    bc_right = "N";
-end
-
-% Is partition damped?
-left_damped = false;
-right_damped = false;
-% left_damped = true;
-% right_damped = true;
-
-if left_damped == false
-    alpha_abs_left = 0;
-end
-
-if right_damped == false
-    alpha_abs_right = 0;
-end
-
 if (choice2 == 2) || (choice2 == 4)
     order_left = 1;
 else
@@ -62,24 +24,48 @@ else
     order_right = 2;
 end
 
+assert(order_left == order_right, 'The order of left and right method must be the same');
+% otherwise domain decomposition doesn't work
+
+% Simulation parameters
+dh = 0.1;
+dt = 0.002;
+
+[len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, ...
+    bc_left, bc_right, force_time_fun, force_envelope, ...
+    g1_time_fun, g2_time_fun] = get_test_case(1);
+
+% Checking compatibility between simulation parameters and test case
+assert(dt < dh / 2 / c0);
+
+assert(~((choice2 == 3 || choice2 == 4) && (bc_left == "D" || bc_right == "D")), ...
+    'Boundary conditions must be NEUMANN homogeneous with Fourier method')
+
+if alpha_abs_left == 0
+    left_damped = false;
+else
+    left_damped = true;
+end
+
+if alpha_abs_right == 0
+    right_damped = false;
+else
+    right_damped = true;
+end
+
 assert(~(choice2 == 3 && left_damped));
 assert(~(choice3 == 3 && right_damped));
 
-assert(order_left == order_right);
-% otherwise domain decomposition doesn't work
 
-% Source
-freq_source = 1;
-source_fun = @(t) sin(2*pi*freq_source*t) * (t <= 1/freq_source);
-source_mu_ratio_x = 1/4;
-source_sigma_ratio_x = 1/40;
 
-% Checking parameters validity
-assert(dt <= dh / sqrt(3) / c0)
+% Knowing simulation pars and test case, initialize simulation variables
 
-% Defining time and space axis
-N_t = floor(T_sec / dt);
+% Defining time and space axes
+N_t = floor(len_t / dt);
 N_x = floor(len_x / dh);
+
+x_axis = linspace(0,len_x,N_x);
+t_axis = linspace(0,len_t,N_t);
 
 % Building residue matrix
 C = get_residue_matrix(N_x, 6);
@@ -91,24 +77,15 @@ force = zeros(N_x,N_t);
 g1 = zeros(N_t,1);
 g2 = zeros(N_t,1);
 
-% Defining axes
-x_axis = linspace(0,len_x,N_x);
-t_axis = linspace(0,T_sec,N_t);
-
-% Defining force spatial envelope
-mu = len_x * source_mu_ratio_x;
-sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatial envelope (Gaussian)
-force_envelope = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
-
 for n = 1:N_t
-    % Evaluate the force envelope at each point on the x-axis
-    force(:,n) = force_envelope(x_axis) * source_fun(t_axis(n));
+    force(:,n) = force_envelope(x_axis) * force_time_fun(t_axis(n));
+    g1(n) = g1_time_fun(t_axis(n));
+    g2(n) = g2_time_fun(t_axis(n));
 end
 
-% Define boundary conditions
-for n = 1:N_t
-    g1(n) = 0*0.05*cos(2*pi*1*t_axis(n));
-    g2(n) = 0;
+if (choice2 == 3 || choice2 == 4 || choice3 == 3 || choice3 == 4)
+    assert(all(g1 == 0), 'Boundary conditions must be Neumann HOMOGENEOUS with Fourier method');
+    assert(all(g2 == 0), 'Boundary conditions must be Neumann HOMOGENEOUS with Fourier method');
 end
 
 % Initializing update methods
@@ -132,21 +109,23 @@ for n = 3:N_t
 
     % Pre-merge
     if choice == 1
-        force = force + transmittivity^2 * residual;
+        force_now = force(:,n-1) + transmittivity^2 * residual;
+    else
+        force_now = force(:,n-1);
     end
     
     % Update left
     if choice2 <= 2 || choice2 == 5
-        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_FDTD(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2,n-1), v(1:N_x/2,n-1), v(1:N_x/2,n-2), g1(n-1), 0);
+        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_FDTD(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force_now(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2), g1(n-1), 0);
     elseif choice2 >= 3
-        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_Fourier(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2,n-1), v(1:N_x/2,n-1), v(1:N_x/2,n-2));
+        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_Fourier(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force_now(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2));
     end
     
     % Update right
     if choice3 <= 2 || choice3 == 5
-        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_FDTD(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2), 0, g2(n-1));
+        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_FDTD(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2), 0, g2(n-1));
     elseif choice3 >= 3
-        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_Fourier(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2));
+        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_Fourier(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2));
     end
 
     % Post-merge
@@ -162,7 +141,7 @@ for n = 3:N_t
     f = figure(2);
     f.Position = [100, 100, 1200, 700];
     sgtitle(['instant [s]: ' num2str(n*dt, '%4.3f') ' / ' ...
-        num2str(T_sec, '%4.3f') ' ( ' num2str(n/N_t*100, '%4.1f') '% )']);
+        num2str(len_t, '%4.3f') ' ( ' num2str(n/N_t*100, '%4.1f') '% )']);
 
     % Plot p
     subplot(2,1,1);
