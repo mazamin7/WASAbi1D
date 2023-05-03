@@ -28,8 +28,8 @@ assert(order_left == order_right, 'The order of left and right method must be th
 % otherwise domain decomposition doesn't work
 
 % Simulation parameters
-dh = 0.1;
-dt = 0.002;
+dh = 0.2;
+dt = 0.08;
 
 [len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, ...
     bc_left, bc_right, force_time_fun, force_envelope, ...
@@ -102,57 +102,57 @@ elseif choice3 >= 3
 end
 
 % Simulation loop
-for n = 3:N_t
+for n = 2:N_t-1
 
     % Residual calculation
-    residual = (c0 / dh)^2 * C * p(:,n-1);
+    residual = (c0 / dh)^2 * C * p(:,n);
 
     % Pre-merge
     if choice == 1
-        force_now = force(:,n-1) + transmittivity^2 * residual;
+        force_now = force(:,n) + transmittivity^2 * residual;
     else
-        force_now = force(:,n-1);
+        force_now = force(:,n);
     end
     
     % Update left
     if choice2 <= 2 || choice2 == 5
-        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_FDTD(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force_now(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2), g1(n-1), 0);
+        [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1), g1(n), 0);
     elseif choice2 >= 3
-        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_Fourier(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force_now(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2));
+        [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1));
     end
     
     % Update right
     if choice3 <= 2 || choice3 == 5
-        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_FDTD(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2), 0, g2(n-1));
+        [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1), 0, g2(n));
     elseif choice3 >= 3
-        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_Fourier(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2));
+        [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1));
     end
 
     % Post-merge
     if choice == 2
         if order_left == 1
-            v(:,n) = v(:,n) + transmittivity^2 * 2*dt * residual;
+            v(:,n+1) = v(:,n+1) + transmittivity^2 * 2*dt * residual;
         elseif order_left == 2
-            p(:,n) = p(:,n) + transmittivity^2 * dt*dt * residual;
+            p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual;
         end
     end
     
     % Plot
     f = figure(2);
     f.Position = [100, 100, 1200, 700];
-    sgtitle(['instant [s]: ' num2str(n*dt, '%4.3f') ' / ' ...
-        num2str(len_t, '%4.3f') ' ( ' num2str(n/N_t*100, '%4.1f') '% )']);
+    sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' ...
+        num2str(len_t, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
 
     % Plot p
     subplot(2,1,1);
-    plot(x_axis, p(:,n));
+    plot(x_axis, p(:,n+1));
     title('Pressure');
     xlim([0,len_x]);
     ylim([-1,1]*2e-1);
 
     % Plot v
     subplot(2,1,2);
-    plot(x_axis, v(:,n));
+    plot(x_axis, v(:,n+1));
     title('Velocity');
     xlim([0,len_x]);
     ylim([-c0,c0]*5e-1);
