@@ -16,9 +16,9 @@ choice3 = menu(msg3, opts2);
 c0 = 1;
 len_x = 10; % Domain length
 T_sec = 20; % Simulation duration
-alpha_abs_left = 0.2; % Absorption coefficient
-alpha_abs_right = 0.2;
-dh = 0.2;
+alpha_abs_left = 0.05; % Absorption coefficient
+alpha_abs_right = 0.05;
+dh = 0.05;
 dt = 0.02;
 transmittivity = 1; % Transmittance of the middle boundary
 
@@ -29,10 +29,10 @@ bc_left = "D";
 bc_right = "D";
 
 % Is partition damped?
-left_damped = false;
-right_damped = false;
-% left_damped = true;
-% right_damped = true;
+% left_damped = false;
+% right_damped = false;
+left_damped = true;
+right_damped = true;
 
 if left_damped == false
     alpha_abs_left = 0;
