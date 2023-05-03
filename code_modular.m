@@ -25,7 +25,7 @@ transmittivity = 1; % Transmittance of the middle boundary
 assert(dt < dh / 2 / c0);
 
 % Boundary conditions
-bc_left = "D";
+bc_left = "N";
 bc_right = "D";
 
 if choice2 == 3 || choice2 == 4
@@ -70,10 +70,9 @@ assert(order_left == order_right);
 
 % Source
 freq_source = 1;
-source_fun = @(n) sin(2*pi*freq_source*n*dt) * (n*dt <= 1/freq_source);
+source_fun = @(t) sin(2*pi*freq_source*t) * (t <= 1/freq_source);
 source_mu_ratio_x = 1/4;
 source_sigma_ratio_x = 1/40;
-mach_x = 0;
 
 % Checking parameters validity
 assert(dt <= dh / sqrt(3) / c0)
@@ -85,15 +84,32 @@ N_x = floor(len_x / dh);
 % Building residue matrix
 C = get_residue_matrix(N_x, 6);
 
-% Initialize solution data
+% Initialize solution, force, and boundary conditions data
 p = zeros(N_x,N_t);
 v = zeros(N_x,N_t);
+force = zeros(N_x,N_t);
+g1 = zeros(N_t,1);
+g2 = zeros(N_t,1);
+
+% Defining axes
+x_axis = linspace(0,len_x,N_x);
+t_axis = linspace(0,T_sec,N_t);
 
 % Defining force spatial envelope
-x_axis = linspace(0,len_x,N_x);
 mu = len_x * source_mu_ratio_x;
 sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatial envelope (Gaussian)
-force_envelope = @(x,mu) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
+force_envelope = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-(x-mu).^2/(2*sigma^2)); % Gaussian function
+
+for n = 1:N_t
+    % Evaluate the force envelope at each point on the x-axis
+    force(:,n) = force_envelope(x_axis) * source_fun(t_axis(n));
+end
+
+% Define boundary conditions
+for n = 1:N_t
+    g1(n) = 0*0.05*cos(2*pi*1*t_axis(n));
+    g2(n) = 0;
+end
 
 % Initializing update methods
 if choice2 <= 2 || choice2 == 5
@@ -111,25 +127,6 @@ end
 % Simulation loop
 for n = 3:N_t
 
-    % Update force position
-    mu = mu + mach_x * c0 * dt;
-
-    % Impose force
-    force_envelope_temp = force_envelope(x_axis,mu);
-    force = source_fun(n) * force_envelope_temp';
-
-%     % Plot force envelope
-%     figure(1);
-%     plot(x_axis, force_envelope_temp)
-%     xlabel('Position')
-%     ylabel('Intensity')
-%     title('Gaussian Force Envelope')
-
-    % Impose non-homogeneous b.c.
-    g1 = 0; % 1/2*0.3*sin(2*pi*4*n*dt) * (n <= 1/4 / dt);
-    g2 = 0; % g1;
-    % FOR NOW, ONLY FDTD SUPPORTS NON-HOMOGENEOUS DIRICHLET/NEUMANN
-
     % Residual calculation
     residual = (c0 / dh)^2 * C * p(:,n-1);
 
@@ -140,22 +137,22 @@ for n = 3:N_t
     
     % Update left
     if choice2 <= 2 || choice2 == 5
-        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_FDTD(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2), g1, 0);
+        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_FDTD(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2,n-1), v(1:N_x/2,n-1), v(1:N_x/2,n-2), g1(n-1), 0);
     elseif choice2 >= 3
-        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_Fourier(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2), v(1:N_x/2,n-1), v(1:N_x/2,n-2));
+        [p(1:N_x/2,n),v(1:N_x/2,n)] = update_Fourier(data_left, p(1:N_x/2,n-1), p(1:N_x/2,n-2), force(1:N_x/2,n-1), v(1:N_x/2,n-1), v(1:N_x/2,n-2));
     end
     
     % Update right
     if choice3 <= 2 || choice3 == 5
-        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_FDTD(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2), 0, g2);
+        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_FDTD(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2), 0, g2(n-1));
     elseif choice3 >= 3
-        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_Fourier(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2));
+        [p(N_x/2+1:N_x,n),v(N_x/2+1:N_x,n)] = update_Fourier(data_right, p(N_x/2+1:N_x,n-1), p(N_x/2+1:N_x,n-2), force(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-1), v(N_x/2+1:N_x,n-2));
     end
 
     % Post-merge
     if choice == 2
         if order_left == 1
-            v(:,n) = v(:,n) + transmittivity^2 * 2 * dt * residual;
+            v(:,n) = v(:,n) + transmittivity^2 * 2*dt * residual;
         elseif order_left == 2
             p(:,n) = p(:,n) + transmittivity^2 * dt*dt * residual;
         end
@@ -181,11 +178,7 @@ for n = 3:N_t
     xlim([0,len_x]);
     ylim([-c0,c0]*5e-1);
 
-    % pause(0.1);
-
 end
-
-t_axis = linspace(0,T_sec,N_t);
 
 % Plot p
 figure(3);
