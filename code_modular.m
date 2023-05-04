@@ -150,16 +150,9 @@ for n = 2:N_t-1
         end
     end
 
-    % Recomputing velocity after post-merge if second order
-    if choice == 2 && order == 2
-        if choice3 <= 2 || choice3 == 5
-            % we pass shifted time signals
-            [~,v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), force(1:N_x/2,n+1), v(1:N_x/2,n+1), v(1:N_x/2,n), g1(n+1), 0);
-            [~,v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), force(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n), 0, g2(n+1));
-        elseif choice3 >= 3
-            [~,v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), force(1:N_x/2,n+1), v(1:N_x/2,n+1), v(1:N_x/2,n));
-            [~,v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), force(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n));
-        end
+    % Computing velocity if second order
+    if order == 2
+        v(:,n+1) = (p(:,n+1) - p(:,n))/dt;
     end
     
     % Plot

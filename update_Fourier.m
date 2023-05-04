@@ -45,11 +45,10 @@ function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
         p_next_dct(n) = 2 * p_curr_dct(n) .* cwt(n) - p_prev_dct(n) ...
             + (2 * force_dct(n) ./ w2(n) ) .* (1 - cwt(n));
 
-        % we are passing shifted time signals to compute velocity
-        % it should be: v_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
+        % we will update after post-merge
+        % we could use: v_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
         %    .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
-        v_next_dct(n) = w(n) ./ swt(n) .* (p_curr_dct(n) - cwt(n) ...
-            .* p_prev_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
+        v_next_dct(n) = 0;
     elseif order == 1
         xe = force_dct(n) .* inv_w2(n);
         p_next_dct(n) = xe + eatm * ((p_curr_dct(n) - xe) .* (cwt(n) + alpha_abs * inv_w(n) .* swt(n)) + swt(n) .* inv_w(n) .* v_curr_dct(n));
@@ -60,7 +59,10 @@ function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
 
     if order == 2
         p_next_dct(n) = 2 * p_curr_dct(n) - p_prev_dct(n) + dt*dt * force_dct(n);
-        v_next_dct(n) = v_prev_dct(n) + 2 * dt * force_dct(n);
+
+        % we will update after post-merge
+        % we could use: v_next_dct(n) = v_prev_dct(n) + 2 * dt * force_dct(n);
+        v_next_dct(n) = 0;
     elseif order == 1
         p_next_dct(n) = p_prev_dct(n) + 2 * dt * v_curr_dct(n);
         v_next_dct(n) = v_prev_dct(n) + 2 * dt * (-2 * alpha_abs * v_curr_dct(n) + force_dct(n));
