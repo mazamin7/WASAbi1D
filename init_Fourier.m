@@ -19,12 +19,13 @@ function Fourier_data = init_Fourier(len_x, c, dt, dh, order, alpha)
 	% first element is empty but no one cares
 	n = 2:N;
 	
-    w(n) = (n-1) * pi * c * inv_lx;
+    w_over_pi = (n-1) * c * inv_lx;
+    w(n) = pi * w_over_pi;
     inv_w(n) = 1./w(n);
     inv_w2(n) = inv_w(n) .* inv_w(n);
     w2(n) = w(n) .* w(n);
-    cwt(n) = cos(w(n) * dt);
-    swt(n) = sin(w(n) * dt);
+    cwt(n) = cospi(w_over_pi * dt);
+    swt(n) = sinpi(w_over_pi * dt);
 
     Fourier_data.N = N;
     Fourier_data.w2 = w2;
