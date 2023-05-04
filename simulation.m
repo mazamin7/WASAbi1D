@@ -1,4 +1,4 @@
-function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh)
+function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug)
 %SIMULATION Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -96,13 +96,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     elseif method_right >= 3
         data_right = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs_right);
     end
+
+    % Init figure
+    f = figure();
+    f.Position = [100, 100, 1200, 700];
     
     % Simulation loop
     for n = 2:N_t-1
-    
-        clc;
-        disp(['Simulation: ' num2str((n+1)/N_t*100) '%']);
-    
         % Residual calculation
         residual = (c0 / dh)^2 * C * p(:,n);
     
@@ -141,25 +141,29 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             v(:,n+1) = (p(:,n+1) - p(:,n))/dt;
         end
         
-    %     % Plot
-    %     f = figure(2);
-    %     f.Position = [100, 100, 1200, 700];
-    %     sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' ...
-    %         num2str(len_t, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
-    % 
-    %     % Plot p
-    %     subplot(2,1,1);
-    %     plot(x_axis, p(:,n+1));
-    %     title('Pressure');
-    %     xlim([0,len_x]);
-    %     ylim([-1,1]*2e-1);
-    % 
-    %     % Plot v
-    %     subplot(2,1,2);
-    %     plot(x_axis, v(:,n+1));
-    %     title('Velocity');
-    %     xlim([0,len_x]);
-    %     ylim([-c0,c0]*5e-1);
+        if debug == true
+            % Plot
+            figure(f);
+            sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' ...
+                num2str(len_t, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
+        
+            % Plot p
+            subplot(2,1,1);
+            plot(x_axis, p(:,n+1));
+            title('Pressure');
+            xlim([0,len_x]);
+            ylim([-1,1]*2e-1);
+        
+            % Plot v
+            subplot(2,1,2);
+            plot(x_axis, v(:,n+1));
+            title('Velocity');
+            xlim([0,len_x]);
+            ylim([-c0,c0]*5e-1);
+        else
+            clc;
+            disp(['Simulation: ' num2str((n+1)/N_t*100) '%']);
+        end
     
     end
     

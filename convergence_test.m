@@ -20,7 +20,7 @@ for i = 1:length(dt_values)
     dh = dh_values(i);
 
     % Run simulation
-    [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh);
+    [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, false);
 
     % Evaluate the ground truth on the grid
     [X, T] = meshgrid(x_axis, t_axis);
