@@ -31,6 +31,8 @@ end
 assert(order_left == order_right, 'The order of left and right method must be the same');
 % otherwise domain decomposition doesn't work
 
+order = order_left;
+
 % Simulation parameters
 dh = 0.1;
 dt = 0.008;
@@ -101,15 +103,15 @@ end
 
 % Initializing update methods
 if choice2 <= 2 || choice2 == 5
-    data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_left, bc_left, "N", choice2 == 5, order_left);
+    data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_left, bc_left, "N", choice2 == 5, order);
 elseif choice2 >= 3
-    data_left = init_Fourier(len_x/2, c0, dt, dh, order_left, alpha_abs_left);
+    data_left = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs_left);
 end
 
 if choice3 <= 2 || choice3 == 5
-    data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_right, "N", bc_right, choice3 == 5, order_right);
+    data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs_right, "N", bc_right, choice3 == 5, order);
 elseif choice3 >= 3
-    data_right = init_Fourier(len_x/2, c0, dt, dh, order_right, alpha_abs_right);
+    data_right = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs_right);
 end
 
 % Simulation loop
@@ -141,10 +143,22 @@ for n = 2:N_t-1
 
     % Post-merge
     if choice == 2
-        if order_left == 1
+        if order == 1
             v(:,n+1) = v(:,n+1) + transmittivity^2 * 2*dt * residual;
-        elseif order_left == 2
+        elseif order == 2
             p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual;
+        end
+    end
+
+    % Recomputing velocity after post-merge if second order
+    if choice == 2 && order == 2
+        if choice3 <= 2 || choice3 == 5
+            % we pass shifted time signals
+            [~,v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), force(1:N_x/2,n+1), v(1:N_x/2,n+1), v(1:N_x/2,n), g1(n+1), 0);
+            [~,v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), force(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n), 0, g2(n+1));
+        elseif choice3 >= 3
+            [~,v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), force(1:N_x/2,n+1), v(1:N_x/2,n+1), v(1:N_x/2,n));
+            [~,v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), force(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n+1), v(N_x/2+1:N_x,n));
         end
     end
     

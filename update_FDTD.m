@@ -76,7 +76,9 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
                 + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);
         end
     
-        v_next = (p_next - p_prev)/(2 * dt);
+        % we are passing shifted time signals to compute velocity
+        % it should be: v_next = (p_next - p_curr)/dt;
+        v_next = (p_curr - p_prev)/dt;
     elseif order == 1
         % Compute p_next and q_next using the formula
         p_next = 2 * dt * v_curr + p_prev;
