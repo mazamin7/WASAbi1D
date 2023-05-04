@@ -2,7 +2,7 @@ clear all, close all, clc;
 
 % User menu
 msg4 = "Choose the test case";
-opts4 = ["1" "2" "3"];
+opts4 = ["1" "2" "3" "4"];
 choice4 = menu(msg4, opts4);
 
 msg = "Choose the merge approach";
@@ -34,8 +34,8 @@ assert(order_left == order_right, 'The order of left and right method must be th
 order = order_left;
 
 % Simulation parameters
-dh = 0.1;
-dt = 0.008;
+dh = 0.05;
+dt = 0.005;
 
 [len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, ...
     bc_left, bc_right, force_fun, ...
@@ -83,6 +83,7 @@ force = zeros(N_x,N_t);
 g1 = zeros(N_t,1);
 g2 = zeros(N_t,1);
 p_gt = zeros(N_x,N_t);
+v_gt = zeros(N_x,N_t);
 
 for n = 1:N_t
     force(:,n) = force_fun(x_axis, t_axis(n));
