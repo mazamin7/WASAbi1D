@@ -11,9 +11,9 @@ v_gt_fun = test_case_data.v_gt_fun;
 dt_values = [0.02 0.01 0.005 0.0025 0.001 0.0005];
 dh_values = [0.2 0.1 0.05 0.025 0.01 0.005];
 
-L1Err = zeros(length(dt_values), length(dh_values));
-L2Err = zeros(length(dt_values), length(dh_values));
-LinfErr = zeros(length(dt_values), length(dh_values));
+L1Err = zeros(length(dt_values), 1);
+L2Err = zeros(length(dt_values), 1);
+LinfErr = zeros(length(dt_values), 1);
 
 for i = 1:length(dt_values)
     dt = dt_values(i);
@@ -36,25 +36,32 @@ end
 % Plot errors
 figure;
 subplot(3,1,1);
-stem(dt_values, L1Err);
-set(gca, 'XScale', 'log');
+stem(dt_values(end:-1:1), L1Err(end:-1:1));
+set(gca, 'XScale', 'log', 'XDir', 'reverse');
 title('L1 Error');
 xlabel('dt');
 ylabel('Error');
+xticks(dt_values(end:-1:1));
+xticklabels(arrayfun(@(x) sprintf('%.1e', x), dt_values(end:-1:1), 'UniformOutput', false));
 
 subplot(3,1,2);
-stem(dt_values, L2Err);
-set(gca, 'XScale', 'log');
+stem(dt_values(end:-1:1), L2Err(end:-1:1));
+set(gca, 'XScale', 'log', 'XDir', 'reverse');
 title('L2 Error');
 xlabel('dt');
 ylabel('Error');
+xticks(dt_values(end:-1:1));
+xticklabels(arrayfun(@(x) sprintf('%.1e', x), dt_values(end:-1:1), 'UniformOutput', false));
 
 subplot(3,1,3);
-stem(dt_values, LinfErr);
-set(gca, 'XScale', 'log');
+stem(dt_values(end:-1:1), LinfErr(end:-1:1));
+set(gca, 'XScale', 'log', 'XDir', 'reverse');
 title('Linf Error');
 xlabel('dt');
 ylabel('Error');
+xticks(dt_values(end:-1:1));
+xticklabels(arrayfun(@(x) sprintf('%.1e', x), dt_values(end:-1:1), 'UniformOutput', false));
+
 
 
 
