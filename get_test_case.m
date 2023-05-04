@@ -124,12 +124,13 @@ switch test_case
         source_sigma_ratio_x = 1/20;
         sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatial envelope (Gaussian)
         wave_envelope = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-x.^2/(2*sigma^2)); % Gaussian function
+        wave_envelope_d = @(x) -x/(sigma^2) .* wave_envelope(x);
         
         % Defining ground truth solution
         k_force = pi;
         omega_force = k_force * c0;
         p_gt_fun = @(x,t) 0.1 * ( wave_envelope(omega_force*t - k_force*(x-len_x/2)) + wave_envelope(omega_force*t + k_force*(x-len_x/2)) );
-        v_gt_fun = @(x,t) 0 * x * t;
+        v_gt_fun = @(x,t) 0.1 * omega_force * ( wave_envelope_d(omega_force*t - k_force*(x-len_x/2)) + wave_envelope_d(omega_force*t + k_force*(x-len_x/2)) );
 
         % Defining force
         force_fun = @(x, t) 0;
