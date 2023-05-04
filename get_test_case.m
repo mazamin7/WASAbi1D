@@ -2,7 +2,7 @@ function [test_case_data] = get_test_case()
 
 % User menu
 msg = "Choose the test case";
-opts = ["1" "2" "3" "4"];
+opts = ["1" "2" "3" "4" "5"];
 test_case = menu(msg, opts);
 
 switch test_case
@@ -136,6 +136,47 @@ switch test_case
         omega_force = k_force * c0;
         p_gt_fun = @(x,t) 0.1 * ( wave_envelope(omega_force*t - k_force*(x-len_x/2)) + wave_envelope(omega_force*t + k_force*(x-len_x/2)) );
         v_gt_fun = @(x,t) 0.1 * omega_force * ( wave_envelope_d(omega_force*t - k_force*(x-len_x/2)) + wave_envelope_d(omega_force*t + k_force*(x-len_x/2)) );
+
+        % Defining force
+        force_fun = @(x, t) 0;
+        
+        % Defining boundary conditions time evolution
+        g1_time_fun = @(t) 0;
+        g2_time_fun = @(t) 0;
+
+    case 5 % propagating wave
+        len_x = 10; % Domain length
+        len_t = 4; % Simulation duration
+
+        % Speed of propagation
+        c0 = 1;
+
+        % Absorption coefficients
+        alpha_abs_left = 0.5;
+        alpha_abs_right = 0.5;
+
+        % Transmittance of the middle boundary
+        transmittivity = 1;
+        
+        % Boundary conditions
+        bc_left = "N";
+        bc_right = "N";
+
+        % Defining wave envelope
+        source_sigma_ratio_x = 1/20;
+        sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatial envelope (Gaussian)
+        wave_envelope = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-x.^2/(2*sigma^2)); % Gaussian function
+        wave_envelope_d = @(x) -x/(sigma^2) .* wave_envelope(x);
+        
+        % Defining ground truth solution
+        k_force = pi;
+        omega_force = k_force * c0;
+        p_gt_fun = @(x,t) 0.1 * exp(-alpha_abs_left*t) .* ... 
+            ( wave_envelope(omega_force*t - k_force*(x-len_x/2)) ...
+            + wave_envelope(omega_force*t + k_force*(x-len_x/2)) );
+        v_gt_fun = @(x,t) 0.1 * exp(-alpha_abs_left*t) .* omega_force .* ...
+            ( wave_envelope_d(omega_force*t - k_force*(x-len_x/2)) ...
+            + wave_envelope_d(omega_force*t + k_force*(x-len_x/2)) );
 
         % Defining force
         force_fun = @(x, t) 0;
