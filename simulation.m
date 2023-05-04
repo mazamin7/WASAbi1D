@@ -41,8 +41,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         right_damped = true;
     end
     
-    assert(~(method_left == 3 && left_damped));
-    assert(~(method_right == 3 && right_damped));
+    assert(~(method_left == 3 && left_damped), 'Fourier 2ord does not support damping');
+    assert(~(method_right == 3 && right_damped), 'Fourier 2ord does not support damping');
     
     
     
