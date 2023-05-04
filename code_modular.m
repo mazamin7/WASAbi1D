@@ -70,8 +70,8 @@ assert(~(choice3 == 3 && right_damped));
 N_t = floor(len_t / dt);
 N_x = floor(len_x / dh);
 
-x_axis_2 = linspace(0,len_x,N_x);
-t_axis_2 = linspace(0,len_t,N_t);
+x_axis = linspace(0,len_x,N_x);
+t_axis = linspace(0,len_t,N_t);
 
 % Building residue matrix
 C = get_residue_matrix(N_x, 6);
@@ -86,11 +86,11 @@ p_gt = zeros(N_x,N_t);
 v_gt = zeros(N_x,N_t);
 
 for n = 1:N_t
-    force(:,n) = force_fun(x_axis_2, t_axis_2(n));
-    g1(n) = g1_time_fun(t_axis_2(n));
-    g2(n) = g2_time_fun(t_axis_2(n));
-    p_gt(:,n) = p_gt_fun(x_axis_2, t_axis_2(n));
-    v_gt(:,n) = v_gt_fun(x_axis_2, t_axis_2(n));
+    force(:,n) = force_fun(x_axis, t_axis(n));
+    g1(n) = g1_time_fun(t_axis(n));
+    g2(n) = g2_time_fun(t_axis(n));
+    p_gt(:,n) = p_gt_fun(x_axis, t_axis(n));
+    v_gt(:,n) = v_gt_fun(x_axis, t_axis(n));
 end
 
 % Imposing initial conditions
@@ -164,14 +164,14 @@ for n = 2:N_t-1
 
     % Plot p
     subplot(2,1,1);
-    plot(x_axis_2, p(:,n+1));
+    plot(x_axis, p(:,n+1));
     title('Pressure');
     xlim([0,len_x]);
     ylim([-1,1]*2e-1);
 
     % Plot v
     subplot(2,1,2);
-    plot(x_axis_2, v(:,n+1));
+    plot(x_axis, v(:,n+1));
     title('Velocity');
     xlim([0,len_x]);
     ylim([-c0,c0]*5e-1);
@@ -180,7 +180,7 @@ end
 
 % Plot p
 figure(3);
-surf(t_axis_2, x_axis_2, p,'EdgeColor','none','FaceColor','interp');
+surf(t_axis, x_axis, p,'EdgeColor','none','FaceColor','interp');
 xlabel('Time [s]');
 ylabel('Space [m]');
 zlabel('Pressure');
@@ -189,7 +189,7 @@ view(0, 90);  % set view to show from the top
 
 % Plot v
 figure(4);
-surf(t_axis_2, x_axis_2, v,'EdgeColor','none','FaceColor','interp');
+surf(t_axis, x_axis, v,'EdgeColor','none','FaceColor','interp');
 xlabel('Time [s]');
 ylabel('Space [m]');
 zlabel('Velocity');
