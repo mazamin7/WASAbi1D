@@ -1,4 +1,4 @@
-function [p_next, q_next] = update_FDTD(data, p_curr, p_prev, force, q_curr, q_prev, g1, g2)
+function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_prev, g1, g2)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -32,13 +32,13 @@ function [p_next, q_next] = update_FDTD(data, p_curr, p_prev, force, q_curr, q_p
     p_prev = zeros(N+4,1);
     p_prev(3:end-2) = p_prev_old;
 
-    q_curr_old = q_curr;
-    q_curr = zeros(N+4,1);
-    q_curr(3:end-2) = q_curr_old;
+    q_curr_old = v_curr;
+    v_curr = zeros(N+4,1);
+    v_curr(3:end-2) = q_curr_old;
 
-    q_prev_old = q_prev;
-    q_prev = zeros(N+4,1);
-    q_prev(3:end-2) = q_prev_old;
+    q_prev_old = v_prev;
+    v_prev = zeros(N+4,1);
+    v_prev(3:end-2) = q_prev_old;
 
     force_old = force';
     force = zeros(N+4,1);
@@ -72,19 +72,19 @@ function [p_next, q_next] = update_FDTD(data, p_curr, p_prev, force, q_curr, q_p
             p_next = (2 * p_curr - p_prev + alpha_abs*dt/2 * p_prev ...
                 + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt/2);
         else % isPML == true
-            p_next = 1 ./ (1 + dt * sigma) .* (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
-                + dt * sigma .* p_prev - dt * dt * sigma .* sigma .* p_curr);
+            p_next = (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
+                + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);
         end
     
-        q_next = (p_next - p_curr)/dt;
+        v_next = (p_next - p_prev)/(2 * dt);
     elseif order == 1
         % Compute p_next and q_next using the formula
-        q_next = 2 * c^2 * dt / dh^2 * A * p_curr + q_prev - 4 * dt * alpha_abs * q_curr + 2 * dt * force;
-        p_next = 2 * dt * q_curr + p_prev;
+        p_next = 2 * dt * v_curr + p_prev;
+        v_next = 2 * c^2 * dt / dh^2 * A * p_curr + v_prev - 4 * dt * alpha_abs * v_curr + 2 * dt * force;
     end
 
     % Truncating ghost points
     p_next = p_next(3:end-2);
-    q_next = q_next(3:end-2);
+    v_next = v_next(3:end-2);
 
 end
