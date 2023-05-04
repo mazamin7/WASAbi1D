@@ -1,6 +1,6 @@
 function C = get_residue_matrix(N_x, order)
 
-    assert(N_x == 2*floor(N_x/2));
+    assert(N_x == 2*floor(N_x/2), 'N_x is odd');
 
     assert(order == 2 || order == 4 || order == 6 || order == 8);
     n = order/2;

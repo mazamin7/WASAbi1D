@@ -1,4 +1,9 @@
-function [len_x, len_t, c0, alpha_abs_left, alpha_abs_right, transmittivity, bc_left, bc_right, force_fun, g1_time_fun, g2_time_fun, p_gt_fun, v_gt_fun] = get_test_case(test_case)
+function [test_case_data] = get_test_case()
+
+% User menu
+msg = "Choose the test case";
+opts = ["1" "2" "3" "4"];
+test_case = menu(msg, opts);
 
 switch test_case
     
@@ -39,8 +44,8 @@ switch test_case
         g2_time_fun = @(t) 0;
 
         % Defining initial conditions
-        p_gt_fun = @(x,t) 0;
-        v_gt_fun = @(x,t) 0;
+        p_gt_fun = @(x,t) 0 * x * t;
+        v_gt_fun = @(x,t) 0 * x * t;
     
     case 2 % "string" driven on the left
         len_x = 10; % Domain length
@@ -68,8 +73,8 @@ switch test_case
         g2_time_fun = @(t) 0;
 
         % Defining initial conditions
-        p_gt_fun = @(x,t) 0;
-        v_gt_fun = @(x,t) 0;
+        p_gt_fun = @(x,t) 0 * x * t;
+        v_gt_fun = @(x,t) 0 * x * t;
 
     case 3 % standing wave
         len_x = 1; % Domain length
@@ -142,4 +147,21 @@ switch test_case
     otherwise
         error("Invalid test case number");
         
+end
+
+test_case_data.test_case = test_case;
+test_case_data.len_x = len_x;
+test_case_data.len_t = len_t;
+test_case_data.c0 = c0;
+test_case_data.alpha_abs_left = alpha_abs_left;
+test_case_data.alpha_abs_right = alpha_abs_right;
+test_case_data.transmittivity = transmittivity;
+test_case_data.bc_left = bc_left;
+test_case_data.bc_right = bc_right;
+test_case_data.force_fun = force_fun;
+test_case_data.g1_time_fun = g1_time_fun;
+test_case_data.g2_time_fun = g2_time_fun;
+test_case_data.p_gt_fun = p_gt_fun;
+test_case_data.v_gt_fun = v_gt_fun;
+
 end
