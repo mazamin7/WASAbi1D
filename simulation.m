@@ -138,7 +138,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     
         % Computing velocity if second order
         if order == 2
-            v(:,n+1) = (p(:,n+1) - p(:,n))/dt;
+            v(:,n+1) = (p(:,n+1) - p(:,n-1))/2/dt;
         end
         
         if debug == true
