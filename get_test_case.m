@@ -15,8 +15,7 @@ switch test_case
         c0 = 1;
 
         % Absorption coefficients
-        alpha_abs_left = 0;
-        alpha_abs_right = 0;
+        alpha_abs = 0;
 
         % Transmittance of the middle boundary
         transmittivity = 1;
@@ -55,8 +54,7 @@ switch test_case
         c0 = 1;
 
         % Absorption coefficients
-        alpha_abs_left = 0.3;
-        alpha_abs_right = 1;
+        alpha_abs = 0.3;
 
         % Transmittance of the middle boundary
         transmittivity = 1;
@@ -84,8 +82,7 @@ switch test_case
         c0 = 1;
 
         % Absorption coefficients
-        alpha_abs_left = 0;
-        alpha_abs_right = 0;
+        alpha_abs = 0;
 
         % Transmittance of the middle boundary
         transmittivity = 1;
@@ -115,8 +112,7 @@ switch test_case
         c0 = 1;
 
         % Absorption coefficients
-        alpha_abs_left = 0;
-        alpha_abs_right = 0;
+        alpha_abs = 0;
 
         % Transmittance of the middle boundary
         transmittivity = 1;
@@ -152,8 +148,7 @@ switch test_case
         c0 = 1;
 
         % Absorption coefficients
-        alpha_abs_left = 0.5;
-        alpha_abs_right = 0.5;
+        alpha_abs = 0.5;
 
         % Transmittance of the middle boundary
         transmittivity = 1;
@@ -171,10 +166,10 @@ switch test_case
         % Defining ground truth solution
         k_force = pi;
         omega_force = k_force * c0;
-        p_gt_fun = @(x,t) 0.1 * exp(-alpha_abs_left*t) .* ... 
+        p_gt_fun = @(x,t) 0.1 * exp(-alpha_abs*t) .* ... 
             ( wave_envelope(omega_force*t - k_force*(x-len_x/2)) ...
             + wave_envelope(omega_force*t + k_force*(x-len_x/2)) );
-        v_gt_fun = @(x,t) 0.1 * exp(-alpha_abs_left*t) .* omega_force .* ...
+        v_gt_fun = @(x,t) 0.1 * exp(-alpha_abs*t) .* omega_force .* ...
             ( wave_envelope_d(omega_force*t - k_force*(x-len_x/2)) ...
             + wave_envelope_d(omega_force*t + k_force*(x-len_x/2)) );
 
@@ -194,8 +189,7 @@ test_case_data.test_case = test_case;
 test_case_data.len_x = len_x;
 test_case_data.len_t = len_t;
 test_case_data.c0 = c0;
-test_case_data.alpha_abs_left = alpha_abs_left;
-test_case_data.alpha_abs_right = alpha_abs_right;
+test_case_data.alpha_abs = alpha_abs;
 test_case_data.transmittivity = transmittivity;
 test_case_data.bc_left = bc_left;
 test_case_data.bc_right = bc_right;

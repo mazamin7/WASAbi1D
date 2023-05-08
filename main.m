@@ -9,11 +9,11 @@ plot_ground_truth(test_case_data);
 
 
 % Simulation parameters
-dt = 0.005;
-dh = 0.05;
+dh = 0.1;
+dt = dh * 0.8;
 
 % Run simulation
-[t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, true);
+[t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, false);
 
 % Plotting simulation
 [fig_p, fig_v] = plot_spacetime(t_axis,x_axis,p,v,'Simulation');
