@@ -10,7 +10,7 @@ plot_ground_truth(test_case_data);
 
 % Simulation parameters
 dh = 0.1;
-dt = dh * 0.15;
+dt = dh * 0.2;
 
 % Show debug plot?
 debug = false;
