@@ -1,4 +1,4 @@
-function data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML, order)
+function data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML, order, redux)
 
     N = floor(len_x/dh);
 
@@ -32,8 +32,9 @@ function data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML,
         sigma(i) = 2*i;
     end
 
-    assert(check_stability(len_x, c, dt, dh, alpha_abs, order), ...
-        'Stability condition for FDTD not satisfied');
+    [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, order);
+
+    assert(stable, 'Stability condition for FDTD not satisfied');
 
     data.N = N;
     data.A = A;
@@ -46,5 +47,6 @@ function data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML,
     data.isPML = isPML;
     data.sigma = sigma;
     data.order = order;
+    data.redux = redux;
 
 end

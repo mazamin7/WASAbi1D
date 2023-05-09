@@ -1,4 +1,4 @@
-function stable = check_stability(len_x, c, dt, dh, alpha_abs, order)
+function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, order)
 
     N = floor(len_x/dh);
 
@@ -35,14 +35,16 @@ function stable = check_stability(len_x, c, dt, dh, alpha_abs, order)
             id_mat, zero_mat];
 
         BD = eigs(B, 2*N);
+        redux = 0.99 / max(abs(BD));
+
+        B = [K_overline, id_mat * redux;
+            id_mat, zero_mat];
+
+        BD = eigs(B, 2*N);
         disp(abs(BD)) % get abs of eigenvalues
         disp(max(abs(BD))) % get max abs of eigenvalues
 
         stable = max(abs(BD)) < 1; % check that largest abs is less than 1
-
-        % NEVER STABLE
-        % enforcing stable so that I can test
-        stable = 0 == 0;
     else
         stable = dt < dh / c; % CFL condition
     end
