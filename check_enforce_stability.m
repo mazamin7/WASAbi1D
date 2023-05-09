@@ -56,7 +56,7 @@ function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, 
             redux = 0;
         end
     else
-        stable = dt < dh / c; % CFL condition
+        stable = dt < dh / c; % CFL condition (not precise, UPDATE IT)
         redux = 0;
     end
 
