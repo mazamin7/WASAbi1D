@@ -11,12 +11,13 @@ plot_ground_truth(test_case_data);
 % Simulation parameters
 dh = 0.1;
 dt = dh * 0.2;
+diss = 0.99999; % artificial dissipation factor
 
 % Show debug plot?
 debug = false;
 
 % Run simulation
-[t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug);
+[t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss);
 
 % Plotting simulation
 [fig_p, fig_v] = plot_spacetime(t_axis,x_axis,p,v,'Simulation');

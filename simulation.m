@@ -1,4 +1,4 @@
-function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug)
+function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss)
 %SIMULATION Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -32,7 +32,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
     if (method_left == 3 || method_left == 4 || method_left == 3 || method_left == 4) && DD == true
-        [stable, redux] = check_enforce_stability(len_x, c0, dt, dh, alpha_abs, order);
+        [stable, redux] = check_enforce_stability(len_x, c0, dt, dh, alpha_abs, order, diss);
         
         assert(stable, 'Stability condition for merge not satisfied');
     end
@@ -78,20 +78,20 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         
         % Initializing update methods
         if method_left <= 2 || method_left == 5
-            data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, bc_left, "N", method_left == 5, order, redux);
+            data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, bc_left, "N", method_left == 5, order, diss);
         elseif method_left >= 3
             data_left = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs);
         end
         
         if method_right <= 2 || method_right == 5
-            data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, "N", bc_right, method_right == 5, order, redux);
+            data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, "N", bc_right, method_right == 5, order, diss);
         elseif method_right >= 3
             data_right = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs);
         end
     else
         % Initializing update methods
         if method_left <= 2 || method_left == 5
-            data_left = init_FDTD(len_x, c0, dt, dh, alpha_abs, bc_left, bc_right, method_left == 5, order, redux);
+            data_left = init_FDTD(len_x, c0, dt, dh, alpha_abs, bc_left, bc_right, method_left == 5, order, diss);
         elseif method_left >= 3
             data_left = init_Fourier(len_x, c0, dt, dh, order, alpha_abs);
         end

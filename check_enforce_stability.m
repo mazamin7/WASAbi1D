@@ -1,4 +1,4 @@
-function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, order)
+function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, order, diss)
 
     N = floor(len_x/dh);
 
@@ -29,24 +29,35 @@ function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, 
         K_overline = [-4*dt*alpha_abs*id_mat, 2*dt*c^2/dh^2*K;
             2*dt*id_mat, zero_mat];
 
-        id_mat = diag(ones(2*N,1));
-        zero_mat = zeros(2*N,2*N);
-        B = [K_overline, id_mat;
-            id_mat, zero_mat];
+        max_eig_K_overline = max(abs(eigs(K_overline,2*N)));
 
-        BD = eigs(B, 2*N);
-        redux = 0.99 / max(abs(BD));
-
-        B = [K_overline, id_mat * redux;
-            id_mat, zero_mat];
-
-        BD = eigs(B, 2*N);
-        disp(abs(BD)) % get abs of eigenvalues
-        disp(max(abs(BD))) % get max abs of eigenvalues
-
-        stable = max(abs(BD)) < 1; % check that largest abs is less than 1
+        if max_eig_K_overline < 1
+            id_mat = diag(ones(2*N,1));
+            zero_mat = zeros(2*N,2*N);
+            B = [K_overline, id_mat;
+                id_mat, zero_mat];
+    
+            BD = eigs(B, 4*N);
+            disp(max(abs(BD)))
+            % forcing the scheme to converge
+            redux = diss / max(abs(BD));
+    
+            B = [K_overline, id_mat * redux;
+                id_mat, zero_mat];
+    
+            BD = eigs(B, 4*N);
+            disp(abs(BD)) % get abs of eigenvalues
+            disp(max(abs(BD))) % get max abs of eigenvalues
+    
+            stable = max(abs(BD)) < 1; % check that largest abs is less than 1
+        else
+            % dt too small, can't converge
+            stable = 0;
+            redux = 0;
+        end
     else
         stable = dt < dh / c; % CFL condition
+        redux = 0;
     end
 
 end
