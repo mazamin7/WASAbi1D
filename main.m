@@ -10,8 +10,8 @@ plot_ground_truth(test_case_data);
 
 % Simulation parameters
 dh = 0.1;
-dt = dh * 0.2;
-diss = 0.99999; % artificial dissipation factor
+dt = dh * 0.8;
+diss = 0.99999; % artificial dissipation factor (used for first order)
 
 % Show debug plot?
 debug = false;
