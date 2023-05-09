@@ -32,20 +32,8 @@ function data = init_FDTD(len_x, c, dt, dh, alpha_abs, bc_left, bc_right, isPML,
         sigma(i) = 2*i;
     end
 
-    % check stability
-    if order == 1
-        id_mat = diag(ones(N+4,1));
-        zero_mat = zeros(N+4,N+4);
-        K = A;
-
-        B = [-4*dt*alpha_abs*id_mat, 2*dt*c^2/dh^2*K;
-            2*dt*id_mat, zero_mat];
-
-        BD = imag(eigs(B, 1)); % get imag of largest eigenvalue
-        assert(abs(BD) < 1, 'FDTD stability condition not satisfied'); % assert that it's less than 1
-    else
-        assert(dt < dh / c, 'CFL condition not satisfied') % CFL condition
-    end
+    assert(check_stability(len_x, c, dt, dh, alpha_abs, order), ...
+        'Stability condition for FDTD not satisfied');
 
     data.N = N;
     data.A = A;

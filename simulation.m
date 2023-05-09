@@ -31,6 +31,10 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
+    if (method_left == 3 || method_left == 4 || method_left == 3 || method_left == 4) && DD == true
+        assert(check_stability(len_x, c0, dt, dh, alpha_abs, order), ...
+            'Stability condition for merge not satisfied');
+    end
     
     % Knowing simulation pars and test case, initialize simulation variables
     

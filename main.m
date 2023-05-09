@@ -10,10 +10,10 @@ plot_ground_truth(test_case_data);
 
 % Simulation parameters
 dh = 0.1;
-dt = dh * 0.2;
+dt = dh * 0.15;
 
 % Show debug plot?
-debug = true;
+debug = false;
 
 % Run simulation
 [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug);
