@@ -24,8 +24,6 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     v_gt_fun = test_case_data.v_gt_fun;
     
     % Checking compatibility between simulation parameters and test case
-    % assert(dt < dh / 2 / c0);
-    
     assert(~((method_left == 3 || method_left == 4) && (bc_left == "D" || bc_right == "D")), ...
         'Boundary conditions must be NEUMANN homogeneous with Fourier method')
     
