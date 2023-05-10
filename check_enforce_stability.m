@@ -57,7 +57,7 @@ function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, 
         end
     else
         var_1511 = find_maxima_CFL_stencil();
-        A = 1 / (-1/2*(alpha + beta + gamma + delta/2) + var_1511);
+        A = 1 / var_1511;
         CFL = realsqrt(A);
         stable = dt < dh / c * CFL; % CFL condition
         redux = 0;
