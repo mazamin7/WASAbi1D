@@ -34,16 +34,12 @@ function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, 
         if max_eig_K_overline < 1
             id_mat = eye(2*N);
             zero_mat = zeros(2*N,2*N);
-            B = [K_overline, id_mat;
-                id_mat, zero_mat];
-    
-            BD = eigs(B, 4*N);
-            disp(max(abs(BD)))
+
             % forcing the scheme to converge
-            redux = diss / max(abs(BD));
+            redux = diss - 2 * alpha_abs * dt;
     
             B = [K_overline, id_mat * redux;
-                id_mat, zero_mat];
+                id_mat * redux, zero_mat];
     
             BD = eigs(B, 4*N);
             disp(abs(BD)) % get abs of eigenvalues
