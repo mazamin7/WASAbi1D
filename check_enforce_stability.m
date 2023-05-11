@@ -32,7 +32,7 @@ function [stable, redux] = check_enforce_stability(len_x, c, dt, dh, alpha_abs, 
         max_eig_K_overline = max(abs(eigs(K_overline,2*N)));
 
         if max_eig_K_overline < 1
-            id_mat = diag(ones(2*N,1));
+            id_mat = eye(2*N);
             zero_mat = zeros(2*N,2*N);
             B = [K_overline, id_mat;
                 id_mat, zero_mat];
