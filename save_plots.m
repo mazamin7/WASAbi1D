@@ -77,9 +77,11 @@ function save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v)
     
     % Save figures as images in the folder
     filename_p_top = fullfile('images', foldername, 'pressure_top.png');
-    filename_p_3d = fullfile('images', foldername, 'pressure_3d.png');
+    filename_p_3d_a = fullfile('images', foldername, 'pressure_3d_a.png');
+    filename_p_3d_b = fullfile('images', foldername, 'pressure_3d_b.png');
     filename_v_top = fullfile('images', foldername, 'velocity_top.png');
-    filename_v_3d = fullfile('images', foldername, 'velocity_3d.png');
+    filename_v_3d_a = fullfile('images', foldername, 'velocity_3d_a.png');
+    filename_v_3d_b = fullfile('images', foldername, 'velocity_3d_b.png');
         
     view_top = true;
     view_3d = true;
@@ -97,15 +99,26 @@ function save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v)
     end
     
     if view_3d
-        % 3D view for pressure
+        % 3D view A for pressure
         figure(fig_p)
         view(3)
-        saveas(fig_p, filename_p_3d);
+        saveas(fig_p, filename_p_3d_a);
         
-        % 3D view for velocity
+        % 3D view A for velocity
         figure(fig_v)
         view(3)
-        saveas(gcf, filename_v_3d);
+        saveas(gcf, filename_v_3d_a);
+
+
+        % 3D view B for pressure
+        figure(fig_p)
+        view(30,30)
+        saveas(fig_p, filename_p_3d_b);
+        
+        % 3D view B for velocity
+        figure(fig_v)
+        view(30,30)
+        saveas(gcf, filename_v_3d_b);
     end
 
 end
