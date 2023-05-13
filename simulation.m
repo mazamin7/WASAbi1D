@@ -23,11 +23,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     p_gt_fun = test_case_data.p_gt_fun;
     v_gt_fun = test_case_data.v_gt_fun;
 
-    fourier_left = method_left == 3 || method_left == 4;
-    fourier_right = method_right == 3 || method_right == 4;
 
-
-    if order == 2 || (order == 1 && fourier_left == true && fourier_right == true && DD == false)
+    if order == 2
         xi = 1;
         nu = 1;
     end
@@ -117,7 +114,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     for n = 2:N_t-1
         if DD
             % Residual calculation
-            residual = (c0 / dh)^2 * C * p(:,n);
+            residual = nu * (c0 / dh)^2 * C * p(:,n);
         
             % Pre-merge
             if merge == 1
@@ -132,16 +129,16 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         if DD
             % Update left
             if method_left <= 2 || method_left == 5
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), xi*p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), xi*v(1:N_x/2,n-1), g1(n), 0);
+                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, nu*p(1:N_x/2,n), xi*p(1:N_x/2,n-1), force_now(1:N_x/2), nu*v(1:N_x/2,n), xi*v(1:N_x/2,n-1), g1(n), 0);
             elseif method_left >= 3
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), xi*p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), xi*v(1:N_x/2,n-1));
+                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1));
             end
 
             % Update right
             if method_right <= 2 || method_right == 5
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), xi*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), xi*v(N_x/2+1:N_x,n-1), 0, g2(n));
+                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, nu*p(N_x/2+1:N_x,n), xi*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), nu*v(N_x/2+1:N_x,n), xi*v(N_x/2+1:N_x,n-1), 0, g2(n));
             elseif method_right >= 3
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), xi*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), xi*v(N_x/2+1:N_x,n-1));
+                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1));
             end
         
             % Post-merge
@@ -155,9 +152,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         else
             % Update
             if method_left <= 2 || method_left == 5
-                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, p(:,n), xi*p(:,n-1), force_now(:), v(:,n), xi*v(:,n-1), g1(n), 0);
+                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, nu*p(:,n), xi*p(:,n-1), force_now(:), nu*v(:,n), xi*v(:,n-1), g1(n), 0);
             elseif method_left >= 3
-                [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), xi*p(:,n-1), force_now(:), v(:,n), xi*v(:,n-1));
+                [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), v(:,n-1));
             end
         end
     
