@@ -1,4 +1,4 @@
-function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss)
+function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, xi, nu)
 %SIMULATION Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -27,8 +27,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     fourier_right = method_right == 3 || method_right == 4;
 
 
-    if order == 2 || (order == 1 && fourier_left == true && fourier_right == true && DD == true)
-        diss = 1;
+    if order == 2 || (order == 1 && fourier_left == true && fourier_right == true && DD == false)
+        xi = 1;
+        nu = 1;
     end
 
     
@@ -40,11 +41,11 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
-%     if ~(method_left ~= 3 && method_left ~= 4 && method_right ~= 3 && method_right ~= 4 && DD == false)
-%         stable = check_stability(len_x, c0, dt, dh, alpha_abs, order, diss);
-%         
-%         assert(stable, 'Stability condition for merge not satisfied');
-%     end
+    if (DD == true || (fourier_left == false && fourier_right == false))
+        stable = check_stability(len_x, c0, dt, dh, alpha_abs, order, xi, nu);
+        
+        assert(stable, 'Stability condition not satisfied');
+    end
     
     % Knowing simulation pars and test case, initialize simulation variables
     
@@ -131,16 +132,16 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         if DD
             % Update left
             if method_left <= 2 || method_left == 5
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), diss*p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), diss*v(1:N_x/2,n-1), g1(n), 0);
+                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), xi*p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), xi*v(1:N_x/2,n-1), g1(n), 0);
             elseif method_left >= 3
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), diss*p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), diss*v(1:N_x/2,n-1));
+                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), xi*p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), xi*v(1:N_x/2,n-1));
             end
 
             % Update right
             if method_right <= 2 || method_right == 5
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), diss*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), diss*v(N_x/2+1:N_x,n-1), 0, g2(n));
+                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), xi*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), xi*v(N_x/2+1:N_x,n-1), 0, g2(n));
             elseif method_right >= 3
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), diss*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), diss*v(N_x/2+1:N_x,n-1));
+                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), xi*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), xi*v(N_x/2+1:N_x,n-1));
             end
         
             % Post-merge
@@ -154,9 +155,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         else
             % Update
             if method_left <= 2 || method_left == 5
-                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, p(:,n), diss*p(:,n-1), force_now(:), v(:,n), diss*v(:,n-1), g1(n), 0);
+                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, p(:,n), xi*p(:,n-1), force_now(:), v(:,n), xi*v(:,n-1), g1(n), 0);
             elseif method_left >= 3
-                [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), diss*p(:,n-1), force_now(:), v(:,n), diss*v(:,n-1));
+                [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), xi*p(:,n-1), force_now(:), v(:,n), xi*v(:,n-1));
             end
         end
     

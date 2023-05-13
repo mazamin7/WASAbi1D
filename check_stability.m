@@ -1,4 +1,4 @@
-function [stable] = check_stability(len_x, c, dt, dh, alpha_abs, order, diss)
+function [stable] = check_stability(len_x, c, dt, dh, alpha_abs, order, xi, nu)
 
     N = floor(len_x/dh);
 
@@ -32,7 +32,7 @@ function [stable] = check_stability(len_x, c, dt, dh, alpha_abs, order, diss)
         id_mat = eye(2*N);
         zero_mat = zeros(2*N,2*N);
     
-        B = [2*dt*K_overline, id_mat * diss;
+        B = [2*dt*nu*K_overline, id_mat*xi;
              id_mat, zero_mat];
     
         BD = eigs(B, 4*N);
