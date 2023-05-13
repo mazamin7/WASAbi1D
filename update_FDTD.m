@@ -22,7 +22,6 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
     isPML = data.isPML;
     sigma = data.sigma;
     order = data.order;
-    redux = data.redux;
 
     % Extending solutions to include ghost points
     p_curr_old = p_curr;
@@ -82,8 +81,8 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
         v_next = v_curr * 0;
     elseif order == 1
         % Compute p_next and q_next using the formula
-        p_next = 2 * dt * v_curr + redux * p_prev;
-        v_next = 2 * c^2 * dt / dh^2 * A * p_curr + redux * v_prev - 4 * dt * alpha_abs * v_curr + 2 * dt * force;
+        p_next = 2 * dt * v_curr + p_prev;
+        v_next = 2 * c^2 * dt / dh^2 * A * p_curr + v_prev - 4 * dt * alpha_abs * v_curr + 2 * dt * force;
     end
 
     % Truncating ghost points

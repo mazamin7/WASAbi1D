@@ -2,6 +2,7 @@ clear all, close all, clc;
 
 simulation_parameters = get_simulation_parameters();
 test_case_data = get_test_case();
+c = test_case_data.c0;
 
 
 % Plotting ground truth
@@ -9,9 +10,9 @@ plot_ground_truth(test_case_data);
 
 
 % Simulation parameters
-dh = 0.01;
-dt = dh * 0.02;
-diss = 0.99999; % artificial dissipation factor (used for first order)
+dh = 1e-1;
+dt = dh * 0.097 / c;
+diss = 0.99; % artificial dissipation factor (used for first order)
 
 % Show debug plot?
 debug = false;
