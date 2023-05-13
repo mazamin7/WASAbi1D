@@ -11,14 +11,14 @@ plot_ground_truth(test_case_data);
 
 % Simulation parameters
 dh = 1e-1;
-dt = dh * 0.3 / c;
+dt = dh * 0.2 / c;
 
-% artificial dissipation factors for first order FDTD
-xi = 0.999;
-nu = 0.99;
+% artificial dissipation factors for first order
+xi = 1 - 1e-15;
+nu = 1 - 1e-5; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor
-nu_fourier = 0.999999999; % < 1
+nu_fourier = 1 - 1e-3; % < 1
 
 % Show debug plot?
 debug = false;

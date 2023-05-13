@@ -28,7 +28,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     fourier_right = method_right == 3 || method_right == 4;
 
 
-    if order == 2 || (fourier_left == true && fourier_right == true)
+    if order == 2
         xi = 1;
         nu = 1;
     end
@@ -42,10 +42,11 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
-    if fourier_left == false && fourier_right == false
-        stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu);
-        assert(stable, 'Stability condition not satisfied');
-    end
+    stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_left, nu_fourier);
+    assert(stable, 'Stability condition not satisfied on the left');
+
+    stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_right, nu_fourier);
+    assert(stable, 'Stability condition not satisfied on the right');
     
     % Knowing simulation pars and test case, initialize simulation variables
     
@@ -87,22 +88,22 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         C = get_residue_matrix(N_x, 6);
         
         % Initializing update methods
-        if method_left <= 2 || method_left == 5
+        if fourier_left == false
             data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, bc_left, "N", method_left == 5, order);
-        elseif method_left >= 3
+        else
             data_left = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs);
         end
         
-        if method_right <= 2 || method_right == 5
+        if fourier_right == false
             data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, "N", bc_right, method_right == 5, order);
-        elseif method_right >= 3
+        else
             data_right = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs);
         end
     else
         % Initializing update methods
-        if method_left <= 2 || method_left == 5
+        if fourier_left == false
             data_left = init_FDTD(len_x, c0, dt, dh, alpha_abs, bc_left, bc_right, method_left == 5, order);
-        elseif method_left >= 3
+        else
             data_left = init_Fourier(len_x, c0, dt, dh, order, alpha_abs);
         end
     end
