@@ -1,4 +1,4 @@
-function [stable] = check_stability(len_x, c, dt, dh, alpha_abs, order, xi, nu)
+function [stable] = check_stability(c, dt, dh, alpha_abs, order, xi, nu)
 
     alpha = 1/90;
     beta = -3/20;
