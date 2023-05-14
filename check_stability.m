@@ -7,7 +7,7 @@ function [stable] = check_stability(c, dt, dh, alpha_abs, order, xi, nu, fourier
         stable = check_stability_Fourier(nu_fourier);
     elseif fourier == true && DD == true % Fourier DD
         cond1 = check_stability_Fourier(nu_fourier);
-        cond2 = check_stability_FDTD(c, dt, dh, alpha_abs, order, 1, nu_fourier, false);
+        cond2 = check_stability_FDTD(c, dt, dh, 0, order, 1, nu_fourier, false);
         stable = cond1 && cond2;
     end
 
