@@ -31,6 +31,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     if order == 2
         xi = 1;
         nu = 1;
+    elseif order == 1 && fourier_left == true
+        xi = 1;
+        nu = nu_fourier;
     end
 
     
@@ -42,11 +45,16 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
-    stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_left, nu_fourier);
-    assert(stable, 'Stability condition not satisfied on the left');
-
-    stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_right, nu_fourier);
-    assert(stable, 'Stability condition not satisfied on the right');
+    if DD == true
+        stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_left, nu_fourier, DD);
+        assert(stable, 'Stability condition not satisfied on the left');
+    
+        stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_right, nu_fourier, DD);
+        assert(stable, 'Stability condition not satisfied on the right');
+    elseif DD == false
+        stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_left, nu_fourier, DD);
+        assert(stable, 'Stability condition not satisfied');
+    end
     
     % Knowing simulation pars and test case, initialize simulation variables
     
