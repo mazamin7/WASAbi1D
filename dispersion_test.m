@@ -7,8 +7,11 @@ c = test_case_data.c0;
 
 % Simulation parameters
 dh = 1e-3;
-lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8];
-plot_m = 3;
+% lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8];
+% plot_m = 3;
+% plot_n = 2;
+lambda_arr = [1];
+plot_m = 1;
 plot_n = 2;
 % lambda_arr = [0.6, 0.8];
 
@@ -42,7 +45,9 @@ dh2 = len_x/N2;
 p_gt = p_gt_fun(x_axis2, 0);
 p_first = p_gt(round(left_first/dh2):round(right_first/dh2));
 
-figure();
+f = figure();
+position = [100, 100, 500 * plot_n, 200 * plot_m];
+set(f, 'Position', position);
 
 subplot(plot_m, plot_n, 1);
 hold on;
