@@ -7,10 +7,10 @@ c = test_case_data.c0;
 
 % Simulation parameters
 dh = 1e-3;
-dt = dh * 0.8 / c;
+dt = dh * 0.4 / c;
 
 % artificial dissipation factors for first order
-xi = 1 - 5e-2;
+xi = 1 - 1e-5;
 nu = 1; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor
@@ -38,6 +38,8 @@ N = round(right_first/dh) - round(left_first/dh) + 1;
 plot(x_axis(round(left_first/dh):round(right_first/dh)), p_first);
 xlim([pos_first-len_x/40, pos_first+len_x/40]);
 ylim([0, 12]);
+xlabel("x");
+ylabel(sprintf("p(x,t=%.1f)", 0));
 title(sprintf("Wave packet at t = %.1f", 0));
 
 subplot(212);
@@ -48,6 +50,8 @@ p_last = p(round(left_last/dh):round(right_last/dh),end);
 plot(x_axis(round(left_last/dh):round(right_last/dh)), p_last);
 xlim([pos_last-len_x/40, pos_last+len_x/40]);
 ylim([0, 12]);
+xlabel("x");
+ylabel(sprintf("p(x,t=%.1f)", len_t));
 title(sprintf("Wave packet at t = %.1f", len_t));
 
 % fft_len = 8192;
