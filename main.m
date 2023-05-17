@@ -10,8 +10,8 @@ plot_ground_truth(test_case_data);
 
 
 % Simulation parameters
-dh = 1e-1;
-dt = dh * 0.3 / c;
+dh = 1e-3;
+dt = dh * 0.8 / c;
 
 % artificial dissipation factors for first order
 xi = 1 - 5e-2;
@@ -31,7 +31,6 @@ debug = false;
 
 % Save simulation as figures and animation
 save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v);
-
 
 
 
