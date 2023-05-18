@@ -7,7 +7,7 @@ c = test_case_data.c0;
 
 % Simulation parameters
 dh = 1e-3;
-lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8];
+lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8]/2;
 plot_m = 3;
 plot_n = 2;
 % lambda_arr = [0.4];
@@ -117,7 +117,7 @@ for n = 1:length(lambda_arr)
     subplot(plot_m, plot_n, 1+n);
     plot(f_axis, abs(fft_last./fft_first));
     xlim([-f_max/2,f_max/2-dh]);
-    % ylim([-360,60]);
+    ylim([0,1]);
     xlabel("f");
     ylabel(sprintf("|H(f)|"));
     title(sprintf("Frequency response (magnitude) - %s", str));
