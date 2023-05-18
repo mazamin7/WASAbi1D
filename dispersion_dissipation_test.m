@@ -7,13 +7,30 @@ c = test_case_data.c0;
 
 % Simulation parameters
 dh = 1e-3;
-lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8]/2;
-plot_m = 3;
-plot_n = 2;
-% lambda_arr = [0.4];
-% plot_m = 1;
-% plot_n = 2;
-% lambda_arr = [0.6, 0.8];
+
+method = simulation_parameters.method_left;
+
+if method == 1
+    % FDTD 2ord
+    lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8];
+    plot_m = 3;
+    plot_n = 2;
+elseif method == 2
+    % FDTD 1ord
+    lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8]/2;
+    plot_m = 3;
+    plot_n = 2;
+elseif method == 3
+    % Fourier 2ord
+    lambda_arr = [1];
+    plot_m = 1;
+    plot_n = 2;
+elseif method == 4
+    % Fourier 1ord
+    lambda_arr = [0.5];
+    plot_m = 1;
+    plot_n = 2;
+end
 
 % artificial dissipation factors for first order
 xi = 1 - 1e-5;
