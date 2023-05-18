@@ -3,10 +3,9 @@ clear all, close all, clc;
 simulation_parameters = get_simulation_parameters();
 test_case_data = get_test_case();
 c = test_case_data.c0;
-
-% Simulation parameters
 method = simulation_parameters.method_left;
 
+% Simulation parameters
 if method == 1
     % FDTD 2ord
     dh = 1e-3;
