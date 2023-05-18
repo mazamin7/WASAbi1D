@@ -63,10 +63,20 @@ set(f2, 'Position', position);
 subplot(plot_m, plot_n, 1);
 plot(f_axis, unwrap(angle(fft_first)));
 xlim([-f_max/2,f_max/2-dh]);
-ylim([-360,60]);
+% ylim([-360,60]);
 xlabel("f");
 ylabel(sprintf("FFT{p(x,t=%.1f)}", 0));
-title(sprintf("Wave packet at t = %.1f", 0));
+title(sprintf("FFT (unwrapped phase) of the wave packet at t = %.1f", 0));
+
+f3 = figure();
+set(f3, 'Position', position);
+subplot(plot_m, plot_n, 1);
+plot(f_axis, abs(fft_first));
+xlim([-f_max/2,f_max/2-dh]);
+% ylim([-360,60]);
+xlabel("f");
+ylabel(sprintf("FFT{p(x,t=%.1f)}", 0));
+title(sprintf("FFT (magnitude) of the wave packet at t = %.1f", 0));
 
 
 pos_last = len_x/2 + c*1;
@@ -86,22 +96,31 @@ for n = 1:length(lambda_arr)
     figure(f);
     subplot(plot_m, plot_n, 1+n);
     plot(x_axis(round(left_last/dh):round(right_last/dh)), p_last, DisplayName=str);
-    title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
     xlim([pos_last-sigma, pos_last+sigma]);
     ylim([0, 12]);
     xlabel("x");
     ylabel(sprintf("p(x,t=%.1f)", len_t));
+    title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
 
     fft_last = fftshift(fft(p_last, fft_size));
 
     figure(f2);
     subplot(plot_m, plot_n, 1+n);
     plot(f_axis, unwrap(angle(fft_last./fft_first)));
-    title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
     xlim([-f_max/2,f_max/2-dh]);
-    ylim([-100,100]);
+%     ylim([-100,100]);
     xlabel("f");
-    ylabel(sprintf("FFT{p(x,t=%.1f)}", len_t));
+    ylabel(sprintf("\\angle H(f)"));
+    title(sprintf("Frequency response (unwrapped phase) - %s", str));
+
+    figure(f3);
+    subplot(plot_m, plot_n, 1+n);
+    plot(f_axis, abs(fft_last./fft_first));
+    xlim([-f_max/2,f_max/2-dh]);
+    % ylim([-360,60]);
+    xlabel("f");
+    ylabel(sprintf("|H(f)|"));
+    title(sprintf("Frequency response (magnitude) - %s", str));
 end
 
 
