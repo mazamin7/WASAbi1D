@@ -65,7 +65,7 @@ plot(f_axis, unwrap(angle(fft_first)));
 xlim([-f_max/2,f_max/2-dh]);
 % ylim([-360,60]);
 xlabel("f");
-ylabel(sprintf("FFT{p(x,t=%.1f)}", 0));
+ylabel(sprintf('\\angle FFT'));
 title(sprintf("FFT (unwrapped phase) of the wave packet at t = %.1f", 0));
 
 f3 = figure();
@@ -75,7 +75,7 @@ plot(f_axis, abs(fft_first));
 xlim([-f_max/2,f_max/2-dh]);
 % ylim([-360,60]);
 xlabel("f");
-ylabel(sprintf("FFT{p(x,t=%.1f)}", 0));
+ylabel(sprintf('|FFT|'));
 title(sprintf("FFT (magnitude) of the wave packet at t = %.1f", 0));
 
 
