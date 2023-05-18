@@ -20,10 +20,10 @@ elseif method == 2
     lambda_arr = [0.05 0.1 0.15 0.2 0.25 0.3];
 elseif method == 3
     % Fourier 2ord
-    lambda_arr = [1];
+    lambda_arr = [0.5 1 1.5 2];
 elseif method == 4
     % Fourier 1ord
-    lambda_arr = [0.5];
+    lambda_arr = [0.5 1 1.5 2];
 end
 
 % artificial dissipation factors for first order
