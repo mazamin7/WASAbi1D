@@ -4,29 +4,30 @@ simulation_parameters = get_simulation_parameters();
 test_case_data = get_test_case();
 c = test_case_data.c0;
 
-
 % Simulation parameters
-dh = 1e-3;
-
 method = simulation_parameters.method_left;
 
 if method == 1
     % FDTD 2ord
+    dh = 1e-3;
     lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8];
     plot_m = 3;
     plot_n = 2;
 elseif method == 2
     % FDTD 1ord
+    dh = 1e-3;
     lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8]/2;
     plot_m = 3;
     plot_n = 2;
 elseif method == 3
     % Fourier 2ord
+    dh = 1e-4;
     lambda_arr = [1];
     plot_m = 1;
     plot_n = 2;
 elseif method == 4
     % Fourier 1ord
+    dh = 1e-4;
     lambda_arr = [0.5];
     plot_m = 1;
     plot_n = 2;
@@ -63,7 +64,7 @@ subplot(plot_m, plot_n, 1);
 hold on;
 plot(x_axis, p_first);
 xlim([pos_first-sigma, pos_first+sigma]);
-ylim([0, 12]);
+ylim([0, 40]);
 xlabel("x");
 ylabel(sprintf("p(x,t=%.1f)", 0));
 title(sprintf("Wave packet at t = %.1f", 0));
@@ -114,7 +115,7 @@ for n = 1:length(lambda_arr)
     subplot(plot_m, plot_n, 1+n);
     plot(x_axis(round(left_last/dh):round(right_last/dh)), p_last, DisplayName=str);
     xlim([pos_last-sigma, pos_last+sigma]);
-    ylim([0, 12]);
+    ylim([0, 40]);
     xlabel("x");
     ylabel(sprintf("p(x,t=%.1f)", len_t));
     title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
