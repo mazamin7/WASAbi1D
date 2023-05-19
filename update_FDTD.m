@@ -69,8 +69,8 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
     if order == 2
         % Compute p_next using the formula
         if isPML == false
-            p_next = (2 * p_curr - p_prev + alpha_abs*dt/2 * p_prev ...
-                + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt/2);
+            p_next = (2 * p_curr - p_prev + alpha_abs*dt * p_prev ...
+                + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt);
         else % isPML == true
             p_next = (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
                 + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);

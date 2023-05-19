@@ -142,7 +142,7 @@ switch test_case
 
     case 5 % propagating wave
         len_x = 10; % Domain length
-        len_t = 4; % Simulation duration
+        len_t = 40; % Simulation duration
 
         % Speed of propagation
         c0 = 1;
