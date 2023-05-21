@@ -10,11 +10,11 @@ plot_ground_truth(test_case_data);
 
 
 % Simulation parameters
-dh = 1e-2;
-dt = dh * 0.8 / c;
+dh = 1e-1;
+dt = dh * 0.5 / c;
 
 % artificial dissipation factors for first order
-xi = 1 - 5e-2;
+xi = 1 - 1e-10;
 nu = 1; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor

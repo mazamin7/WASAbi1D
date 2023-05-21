@@ -10,7 +10,7 @@ p_gt_fun = test_case_data.p_gt_fun;
 v_gt_fun = test_case_data.v_gt_fun;
 
 % Simulation parameters
-dh = 1e-2;
+dh = 1e-1;
 
 if method == 1
     % FDTD 2ord

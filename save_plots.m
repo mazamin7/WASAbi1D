@@ -66,7 +66,7 @@ function save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v)
     end
     
     % Create folder with current filename
-    foldername = sprintf('test=%s__dh=%.2f_dt=%.2f__%s_%s__left=%s_%s__right=%s_%s', num2str(test_case), dh, dt, merge_str, damping_str, method_left_str, bc_left_str, method_right_str, bc_right_str);
+    foldername = sprintf('test=%s__dh=%.4f_dt=%.4f__%s_%s__left=%s_%s__right=%s_%s', num2str(test_case), dh, dt, merge_str, damping_str, method_left_str, bc_left_str, method_right_str, bc_right_str);
 
     % Create images folder if not exists
     if ~exist('images', 'dir')
