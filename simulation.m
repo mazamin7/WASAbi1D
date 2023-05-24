@@ -6,7 +6,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     merge = simulation_parameters.merge;
     method_left = simulation_parameters.method_left;
     method_right = simulation_parameters.method_right;
-    order = simulation_parameters.order;
+    order_left = simulation_parameters.order_left;
+    order_right = simulation_parameters.order_right;
     DD = simulation_parameters.DD;
 
     % Extracting test case data
@@ -28,14 +29,27 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     fourier_right = method_right == 3 || method_right == 4;
 
 
-    if order == 2
-        xi = 1;
-        nu = 1;
-    elseif order == 1 && fourier_left == true
-        xi = 1;
-        nu = nu_fourier;
+    if order_left == 2
+        xi_left = 1;
+        nu_left = 1;
+    elseif order_left == 1 && fourier_left == true
+        xi_left = 1;
+        nu_left = nu_fourier;
+    else
+        xi_left = xi;
+        nu_left = nu;
     end
 
+    if order_right == 2
+        xi_right = 1;
+        nu_right = 1;
+    elseif order_right == 1 && fourier_right == true
+        xi_right = 1;
+        nu_right = nu_fourier;
+    else
+        xi_right = xi;
+        nu_right = nu;
+    end
     
     % Checking compatibility between simulation parameters and test case
     assert(~((method_left == 3 || method_left == 4) && (bc_left == "D" || bc_right == "D")), ...
@@ -46,13 +60,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
     if DD == true
-        stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_left, nu_fourier, DD);
+        stable = check_stability(c0, dt, dh, alpha_abs, order_left, xi_left, nu_left, fourier_left, nu_fourier, DD);
         assert(stable, 'Stability condition not satisfied on the left');
     
-        stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_right, nu_fourier, DD);
+        stable = check_stability(c0, dt, dh, alpha_abs, order_right, xi_right, nu_right, fourier_right, nu_fourier, DD);
         assert(stable, 'Stability condition not satisfied on the right');
     elseif DD == false
-        stable = check_stability(c0, dt, dh, alpha_abs, order, xi, nu, fourier_left, nu_fourier, DD);
+        stable = check_stability(c0, dt, dh, alpha_abs, order_left, xi_left, nu_left, fourier_left, nu_fourier, DD);
         assert(stable, 'Stability condition not satisfied');
     end
     
@@ -97,22 +111,22 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         
         % Initializing update methods
         if fourier_left == false
-            data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, bc_left, "N", method_left == 5, order);
+            data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, bc_left, "N", method_left == 5, order_left);
         else
-            data_left = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs);
+            data_left = init_Fourier(len_x/2, c0, dt, dh, order_left, alpha_abs);
         end
         
         if fourier_right == false
-            data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, "N", bc_right, method_right == 5, order);
+            data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, "N", bc_right, method_right == 5, order_right);
         else
-            data_right = init_Fourier(len_x/2, c0, dt, dh, order, alpha_abs);
+            data_right = init_Fourier(len_x/2, c0, dt, dh, order_right, alpha_abs);
         end
     else
         % Initializing update methods
         if fourier_left == false
-            data_left = init_FDTD(len_x, c0, dt, dh, alpha_abs, bc_left, bc_right, method_left == 5, order);
+            data_left = init_FDTD(len_x, c0, dt, dh, alpha_abs, bc_left, bc_right, method_left == 5, order_left);
         else
-            data_left = init_Fourier(len_x, c0, dt, dh, order, alpha_abs);
+            data_left = init_Fourier(len_x, c0, dt, dh, order_left, alpha_abs);
         end
     end
 
@@ -141,7 +155,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         if DD
             % Update left
             if method_left <= 2 || method_left == 5
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, nu*p(1:N_x/2,n), xi*p(1:N_x/2,n-1), force_now(1:N_x/2), nu*v(1:N_x/2,n), xi*v(1:N_x/2,n-1), g1(n), 0);
+                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, nu_left*p(1:N_x/2,n), xi_left*p(1:N_x/2,n-1), force_now(1:N_x/2), nu_left*v(1:N_x/2,n), xi_left*v(1:N_x/2,n-1), g1(n), 0);
             elseif method_left >= 3
                 [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1));
                 p(1:N_x/2,n+1) = nu_fourier * p(1:N_x/2,n+1);
@@ -149,7 +163,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
             % Update right
             if method_right <= 2 || method_right == 5
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, nu*p(N_x/2+1:N_x,n), xi*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), nu*v(N_x/2+1:N_x,n), xi*v(N_x/2+1:N_x,n-1), 0, g2(n));
+                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, nu_right*p(N_x/2+1:N_x,n), xi_right*p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), nu_right*v(N_x/2+1:N_x,n), xi_right*v(N_x/2+1:N_x,n-1), 0, g2(n));
             elseif method_right >= 3
                 [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1));
                 p(N_x/2+1:N_x,n+1) = nu_fourier * p(N_x/2+1:N_x,n+1);
@@ -166,7 +180,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         else
             % Update
             if method_left <= 2 || method_left == 5
-                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, nu*p(:,n), xi*p(:,n-1), force_now(:), nu*v(:,n), xi*v(:,n-1), g1(n), 0);
+                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, nu_left*p(:,n), xi_left*p(:,n-1), force_now(:), nu_left*v(:,n), xi_left*v(:,n-1), g1(n), 0);
             elseif method_left >= 3
                 [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), v(:,n-1));
                 p(:,n+1) = nu_fourier * p(:,n+1);
@@ -174,8 +188,12 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         end
     
         % Computing velocity if second order
-        if order == 2
-            v(:,n+1) = (p(:,n+1) - p(:,n-1))/2/dt;
+        if order_left == 2
+            v(1:N_x/2,n+1) = (p(1:N_x/2,n+1) - p(1:N_x/2,n-1))/2/dt;
+        end
+
+        if order_right == 2
+            v(N_x/2+1:N_x,n+1) = (p(N_x/2+1:N_x,n+1) - p(N_x/2+1:N_x,n-1))/2/dt;
         end
         
         if debug == true
