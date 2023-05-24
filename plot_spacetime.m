@@ -26,6 +26,7 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str)
         title('Pressure Solution');
     end
     view(0, 90);  % set view to show from the top
+    colorbar;
     
     % Plot v
     fig_v = figure();
@@ -39,4 +40,5 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str)
         title('Velocity Solution');
     end
     view(0, 90);  % set view to show from the top
+    colorbar;
 end
