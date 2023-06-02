@@ -128,12 +128,12 @@ for n = 1:length(lambda_arr)
 
     figure(f2);
     subplot(plot_m, plot_n, 1+n);
-    plot(f_axis, unwrap(angle(fft_last./fft_first)));
+    plot(f_axis, angle(fft_last./fft_first));
     xlim([-f_max/2,f_max/2-dh]);
 %     ylim([-100,100]);
     xlabel("f");
     ylabel(sprintf("\\angle H(f)"));
-    title(sprintf("Frequency response (unwrapped phase) - %s", str));
+    title(sprintf("Frequency response (phase) - %s", str));
 
     figure(f3);
     subplot(plot_m, plot_n, 1+n);
