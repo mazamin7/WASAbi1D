@@ -93,10 +93,13 @@ xlabel("f");
 ylabel(sprintf('|FFT|'));
 title(sprintf("FFT (magnitude) of the wave packet at t = %.1f", 0));
 
+dct_size = fft_size/2;
+dct_axis = linspace(0,f_max/2-dh,dct_size);
+
 f4 = figure();
 set(f4, 'Position', position);
 subplot(plot_m, plot_n, 1);
-plot(dct(p_first));
+plot(dct_axis, dct(p_first, dct_size));
 % ylim([-360,60]);
 xlabel("f");
 ylabel(sprintf('DCT'));
@@ -163,9 +166,9 @@ for n = 1:length(lambda_arr)
 
     figure(f4);
     subplot(plot_m, plot_n, 1+n);
-    plot(dct(p_last));
+    plot(dct_axis, dct(p_last, dct_size));
     hold on;
-    plot(dct(p_first)/2, 'r--');
+    plot(dct_axis, dct(p_first, dct_size)/2, 'r--');
     xlabel("f");
     ylabel(sprintf("DCT"));
     title(sprintf("DCT of the wave packet at t = %.1f - %s", len_t, str));
