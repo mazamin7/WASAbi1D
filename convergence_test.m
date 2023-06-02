@@ -61,32 +61,49 @@ figure;
 subplot(3,1,1);
 plot(dt_arr, L1Err);
 set(gca, 'XScale', 'log', 'XDir', 'reverse');
+hold on;
+
+% Compute theoretical convergence curve
+max_dt = max(dt_arr);
+theory_curve = L1Err(end) * (dt_arr / max_dt);
+plot(dt_arr, theory_curve, 'r-');
+hold off;
+
 title('L1 Error');
 xlabel('dt');
 ylabel('Error');
-%xlim([max(dt_arr) min(dt_arr)]);
-xticks(dt_arr);
-xticklabels(arrayfun(@(x) sprintf('%.1e', x), lambda_arr, 'UniformOutput', false));
+legend('Numerical', 'Theory');
 
 subplot(3,1,2);
 plot(dt_arr, L2Err);
 set(gca, 'XScale', 'log', 'XDir', 'reverse');
+hold on;
+
+% Compute theoretical convergence curve
+theory_curve = L2Err(end) * (dt_arr / max_dt);
+plot(dt_arr, theory_curve, 'r-');
+hold off;
+
 title('L2 Error');
 xlabel('dt');
 ylabel('Error');
-%xlim([max(dt_arr) min(dt_arr)]);
-xticks(dt_arr);
-xticklabels(arrayfun(@(x) sprintf('%.1e', x), dt_arr, 'UniformOutput', false));
+legend('Numerical', 'Theory');
 
 subplot(3,1,3);
 plot(dt_arr, LinfErr);
 set(gca, 'XScale', 'log', 'XDir', 'reverse');
+hold on;
+
+% Compute theoretical convergence curve
+theory_curve = LinfErr(end) * (dt_arr / max_dt);
+plot(dt_arr, theory_curve, 'r-');
+hold off;
+
 title('Linf Error');
 xlabel('dt');
 ylabel('Error');
-%xlim([max(dt_arr) min(dt_arr)]);
-xticks(dt_arr);
-xticklabels(arrayfun(@(x) sprintf('%.1e', x), dt_arr, 'UniformOutput', false));
+legend('Numerical', 'Theory');
+
 
 
 
