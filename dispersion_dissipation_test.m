@@ -63,7 +63,7 @@ subplot(plot_m, plot_n, 1);
 hold on;
 plot(x_axis, p_first);
 %xlim([pos_first-sigma, pos_first+sigma]);
-ylim([0, 40]);
+ylim([0, 24]);
 xlabel("x");
 ylabel(sprintf("p(x,t=%.1f)", 0));
 title(sprintf("Wave packet at t = %.1f", 0));
@@ -114,7 +114,7 @@ for n = 1:length(lambda_arr)
     subplot(plot_m, plot_n, 1+n);
     plot(x_axis(floor(left_last/dh):floor(right_last/dh)), p_last);
     %xlim([pos_last-sigma, pos_last+sigma]);
-    ylim([0, 40]);
+    ylim([0, 12]);
     xlabel("x");
     ylabel(sprintf("p(x,t=%.1f)", len_t));
     title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
@@ -143,15 +143,15 @@ for n = 1:length(lambda_arr)
 
     figure(f3);
     subplot(plot_m, plot_n, 1+n);
-    plot(f_axis, abs(fft_last./fft_first));
+    plot(f_axis, 2*abs(fft_last./fft_first));
     xlim([-f_max/2,f_max/2-dh]);
-    ylim([1/2-0.1,1/2+0.1]);
+    ylim([1-0.1,1+0.1]);
     xlabel("f");
     ylabel(sprintf("|H(f)|"));
     title(sprintf("Frequency response (magnitude) - %s", str));
 
     hold on;
-    plot(f_axis, f_axis*0 + 0.5, 'r--');
+    plot(f_axis, f_axis*0 + 1, 'r--');
     legend("Simulated", "Ideal");
 end
 

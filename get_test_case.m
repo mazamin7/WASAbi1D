@@ -198,7 +198,7 @@ switch test_case
         bc_right = "N";
 
         % Defining wave envelope
-        source_sigma_ratio_x = 1/2000;
+        source_sigma_ratio_x = 1/800;
         sigma = len_x * source_sigma_ratio_x;       % standard deviation of force spatial envelope (Gaussian)
         wave_envelope = @(x) 1/(sigma * sqrt(2 * pi)) * exp(-x.^2/(2*sigma^2)); % Gaussian function
         wave_envelope_d = @(x) -x/(sigma^2) .* wave_envelope(x);
