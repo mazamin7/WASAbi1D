@@ -83,6 +83,10 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
         % Compute p_next and q_next using the formula
         p_next = 2 * dt * v_curr + p_prev;
         v_next = 2 * c^2 * dt / dh^2 * A * p_curr + v_prev - 4 * dt * alpha_abs * v_curr + 2 * dt * force;
+
+        % new proposal (bad)
+%         v_next = (1-2*alpha_abs*dt) * v_curr + c^2 * dt / dh^2 * A * p_curr;
+%         p_next = dt * v_curr + p_curr;
     end
 
     % Truncating ghost points

@@ -40,9 +40,11 @@ function simulation_parameters = get_simulation_parameters()
         choice3 = choice2; % placeholder
     
         if (choice2 == 2) || (choice2 == 4)
-            order = 1;
+            order_left = 1;
+            order_right = order_left;
         else
-            order = 2;
+            order_left = 2;
+            order_right = order_left;
         end
     end
 
