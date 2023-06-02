@@ -120,7 +120,7 @@ for n = 1:length(lambda_arr)
     title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
     
     hold on;
-    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_first/2);
+    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_first/2, 'r--');
     legend("Simulated", "Ideal");
 
 
