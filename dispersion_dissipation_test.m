@@ -49,7 +49,7 @@ sigma = len_x/80;
 pos_first = len_x/2;
 left_first = pos_first - sigma;
 right_first = pos_first + sigma;
-N = round(right_first/dh) - round(left_first/dh) + 1;
+N = floor(right_first/dh) - floor(left_first/dh) + 1;
 
 p_gt_fun = test_case_data.p_gt_fun;
 x_axis = linspace(left_first, right_first, N);
@@ -62,7 +62,7 @@ set(f, 'Position', position);
 subplot(plot_m, plot_n, 1);
 hold on;
 plot(x_axis, p_first);
-xlim([pos_first-sigma, pos_first+sigma]);
+%xlim([pos_first-sigma, pos_first+sigma]);
 ylim([0, 40]);
 xlabel("x");
 ylabel(sprintf("p(x,t=%.1f)", 0));
@@ -106,21 +106,21 @@ for n = 1:length(lambda_arr)
     % Run simulation
     [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, xi, nu, nu_fourier);
 
-    p_last = p(round(left_last/dh):round(right_last/dh),end);
+    p_last = p(floor(left_last/dh):floor(right_last/dh),end);
 
     str = sprintf("\\lambda = %.2f", lambda);
 
     figure(f);
     subplot(plot_m, plot_n, 1+n);
-    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_last);
-    xlim([pos_last-sigma, pos_last+sigma]);
+    plot(x_axis(floor(left_last/dh):floor(right_last/dh)), p_last);
+    %xlim([pos_last-sigma, pos_last+sigma]);
     ylim([0, 40]);
     xlabel("x");
     ylabel(sprintf("p(x,t=%.1f)", len_t));
     title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
     
     hold on;
-    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_first/2, 'r--');
+    plot(x_axis(floor(left_last/dh):floor(right_last/dh)), p_first/2, 'r--');
     legend("Simulated", "Ideal");
 
 
@@ -130,19 +130,27 @@ for n = 1:length(lambda_arr)
     subplot(plot_m, plot_n, 1+n);
     plot(f_axis, angle(fft_last./fft_first));
     xlim([-f_max/2,f_max/2-dh]);
-%     ylim([-100,100]);
+    ylim([-1,1]*pi);
     xlabel("f");
     ylabel(sprintf("\\angle H(f)"));
     title(sprintf("Frequency response (phase) - %s", str));
+
+    hold on;
+    plot(f_axis, f_axis*0, 'r--');
+    legend("Simulated", "Ideal");
 
     figure(f3);
     subplot(plot_m, plot_n, 1+n);
     plot(f_axis, abs(fft_last./fft_first));
     xlim([-f_max/2,f_max/2-dh]);
-    ylim([0,1]);
+    ylim([1/2-0.1,1/2+0.1]);
     xlabel("f");
     ylabel(sprintf("|H(f)|"));
     title(sprintf("Frequency response (magnitude) - %s", str));
+
+    hold on;
+    plot(f_axis, f_axis*0 + 0.5, 'r--');
+    legend("Simulated", "Ideal");
 end
 
 
