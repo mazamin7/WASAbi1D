@@ -171,10 +171,10 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         
             % Post-merge
             if merge == 2
-                if order == 1
+                if order_left == 1
                     v(:,n+1) = v(:,n+1) + transmittivity^2 * 2*dt * residual;
-                elseif order == 2
-                    p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual;
+                elseif order_left == 2
+                    p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual / (1 + alpha_abs*dt);
                 end
             end
         else
