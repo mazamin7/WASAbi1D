@@ -109,15 +109,20 @@ for n = 1:length(lambda_arr)
     p_last = p(round(left_last/dh):round(right_last/dh),end);
 
     str = sprintf("\\lambda = %.2f", lambda);
-    
+
     figure(f);
     subplot(plot_m, plot_n, 1+n);
-    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_last, DisplayName=str);
+    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_last);
     xlim([pos_last-sigma, pos_last+sigma]);
     ylim([0, 40]);
     xlabel("x");
     ylabel(sprintf("p(x,t=%.1f)", len_t));
     title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
+    
+    hold on;
+    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_first/2);
+    legend("Simulated", "Ideal");
+
 
     fft_last = fftshift(fft(p_last, fft_size));
 
