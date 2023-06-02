@@ -14,11 +14,11 @@ dh = 1e-1;
 dt = dh * 0.4 / c;
 
 % artificial dissipation factors for first order
-xi = 1 - 1e-10;
+xi = 1 - eps(1);
 nu = 1; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor
-nu_fourier = 1 - 1e-10; % - eps(1); % < 1
+nu_fourier = 1 - eps(1); % - eps(1); % < 1
 
 % Show debug plot?
 debug = false;
