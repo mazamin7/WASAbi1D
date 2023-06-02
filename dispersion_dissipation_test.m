@@ -142,7 +142,7 @@ for n = 1:length(lambda_arr)
     ylabel(sprintf("\\angle H(f)"));
     yticks([-4 -3 -2 -1 0 1 2 3 4]*pi/4);
     yticklabels({'-4π/4', '-3π/4', '-2π/4', '-π/4', '0', 'π/4', '2π/4', '3π/4', '4π/4'});
-    title(sprintf("Frequency response (phase of FFT ratio) - %s", str));
+    title(sprintf("Phase of the frequency response (FFT ratio) - %s", str));
 
     hold on;
     plot(f_axis, f_axis*0, 'r--');
@@ -155,7 +155,7 @@ for n = 1:length(lambda_arr)
     ylim([1-0.25,1+0.05]);
     xlabel("f");
     ylabel(sprintf("|H(f)|"));
-    title(sprintf("Frequency response (magnitude of FFT ratio) - %s", str));
+    title(sprintf("Magnitude of the frequency response (FFT ratio) - %s", str));
 
     hold on;
     plot(f_axis, f_axis*0 + 1, 'r--');
