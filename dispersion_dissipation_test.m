@@ -20,13 +20,13 @@ elseif method == 2
     plot_n = 2;
 elseif method == 3
     % Fourier 2ord
-    lambda_arr = [1];
-    plot_m = 1;
+    lambda_arr = [0.5 1 2];
+    plot_m = 2;
     plot_n = 2;
 elseif method == 4
     % Fourier 1ord
-    lambda_arr = [1];
-    plot_m = 1;
+    lambda_arr = [0.5 1 2];
+    plot_m = 2;
     plot_n = 2;
 end
 
@@ -35,7 +35,7 @@ xi = 1 - 1e-5;
 nu = 1; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor
-nu_fourier = 1 - 1e-10; % - eps(1); % < 1
+nu_fourier = 1 - eps(1); % - eps(1); % < 1
 
 % Show debug plot?
 debug = false;
@@ -47,7 +47,7 @@ sigma = len_x/80;
 pos_first = len_x/2;
 left_first = pos_first - sigma;
 right_first = pos_first + sigma;
-N = floor(right_first/dh) - floor(left_first/dh);
+N = round(right_first/dh) - round(left_first/dh) + 1;
 
 p_gt_fun = test_case_data.p_gt_fun;
 x_axis = linspace(left_first, right_first, N);
@@ -60,7 +60,7 @@ set(f, 'Position', position);
 subplot(plot_m, plot_n, 1);
 hold on;
 plot(x_axis, p_first);
-%xlim([pos_first-sigma, pos_first+sigma]);
+xlim([pos_first-sigma, pos_first+sigma]);
 ylim([0, 24]);
 xlabel("x");
 ylabel(sprintf("p(x,t=%.1f)", 0));
@@ -116,21 +116,21 @@ for n = 1:length(lambda_arr)
     % Run simulation
     [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, xi, nu, nu_fourier);
 
-    p_last = p(floor(left_last/dh):floor(right_last/dh),end);
+    p_last = p(round(left_last/dh):round(right_last/dh),end);
 
     str = sprintf("\\lambda = %.2f", lambda);
 
     figure(f);
     subplot(plot_m, plot_n, 1+n);
-    plot(x_axis(floor(left_last/dh):floor(right_last/dh)), p_last);
-    %xlim([pos_last-sigma, pos_last+sigma]);
+    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_last);
+    xlim([pos_last-sigma, pos_last+sigma]);
     ylim([0, 12]);
     xlabel("x");
     ylabel(sprintf("p(x,t=%.1f)", len_t));
     title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
     
     hold on;
-    plot(x_axis(floor(left_last/dh):floor(right_last/dh)), p_first/2, 'r--');
+    plot(x_axis(round(left_last/dh):round(right_last/dh)), p_first/2, 'r--');
     legend("Simulated", "Ideal");
 
 
