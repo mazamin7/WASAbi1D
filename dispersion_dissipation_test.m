@@ -63,7 +63,7 @@ plot(x_axis, p_first);
 xlim([pos_first-sigma, pos_first+sigma]);
 ylim([0, 24]);
 xlabel("x");
-ylabel(sprintf("p(x,t=%.1f)", 0));
+ylabel("p");
 title(sprintf("Wave packet at t = %.1f", 0));
 
 
@@ -129,7 +129,7 @@ for n = 1:length(lambda_arr)
     xlim([pos_last-sigma, pos_last+sigma]);
     ylim([0, 12]);
     xlabel("x");
-    ylabel(sprintf("p(x,t=%.1f)", len_t));
+    ylabel("p");
     title(sprintf("Wave packet at t = %.1f - %s", len_t, str));
     
     hold on;
