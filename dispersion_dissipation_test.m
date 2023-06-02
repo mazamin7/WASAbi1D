@@ -20,13 +20,13 @@ elseif method == 2
     plot_n = 2;
 elseif method == 3
     % Fourier 2ord
-    dh = 1e-4;
+    dh = 1e-3;
     lambda_arr = [1];
     plot_m = 1;
     plot_n = 2;
 elseif method == 4
     % Fourier 1ord
-    dh = 1e-4;
+    dh = 1e-3;
     lambda_arr = [0.5];
     plot_m = 1;
     plot_n = 2;
@@ -49,7 +49,7 @@ sigma = len_x/80;
 pos_first = len_x/2;
 left_first = pos_first - sigma;
 right_first = pos_first + sigma;
-N = floor(right_first/dh) - floor(left_first/dh) + 1;
+N = floor(right_first/dh) - floor(left_first/dh);
 
 p_gt_fun = test_case_data.p_gt_fun;
 x_axis = linspace(left_first, right_first, N);
@@ -133,6 +133,8 @@ for n = 1:length(lambda_arr)
     ylim([-1,1]*pi);
     xlabel("f");
     ylabel(sprintf("\\angle H(f)"));
+    yticks([-4 -3 -2 -1 0 1 2 3 4]*pi/4);
+    yticklabels({'-4π/4', '-3π/4', '-2π/4', '-π/4', '0', 'π/4', '2π/4', '3π/4', '4π/4'});
     title(sprintf("Frequency response (phase) - %s", str));
 
     hold on;
