@@ -20,10 +20,10 @@ elseif method == 2
     lambda_arr = [0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8]/2;
 elseif method == 3
     % Fourier 2ord
-    lambda_arr = [0.5 1 1.5 2];
+    lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
 elseif method == 4
     % Fourier 1ord
-    lambda_arr = [0.5 1 1.5 2];
+    lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
 end
 
 dt_arr = dh * lambda_arr / c;

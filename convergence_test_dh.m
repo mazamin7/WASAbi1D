@@ -14,16 +14,16 @@ dt = 1e-3;
 
 if method == 1
     % FDTD 2ord
-    lambda_arr = [0.02 0.04 0.08 0.1 0.2 0.4 0.8];
+    lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
 elseif method == 2
     % FDTD 1ord
-    lambda_arr = [0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8]/2;
+    lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8]/2;
 elseif method == 3
     % Fourier 2ord
-    lambda_arr = [0.5 1 1.5 2];
+    lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
 elseif method == 4
     % Fourier 1ord
-    lambda_arr = [0.5 1 1.5 2];
+    lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
 end
 
 dh_arr = dt ./ lambda_arr * c;
@@ -65,7 +65,7 @@ hold on;
 
 % Compute theoretical convergence curve
 max_dh = max(dh_arr);
-theory_curve = L1Err(1) * (dh_arr / max_dh);
+theory_curve = L1Err(1) * (dh_arr / max_dh).^3;
 plot(dh_arr, theory_curve, 'r-');
 hold off;
 
@@ -80,7 +80,7 @@ set(gca, 'XScale', 'log', 'XDir', 'reverse');
 hold on;
 
 % Compute theoretical convergence curve
-theory_curve = L2Err(1) * (dh_arr / max_dh);
+theory_curve = L2Err(1) * (dh_arr / max_dh).^3;
 plot(dh_arr, theory_curve, 'r-');
 hold off;
 
@@ -95,7 +95,7 @@ set(gca, 'XScale', 'log', 'XDir', 'reverse');
 hold on;
 
 % Compute theoretical convergence curve
-theory_curve = LinfErr(1) * (dh_arr / max_dh);
+theory_curve = LinfErr(1) * (dh_arr / max_dh).^3;
 plot(dh_arr, theory_curve, 'r-');
 hold off;
 
