@@ -93,6 +93,15 @@ xlabel("f");
 ylabel(sprintf('|FFT|'));
 title(sprintf("FFT (magnitude) of the wave packet at t = %.1f", 0));
 
+f4 = figure();
+set(f4, 'Position', position);
+subplot(plot_m, plot_n, 1);
+plot(dct(p_first));
+% ylim([-360,60]);
+xlabel("f");
+ylabel(sprintf('DCT'));
+title(sprintf("DCT of the wave packet at t = %.1f", 0));
+
 
 pos_last = len_x/2 + c*1;
 left_last = pos_last - sigma;
@@ -133,7 +142,7 @@ for n = 1:length(lambda_arr)
     ylabel(sprintf("\\angle H(f)"));
     yticks([-4 -3 -2 -1 0 1 2 3 4]*pi/4);
     yticklabels({'-4π/4', '-3π/4', '-2π/4', '-π/4', '0', 'π/4', '2π/4', '3π/4', '4π/4'});
-    title(sprintf("Frequency response (phase) - %s", str));
+    title(sprintf("Frequency response (phase of FFT ratio) - %s", str));
 
     hold on;
     plot(f_axis, f_axis*0, 'r--');
@@ -146,10 +155,20 @@ for n = 1:length(lambda_arr)
     ylim([1-0.25,1+0.05]);
     xlabel("f");
     ylabel(sprintf("|H(f)|"));
-    title(sprintf("Frequency response (magnitude) - %s", str));
+    title(sprintf("Frequency response (magnitude of FFT ratio) - %s", str));
 
     hold on;
     plot(f_axis, f_axis*0 + 1, 'r--');
+    legend("Simulated", "Ideal");
+
+    figure(f4);
+    subplot(plot_m, plot_n, 1+n);
+    plot(dct(p_last));
+    hold on;
+    plot(dct(p_first)/2, 'r--');
+    xlabel("f");
+    ylabel(sprintf("DCT"));
+    title(sprintf("DCT of the wave packet at t = %.1f - %s", len_t, str));
     legend("Simulated", "Ideal");
 end
 
