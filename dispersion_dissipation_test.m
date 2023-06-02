@@ -5,7 +5,7 @@ test_case_data = get_test_case();
 c = test_case_data.c0;
 method = simulation_parameters.method_left;
 
-dh = 1e-3;
+dh = 4e-4;
 
 % Simulation parameters
 if method == 1
@@ -77,7 +77,8 @@ f2 = figure();
 set(f2, 'Position', position);
 subplot(plot_m, plot_n, 1);
 plot(f_axis, unwrap(angle(fft_first)));
-xlim([-f_max/2,f_max/2-dh]);
+% xlim([-f_max/2,f_max/2-dh]);
+xlim([0, 400]);
 % ylim([-360,60]);
 xlabel("f");
 ylabel(sprintf('\\angle FFT'));
@@ -87,7 +88,8 @@ f3 = figure();
 set(f3, 'Position', position);
 subplot(plot_m, plot_n, 1);
 plot(f_axis, abs(fft_first));
-xlim([-f_max/2,f_max/2-dh]);
+% xlim([-f_max/2,f_max/2-dh]);
+xlim([0, 400]);
 % ylim([-360,60]);
 xlabel("f");
 ylabel(sprintf('|FFT|'));
@@ -100,6 +102,7 @@ f4 = figure();
 set(f4, 'Position', position);
 subplot(plot_m, plot_n, 1);
 plot(dct_axis, dct(p_first, dct_size));
+xlim([0, 400]);
 % ylim([-360,60]);
 xlabel("f");
 ylabel(sprintf('DCT'));
@@ -139,7 +142,8 @@ for n = 1:length(lambda_arr)
     figure(f2);
     subplot(plot_m, plot_n, 1+n);
     plot(f_axis, angle(fft_last./fft_first));
-    xlim([-f_max/2,f_max/2-dh]);
+%     xlim([-f_max/2,f_max/2-dh]);
+    xlim([0, 400]);
     ylim([-1,1]*pi);
     xlabel("f");
     ylabel(sprintf("\\angle H(f)"));
@@ -149,12 +153,13 @@ for n = 1:length(lambda_arr)
 
     hold on;
     plot(f_axis, f_axis*0, 'r--');
-    legend("Simulated", "Ideal");
+    legend("Simulated", "Ideal", "Location", "northwest");
 
     figure(f3);
     subplot(plot_m, plot_n, 1+n);
     plot(f_axis, 2*abs(fft_last./fft_first));
-    xlim([-f_max/2,f_max/2-dh]);
+%     xlim([-f_max/2,f_max/2-dh]);
+    xlim([0, 400]);
     ylim([1-0.25,1+0.05]);
     xlabel("f");
     ylabel(sprintf("|H(f)|"));
@@ -162,11 +167,12 @@ for n = 1:length(lambda_arr)
 
     hold on;
     plot(f_axis, f_axis*0 + 1, 'r--');
-    legend("Simulated", "Ideal");
+    legend("Simulated", "Ideal", "Location", "southwest");
 
     figure(f4);
     subplot(plot_m, plot_n, 1+n);
     plot(dct_axis, dct(p_last, dct_size));
+    xlim([0, 400]);
     hold on;
     plot(dct_axis, dct(p_first, dct_size)/2, 'r--');
     xlabel("f");
