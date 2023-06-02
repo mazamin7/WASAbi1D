@@ -14,10 +14,10 @@ dh = 1e-1;
 
 if method == 1
     % FDTD 2ord
-    lambda_arr = [0.1 0.2 0.4 0.6 0.8];
+    lambda_arr = [0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
 elseif method == 2
     % FDTD 1ord
-    lambda_arr = [0.05 0.1 0.2 0.3 0.4];
+    lambda_arr = [0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8]/2;
 elseif method == 3
     % Fourier 2ord
     lambda_arr = [0.5 1 1.5 2];
@@ -25,6 +25,8 @@ elseif method == 4
     % Fourier 1ord
     lambda_arr = [0.5 1 1.5 2];
 end
+
+dt_arr = dh * lambda_arr / c;
 
 % artificial dissipation factors for first order
 xi = 1 - 1e-10;
@@ -38,8 +40,7 @@ L2Err = zeros(length(lambda_arr), 1);
 LinfErr = zeros(length(lambda_arr), 1);
 
 for i = 1:length(lambda_arr)
-    lambda = lambda_arr(i);
-    dt = dh * lambda / c;
+    dt = dt_arr(i);
 
     % Run simulation
     [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, false, xi, nu, nu_fourier);
@@ -58,31 +59,34 @@ end
 % Plot errors
 figure;
 subplot(3,1,1);
-stem(lambda_arr, L1Err);
+plot(dt_arr, L1Err);
 set(gca, 'XScale', 'log', 'XDir', 'reverse');
 title('L1 Error');
 xlabel('dt');
 ylabel('Error');
-xticks(lambda_arr);
+%xlim([max(dt_arr) min(dt_arr)]);
+xticks(dt_arr);
 xticklabels(arrayfun(@(x) sprintf('%.1e', x), lambda_arr, 'UniformOutput', false));
 
 subplot(3,1,2);
-stem(lambda_arr, L2Err);
+plot(dt_arr, L2Err);
 set(gca, 'XScale', 'log', 'XDir', 'reverse');
 title('L2 Error');
 xlabel('dt');
 ylabel('Error');
-xticks(lambda_arr);
-xticklabels(arrayfun(@(x) sprintf('%.1e', x), lambda_arr, 'UniformOutput', false));
+%xlim([max(dt_arr) min(dt_arr)]);
+xticks(dt_arr);
+xticklabels(arrayfun(@(x) sprintf('%.1e', x), dt_arr, 'UniformOutput', false));
 
 subplot(3,1,3);
-stem(lambda_arr, LinfErr);
+plot(dt_arr, LinfErr);
 set(gca, 'XScale', 'log', 'XDir', 'reverse');
 title('Linf Error');
 xlabel('dt');
 ylabel('Error');
-xticks(lambda_arr);
-xticklabels(arrayfun(@(x) sprintf('%.1e', x), lambda_arr, 'UniformOutput', false));
+%xlim([max(dt_arr) min(dt_arr)]);
+xticks(dt_arr);
+xticklabels(arrayfun(@(x) sprintf('%.1e', x), dt_arr, 'UniformOutput', false));
 
 
 
