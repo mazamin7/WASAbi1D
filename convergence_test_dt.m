@@ -15,25 +15,29 @@ dh = 1e-1;
 if method == 1
     % FDTD 2ord
     lambda_arr = [0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
+    theory_order = 1;
 elseif method == 2
     % FDTD 1ord
     lambda_arr = [0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8]/2;
+    theory_order = 1;
 elseif method == 3
     % Fourier 2ord
     lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
+    theory_order = 1;
 elseif method == 4
     % Fourier 1ord
     lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
+    theory_order = 1;
 end
 
 dt_arr = dh * lambda_arr / c;
 
 % artificial dissipation factors for first order
-xi = 1 - 1e-10;
+xi = 1 - eps(1);
 nu = 1; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor
-nu_fourier = 1 - 1e-10; % - eps(1); % < 1
+nu_fourier = 1 - eps(1); % - eps(1); % < 1
 
 L1Err = zeros(length(lambda_arr), 1);
 L2Err = zeros(length(lambda_arr), 1);
@@ -65,14 +69,15 @@ hold on;
 
 % Compute theoretical convergence curve
 max_dt = max(dt_arr);
-theory_curve = L1Err(end) * (dt_arr / max_dt);
+theory_curve = L1Err(end) * (dt_arr / max_dt) .^ theory_order;
 plot(dt_arr, theory_curve, 'r-');
 hold off;
 
+str = sprintf("Theory - dt^%d", theory_order);
 title('L1 Error');
 xlabel('dt');
 ylabel('Error');
-legend('Numerical', 'Theory');
+legend('Numerical', str);
 
 subplot(3,1,2);
 plot(dt_arr, L2Err);
@@ -80,14 +85,14 @@ set(gca, 'XScale', 'log', 'XDir', 'reverse');
 hold on;
 
 % Compute theoretical convergence curve
-theory_curve = L2Err(end) * (dt_arr / max_dt);
+theory_curve = L2Err(end) * (dt_arr / max_dt) .^ theory_order;
 plot(dt_arr, theory_curve, 'r-');
 hold off;
 
 title('L2 Error');
 xlabel('dt');
 ylabel('Error');
-legend('Numerical', 'Theory');
+legend('Numerical', str);
 
 subplot(3,1,3);
 plot(dt_arr, LinfErr);
@@ -95,14 +100,14 @@ set(gca, 'XScale', 'log', 'XDir', 'reverse');
 hold on;
 
 % Compute theoretical convergence curve
-theory_curve = LinfErr(end) * (dt_arr / max_dt);
+theory_curve = LinfErr(end) * (dt_arr / max_dt) .^ theory_order;
 plot(dt_arr, theory_curve, 'r-');
 hold off;
 
 title('Linf Error');
 xlabel('dt');
 ylabel('Error');
-legend('Numerical', 'Theory');
+legend('Numerical', str);
 
 
 

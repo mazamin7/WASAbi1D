@@ -10,30 +10,36 @@ p_gt_fun = test_case_data.p_gt_fun;
 v_gt_fun = test_case_data.v_gt_fun;
 
 % Simulation parameters
-dt = 1e-3;
-
 if method == 1
     % FDTD 2ord
     lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
+    theory_order = 1;
+    dt = 1e-4;
 elseif method == 2
     % FDTD 1ord
     lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8]/2;
+    theory_order = 1;
+    dt = 1e-4;
 elseif method == 3
     % Fourier 2ord
     lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
+    theory_order = 1;
+    dt = 1e-3;
 elseif method == 4
     % Fourier 1ord
     lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
+    theory_order = 1;
+    dt = 1e-3;
 end
 
 dh_arr = dt ./ lambda_arr * c;
 
 % artificial dissipation factors for first order
-xi = 1 - 1e-10;
+xi = 1 - eps(1);
 nu = 1; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor
-nu_fourier = 1 - 1e-10; % - eps(1); % < 1
+nu_fourier = 1 - eps(1); % - eps(1); % < 1
 
 L1Err = zeros(length(lambda_arr), 1);
 L2Err = zeros(length(lambda_arr), 1);
@@ -65,14 +71,15 @@ hold on;
 
 % Compute theoretical convergence curve
 max_dh = max(dh_arr);
-theory_curve = L1Err(1) * (dh_arr / max_dh).^3;
+theory_curve = L1Err(1) * (dh_arr / max_dh) .^ theory_order;
 plot(dh_arr, theory_curve, 'r-');
 hold off;
 
+str = sprintf("Theory - dh^%d", theory_order);
 title('L1 Error');
 xlabel('dh');
 ylabel('Error');
-legend('Numerical', 'Theory');
+legend('Numerical', str);
 
 subplot(3,1,2);
 plot(dh_arr, L2Err);
@@ -80,14 +87,14 @@ set(gca, 'XScale', 'log', 'XDir', 'reverse');
 hold on;
 
 % Compute theoretical convergence curve
-theory_curve = L2Err(1) * (dh_arr / max_dh).^3;
+theory_curve = L2Err(1) * (dh_arr / max_dh) .^ theory_order;
 plot(dh_arr, theory_curve, 'r-');
 hold off;
 
 title('L2 Error');
 xlabel('dh');
 ylabel('Error');
-legend('Numerical', 'Theory');
+legend('Numerical', str);
 
 subplot(3,1,3);
 plot(dh_arr, LinfErr);
@@ -95,14 +102,14 @@ set(gca, 'XScale', 'log', 'XDir', 'reverse');
 hold on;
 
 % Compute theoretical convergence curve
-theory_curve = LinfErr(1) * (dh_arr / max_dh).^3;
+theory_curve = LinfErr(1) * (dh_arr / max_dh) .^ theory_order;
 plot(dh_arr, theory_curve, 'r-');
 hold off;
 
 title('Linf Error');
 xlabel('dh');
 ylabel('Error');
-legend('Numerical', 'Theory');
+legend('Numerical', str);
 
 
 

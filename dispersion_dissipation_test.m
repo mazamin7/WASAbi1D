@@ -31,7 +31,7 @@ elseif method == 4
 end
 
 % artificial dissipation factors for first order
-xi = 1 - 1e-5;
+xi = 1 - eps(1);
 nu = 1; % 0.99; % in case of Fourier, it only affects DD
 
 % Fourier artificial dissipation factor
