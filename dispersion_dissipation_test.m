@@ -25,7 +25,7 @@ elseif method == 3
     plot_n = 2;
 elseif method == 4
     % Fourier 1ord
-    lambda_arr = [0.5];
+    lambda_arr = [1];
     plot_m = 1;
     plot_n = 2;
 end
