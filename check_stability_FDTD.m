@@ -7,11 +7,7 @@ function [stable] = check_stability_FDTD(c, dt, dh, order, diss, asymptotic)
 
     var_1511 = 1/2 * (abs(alpha) + abs(beta) + abs(gamma) - delta/2);
 
-    if order == 1
-        CFL = 0.5 / sqrt(var_1511);
-    elseif order == 2
-        CFL = 1 / sqrt(var_1511);
-    end
+    CFL = 1 / sqrt(var_1511);
 
     if asymptotic
         stable = dt < dh / c * CFL; % CFL condition

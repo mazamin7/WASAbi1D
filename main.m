@@ -10,8 +10,8 @@ plot_ground_truth(test_case_data);
 
 
 % Simulation parameters
-dh = 1e-1;
-dt = dh * 0.04 / c;
+dh = 1e-2;
+dt = dh * 0.8 / c;
 
 % Artificial dissipation factor
 diss = 1 - eps(1);

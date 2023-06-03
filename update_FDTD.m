@@ -69,8 +69,8 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
     if order == 2
         % Compute p_next using the formula
         if isPML == false
-            p_next = (2 * p_curr - p_prev + alpha_abs*dt * p_prev ...
-                + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + alpha_abs*dt);
+            p_next = (2 * p_curr - (1 - dt*alpha_abs) * p_prev ...
+                + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + dt*alpha_abs);
         else % isPML == true
             p_next = (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
                 + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);
@@ -80,18 +80,9 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
         % we could use: v_next = (p_next - p_curr)/dt;
         v_next = v_curr * 0;
     elseif order == 1
-        % Compute p_next and q_next using the formula
-%         p_next = 2 * dt * v_curr + p_prev;
-%         v_next = 2 * c^2 * dt / dh^2 * A * p_curr + v_prev - 4 * dt * alpha_abs * v_curr + 2 * dt * force;
-
-        % new proposal (bad)
-%         v_next = (1-2*alpha_abs*dt) * v_curr + c^2 * dt / dh^2 * A * p_curr;
-%         p_next = dt * v_curr + p_curr;
-
-        % v^{n+1} = (v^{n-1} + 2dt*c^2/dh^2*p^{n} + 2dt*F^{n+1})/(1+4dt*alpha)
-        % I SHOULD USE NEXT FORCE
-        p_next = 2 * dt * v_curr + p_prev;
-        v_next = (v_prev + 2 * c^2 * dt / dh^2 * A * p_curr + 2 * dt * force)/(1 + 4*dt*alpha_abs);
+        % WE SHOULD USE NEXT FORCE
+        p_next = p_curr + dt * v_curr;
+        v_next = (v_curr + c^2 * dt / dh^2 * A * p_next + dt * force)/(1 + 2*dt*alpha_abs);
     end
 
     % Truncating ghost points

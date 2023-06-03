@@ -118,7 +118,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     for n = 2:N_t-1
         if DD
             % Residual calculation
-            residual = nu * (c0 / dh)^2 * C * p(:,n);
+            residual = (c0 / dh)^2 * C * p(:,n);
         
             % Pre-merge
             if merge == 1
