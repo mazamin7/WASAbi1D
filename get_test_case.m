@@ -140,7 +140,7 @@ switch test_case
         g1_time_fun = @(t) 0;
         g2_time_fun = @(t) 0;
 
-    case 5 % propagating wave
+    case 5 % damped propagating wave (BAD GROUND TRUTH)
         len_x = 10; % Domain length
         len_t = 4; % Simulation duration
 
