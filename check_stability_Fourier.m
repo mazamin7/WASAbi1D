@@ -1,5 +1,5 @@
-function [stable] = check_stability_Fourier(nu_fourier)
+function [stable] = check_stability_Fourier(diss)
 
-    stable = nu_fourier < 1;
+    stable = diss < 1;
 
 end

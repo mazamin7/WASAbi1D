@@ -13,18 +13,14 @@ plot_ground_truth(test_case_data);
 dh = 1e-1;
 dt = dh * 0.04 / c;
 
-% artificial dissipation factors for first order
-xi = 1 - eps(1);
-nu = 1; % 0.99; % in case of Fourier, it only affects DD
-
-% Fourier artificial dissipation factor
-nu_fourier = 1 - eps(1); % - eps(1); % < 1
+% Artificial dissipation factor
+diss = 1 - eps(1);
 
 % Show debug plot?
 debug = false;
 
 % Run simulation
-[t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, xi, nu, nu_fourier);
+[t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss);
 
 % Plotting simulation
 [fig_p, fig_v] = plot_spacetime(t_axis,x_axis,p,v,'Simulation');

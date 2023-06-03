@@ -1,4 +1,4 @@
-function [stable] = check_stability_FDTD(c, dt, dh, alpha_abs, order, xi, nu, asymptotic)
+function [stable] = check_stability_FDTD(c, dt, dh, order, diss, asymptotic)
 
     alpha = 1/90;
     beta = -3/20;
@@ -18,5 +18,7 @@ function [stable] = check_stability_FDTD(c, dt, dh, alpha_abs, order, xi, nu, as
     else
         stable = dt <= dh / c * CFL;
     end
+
+    stable = stable && diss < 1;
 
 end
