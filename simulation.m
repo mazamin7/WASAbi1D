@@ -123,32 +123,39 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
             force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
 
-            % Update left
-            if method_left <= 2 || method_left == 5
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1), g1(n), 0);
-            elseif method_left >= 3
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1));
-            end
+            residual_old = residual;
 
-            % Update right
-            if method_right <= 2 || method_right == 5
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1), 0, g2(n));
-            elseif method_right >= 3
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1));
+            for it = 1:10
+                % Update left
+                if method_left <= 2 || method_left == 5
+                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1), g1(n), 0);
+                elseif method_left >= 3
+                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1));
+                end
+    
+                % Update right
+                if method_right <= 2 || method_right == 5
+                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1), 0, g2(n));
+                elseif method_right >= 3
+                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1));
+                end
+
+                residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
+                force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
             end
         end
 
         if DD
             % Residual calculation
             if order_left == 1
-                residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
+%                 residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
             else
                 residual = (c0 / dh)^2 * C * p(:,n);
             end
             
             % Pre-merge
             if merge == 1
-                force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
+%                 force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
             else
                 force_now = force(:,n+force_n_offset);
             end
@@ -227,6 +234,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             title('Pressure');
             xlim([0,len_x]);
             ylim([-150 0]);
+            yticks(-150:10:0);
+            grid on;
         
             % Plot v
             subplot(2,1,2);
@@ -234,6 +243,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             title('Velocity');
             xlim([0,len_x]);
             ylim([-150 0]);
+            yticks(-150:10:0);
+            grid on;
         else
             clc;
             disp(['Simulation: ' num2str((n+1)/N_t*100) '%']);
