@@ -125,7 +125,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
 
             % iterative refinement
-            for it = 1:10
+            for it = 1:10 % min 1
                 % Update left
                 if method_left <= 2 || method_left == 5
                     [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
@@ -147,7 +147,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
         if DD
             % Residual calculation
-            if order_left ~= 1 && merge ~= 1
+            if ~(order_left == 1 && merge == 1)
                 residual = (c0 / dh)^2 * C * p(:,n);
             end
 
