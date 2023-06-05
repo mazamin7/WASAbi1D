@@ -140,15 +140,17 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
                 end
 
-                residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
+                residual = (c0 / dh)^2 * C * p(:,n+1);
                 force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
             end
         end
 
         if DD
             % Residual calculation
-            residual = (c0 / dh)^2 * C * p(:,n);
-            
+            if order_left ~= 1 && merge ~= 1
+                residual = (c0 / dh)^2 * C * p(:,n);
+            end
+
             % Pre-merge
             if merge == 1
                 force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
