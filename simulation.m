@@ -120,8 +120,12 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     for n = 2:N_t-1
         if DD
             % Residual calculation
-            residual = (c0 / dh)^2 * C * p(:,n);
-        
+            if order_left == 1
+                residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
+            else
+                residual = (c0 / dh)^2 * C * p(:,n);
+            end
+            
             % Pre-merge
             if merge == 1
                 force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
@@ -150,9 +154,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % Post-merge
             if merge == 2
                 if order_left == 1
-                    v(:,n+1) = v(:,n+1) + transmittivity^2 * 2*dt * residual;
+                    v(:,n+1) = v(:,n+1) + transmittivity^2 * dt * residual / (1 + 2*dt*alpha_abs);
                 elseif order_left == 2
-                    p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual / (1 + alpha_abs*dt);
+                    p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual / (1 + dt*alpha_abs);
                 end
             end
         else
@@ -187,6 +191,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             plot(x_axis, p(:,n+1));
             title('Pressure');
             xlim([0,len_x]);
+%             ylim([-100 0]);
             ylim([-1,1]*2e-1);
         
             % Plot v
@@ -194,6 +199,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             plot(x_axis, v(:,n+1));
             title('Velocity');
             xlim([0,len_x]);
+%             ylim([-100 0]);
             ylim([-c0,c0]*5e-1);
         else
             clc;
