@@ -119,73 +119,136 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     % Simulation loop
     for n = 2:N_t-1
         % Step 0 (prediction correction, only if DD and pre-merge and first order)
-        if DD && order_left == 1 && merge == 1
-            % first guess
-            residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
-            force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
+%         if DD && order_left == 1 && merge == 1
+%             % first guess
+%             residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
+%             force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
+% 
+%             % iterative refinement
+%             for it = 1:10 % min 1
+%                 % Update left
+%                 if method_left <= 2 || method_left == 5
+%                     [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
+%                 elseif method_left >= 3
+%                     [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
+%                 end
+%     
+%                 % Update right
+%                 if method_right <= 2 || method_right == 5
+%                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
+%                 elseif method_right >= 3
+%                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
+%                 end
+% 
+%                 residual = (c0 / dh)^2 * C * p(:,n+1);
+%                 force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
+%             end
+%         end
 
-            % iterative refinement
-            for it = 1:10 % min 1
+        if DD
+            % Compute residual
+            if order_left == 2
+                residual = (c0 / dh)^2 * C * p(:,n); % exact
+            elseif order_left == 1 && fourier_left == true
+                % make a guess of p(n+1) using FDTD
+                p(:,n+1) = dt * v(:,n) + p(:,n);
+                residual = (c0 / dh)^2 * C * p(:,n+1);
+            else % order_left == 1 && fourier_left == false
+                % make a guess of p(n+1) using p(n)
+                residual = (c0 / dh)^2 * C * p(:,n);
+            end
+
+            if order_left == 2 % Second order
+
+                % Pre-merge
+                if merge == 1
+                    force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
+                else
+                    force_now = force(:,n+force_n_offset);
+                end
+    
                 % Update left
                 if method_left <= 2 || method_left == 5
                     [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
                 elseif method_left >= 3
                     [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
                 end
-    
+        
                 % Update right
                 if method_right <= 2 || method_right == 5
                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
                 elseif method_right >= 3
                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
                 end
-
-                residual = (c0 / dh)^2 * C * p(:,n+1);
-                force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
-            end
-        end
-
-        if DD
-            % Residual calculation
-            if ~(order_left == 1 && merge == 1)
-                residual = (c0 / dh)^2 * C * p(:,n);
-            end
-
-            % Pre-merge
-            if merge == 1
-                force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
-            else
-                force_now = force(:,n+force_n_offset);
-            end
-        else
-            force_now = force(:,n+force_n_offset);
-        end
-        
-        if DD
-            % Update left
-            if method_left <= 2 || method_left == 5
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
-            elseif method_left >= 3
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
-            end
-
-            % Update right
-            if method_right <= 2 || method_right == 5
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
-            elseif method_right >= 3
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
-            end
-        
-            % Post-merge
-            if merge == 2
-                if order_left == 1
-                    residual = (c0 / dh)^2 * C * p(:,n+1);
-                    v(:,n+1) = v(:,n+1) + transmittivity^2 * dt * residual / (1 + 2*dt*alpha_abs);
-                elseif order_left == 2
+                
+                % Post-merge
+                if merge == 2
                     p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual / (1 + dt*alpha_abs);
                 end
+
+            elseif order_left == 1 && merge == 2 % First order post merge
+
+                force_now = force(:,n+force_n_offset);
+
+                % Update left
+                if method_left <= 2 || method_left == 5
+                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
+                elseif method_left >= 3
+                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
+                end
+        
+                % Update right
+                if method_right <= 2 || method_right == 5
+                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
+                elseif method_right >= 3
+                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
+                end
+                
+                % Post-merge
+                residual = (c0 / dh)^2 * C * p(:,n+1);
+                v(:,n+1) = v(:,n+1) + transmittivity^2 * dt * residual / (1 + 2*dt*alpha_abs);
+
+            elseif order_left == 1 && merge == 1 % First order pre merge
+
+                % Prediction correction scheme
+
+                % Decide how many iterations
+                if fourier_left
+                    num_it = 10;
+                else
+                    num_it = 2;
+                end
+
+                for it = 1:num_it
+                    % Pre-merge
+                    if merge == 1
+                        force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
+                    else
+                        force_now = force(:,n+force_n_offset);
+                    end
+    
+                    % Update left
+                    if method_left <= 2 || method_left == 5
+                        [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
+                    elseif method_left >= 3
+                        [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
+                    end
+        
+                    % Update right
+                    if method_right <= 2 || method_right == 5
+                        [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
+                    elseif method_right >= 3
+                        [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
+                    end
+
+                    % Recompute residual
+                    residual = (c0 / dh)^2 * C * p(:,n+1);
+                end
+
             end
-        else
+        else % no DD
+            force_now = force(:,n+force_n_offset);
+
             % Update
             if method_left <= 2 || method_left == 5
                 [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), g1(n), 0);
