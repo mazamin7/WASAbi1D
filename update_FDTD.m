@@ -1,4 +1,4 @@
-function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_prev, g1, g2)
+function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, g1, g2)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -32,13 +32,9 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
     p_prev = zeros(N+4,1);
     p_prev(3:end-2) = p_prev_old;
 
-    q_curr_old = v_curr;
+    v_curr_old = v_curr;
     v_curr = zeros(N+4,1);
-    v_curr(3:end-2) = q_curr_old;
-
-    q_prev_old = v_prev;
-    v_prev = zeros(N+4,1);
-    v_prev(3:end-2) = q_prev_old;
+    v_curr(3:end-2) = v_curr_old;
 
     force_old = force';
     force = zeros(N+4,1);

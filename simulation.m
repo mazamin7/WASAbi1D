@@ -126,16 +126,16 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             for it = 1:10
                 % Update left
                 if method_left <= 2 || method_left == 5
-                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1), g1(n), 0);
+                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
                 elseif method_left >= 3
-                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1));
+                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
                 end
     
                 % Update right
                 if method_right <= 2 || method_right == 5
-                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1), 0, g2(n));
+                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
                 elseif method_right >= 3
-                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1));
+                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
                 end
 
                 residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
@@ -164,16 +164,16 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         if DD
             % Update left
             if method_left <= 2 || method_left == 5
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1), g1(n), 0);
+                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
             elseif method_left >= 3
-                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), v(1:N_x/2,n-1));
+                [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
             end
 
             % Update right
             if method_right <= 2 || method_right == 5
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1), 0, g2(n));
+                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
             elseif method_right >= 3
-                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), v(N_x/2+1:N_x,n-1));
+                [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
             end
         
             % Post-merge
@@ -188,9 +188,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         else
             % Update
             if method_left <= 2 || method_left == 5
-                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), v(:,n-1), g1(n), 0);
+                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), g1(n), 0);
             elseif method_left >= 3
-                [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), v(:,n-1));
+                [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n));
             end
         end
 

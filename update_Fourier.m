@@ -1,4 +1,4 @@
-function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, v_curr, v_prev)
+function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, v_curr)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -34,7 +34,6 @@ function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
 
     force_dct = dct(force);
 
-    v_prev_dct = dct(v_prev,'Type',DCT_type);
     v_curr_dct = dct(v_curr,'Type',DCT_type);
     v_next_dct = zeros(N,1);
 
