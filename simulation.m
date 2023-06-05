@@ -123,8 +123,6 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
             force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
 
-            residual_old = residual;
-
             for it = 1:10
                 % Update left
                 if method_left <= 2 || method_left == 5
@@ -228,23 +226,25 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 %             xlim([0,len_x]);
 %             ylim([-c0,c0]*5e-1);
 
-            % Plot p
-            subplot(2,1,1);
-            plot(x_axis, db(p(:,n+1)));
-            title('Pressure');
-            xlim([0,len_x]);
-            ylim([-150 0]);
-            yticks(-150:10:0);
-            grid on;
+            if mod(n,10) == 1
+                % Plot p
+                subplot(211);
+                plot(x_axis, db(p(:,n+1)));
+                title('Pressure');
+                grid on;
+                xlim([0,len_x]);
+                ylim([-150 0]);
+                yticks(-150:10:0);
         
-            % Plot v
-            subplot(2,1,2);
-            plot(x_axis, db(v(:,n+1)));
-            title('Velocity');
-            xlim([0,len_x]);
-            ylim([-150 0]);
-            yticks(-150:10:0);
-            grid on;
+                % Plot v
+                subplot(212);
+                plot(x_axis, db(v(:,n+1)));
+                title('Velocity');
+                grid on;
+                xlim([0,len_x]);
+                ylim([-150 0]);
+                yticks(-150:10:0);
+            end
         else
             clc;
             disp(['Simulation: ' num2str((n+1)/N_t*100) '%']);
