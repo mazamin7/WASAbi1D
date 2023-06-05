@@ -121,7 +121,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         if DD
             % Residual calculation
             if order_left == 1
-                residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
+                % FARE IN DUE STEP; COSì QUA GIà C'é una soluzione buona
+                residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
             else
                 residual = (c0 / dh)^2 * C * p(:,n);
             end
@@ -154,6 +155,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % Post-merge
             if merge == 2
                 if order_left == 1
+                    residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
                     v(:,n+1) = v(:,n+1) + transmittivity^2 * dt * residual / (1 + 2*dt*alpha_abs);
                 elseif order_left == 2
                     p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual / (1 + dt*alpha_abs);

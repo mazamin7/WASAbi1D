@@ -10,5 +10,4 @@ function [stable] = check_stability(c, dt, dh, order, fourier, diss, DD)
         cond2 = check_stability_FDTD(c, dt, dh, order, diss, false);
         stable = cond1 && cond2;
     end
-
 end
