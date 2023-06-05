@@ -113,6 +113,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         f = figure();
         f.Position = [100, 100, 1200, 700];
     end
+
+    force_n_offset = order_left == 1 && fourier_left == false;
     
     % Simulation loop
     for n = 2:N_t-1
@@ -122,12 +124,12 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         
             % Pre-merge
             if merge == 1
-                force_now = force(:,n) + transmittivity^2 * residual;
+                force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
             else
-                force_now = force(:,n);
+                force_now = force(:,n+force_n_offset);
             end
         else
-            force_now = force(:,n);
+            force_now = force(:,n+force_n_offset);
         end
         
         if DD

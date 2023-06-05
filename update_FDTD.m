@@ -80,7 +80,7 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, v_p
         % we could use: v_next = (p_next - p_curr)/dt;
         v_next = v_curr * 0;
     elseif order == 1
-        % WE SHOULD USE NEXT FORCE
+        % the simulation code handles the correct instant of the force
         p_next = p_curr + dt * v_curr;
         v_next = (v_curr + c^2 * dt / dh^2 * A * p_next + dt * force)/(1 + 2*dt*alpha_abs);
     end
