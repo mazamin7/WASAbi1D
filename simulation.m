@@ -120,9 +120,11 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     for n = 2:N_t-1
         % Step 0 (prediction correction, only if DD and pre-merge and first order)
         if DD && order_left == 1 && merge == 1
+            % first guess
             residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
             force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
 
+            % iterative refinement
             for it = 1:10
                 % Update left
                 if method_left <= 2 || method_left == 5
@@ -145,11 +147,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
         if DD
             % Residual calculation
-            if order_left == 1
-%                 residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
-            else
-                residual = (c0 / dh)^2 * C * p(:,n);
-            end
+            residual = (c0 / dh)^2 * C * p(:,n);
             
             % Pre-merge
             if merge == 1
@@ -179,7 +177,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % Post-merge
             if merge == 2
                 if order_left == 1
-                    residual = (c0 * dt / dh)^2 * C * v(:,n+1) + (c0 / dh)^2 * C * p(:,n+1);
+                    residual = (c0 / dh)^2 * C * p(:,n+1);
                     v(:,n+1) = v(:,n+1) + transmittivity^2 * dt * residual / (1 + 2*dt*alpha_abs);
                 elseif order_left == 2
                     p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual / (1 + dt*alpha_abs);
