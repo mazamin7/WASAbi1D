@@ -119,12 +119,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     % Simulation loop
     for n = 2:N_t-1
         if DD
-            % Compute residual
-            if order_left == 2
+            if order_left == 2  % Second order
+                % Compute residual
                 residual = (c0 / dh)^2 * C * p(:,n);
-            end
-
-            if order_left == 2 % Second order
 
                 % Pre-merge
                 if merge == 1
@@ -170,8 +167,10 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
                 end
                 
-                % Post-merge
+                % Compute residual
                 residual = (c0 / dh)^2 * C * p(:,n+1);
+
+                % Post-merge
                 v(:,n+1) = v(:,n+1) + transmittivity^2 * dt * residual / (1 + 2*dt*alpha_abs);
 
             elseif order_left == 1 && merge == 1 % First order pre merge
