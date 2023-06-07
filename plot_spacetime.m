@@ -1,4 +1,4 @@
-function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str)
+function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plot)
 %PLOT_SPACETIME Plots the spacetime solutions for pressure and velocity
 %   [fig_p, fig_v] = PLOT_SPACETIME(t_axis, x_axis, p, v, title_str) takes
 %   in the time axis t_axis, the space axis x_axis, the pressure solution p
@@ -14,31 +14,63 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str)
 %   'Pressure Solution' or 'Velocity Solution' in the title of the
 %   respective plots.
 
-    % Plot p
-    fig_p = figure();
-    surf(t_axis, x_axis, p,'EdgeColor','none','FaceColor','interp');
-    xlabel('Time [s]');
-    ylabel('Space [m]');
-    zlabel('Pressure');
-    if nargin == 5
-        title(['Pressure Solution: ', title_str]);
+    if db_plot == false
+        % Plot p
+        fig_p = figure();
+        surf(t_axis, x_axis, p,'EdgeColor','none','FaceColor','interp');
+        xlabel('Time [s]');
+        ylabel('Space [m]');
+        zlabel('Pressure');
+        if nargin == 5
+            title(['Pressure Solution: ', title_str]);
+        else
+            title('Pressure Solution');
+        end
+        view(0, 90);  % set view to show from the top
+        colorbar;
+        
+        % Plot v
+        fig_v = figure();
+        surf(t_axis, x_axis, v,'EdgeColor','none','FaceColor','interp');
+        xlabel('Time [s]');
+        ylabel('Space [m]');
+        zlabel('Velocity');
+        if nargin == 5
+            title(['Velocity Solution: ', title_str]);
+        else
+            title('Velocity Solution');
+        end
+        view(0, 90);  % set view to show from the top
+        colorbar;
     else
-        title('Pressure Solution');
+        % Plot p
+        fig_p = figure();
+        surf(t_axis, x_axis, db(p),'EdgeColor','none','FaceColor','interp');
+        xlabel('Time [s]');
+        ylabel('Space [m]');
+        zlabel('Pressure (dB)');
+        if nargin == 5
+            title(['Pressure Solution: ', title_str]);
+        else
+            title('Pressure Solution');
+        end
+        view(0, 90);  % set view to show from the top
+        colorbar;
+        clim([-150 0]);
+        
+        % Plot v
+        fig_v = figure();
+        surf(t_axis, x_axis, db(v),'EdgeColor','none','FaceColor','interp');
+        xlabel('Time [s]');
+        ylabel('Space [m]');
+        zlabel('Velocity (dB)');
+        if nargin == 5
+            title(['Velocity Solution: ', title_str]);
+        else
+            title('Velocity Solution');
+        end
+        view(0, 90);  % set view to show from the top
+        colorbar;
+        clim([-150 0]);
     end
-    view(0, 90);  % set view to show from the top
-    colorbar;
-    
-    % Plot v
-    fig_v = figure();
-    surf(t_axis, x_axis, v,'EdgeColor','none','FaceColor','interp');
-    xlabel('Time [s]');
-    ylabel('Space [m]');
-    zlabel('Velocity');
-    if nargin == 5
-        title(['Velocity Solution: ', title_str]);
-    else
-        title('Velocity Solution');
-    end
-    view(0, 90);  % set view to show from the top
-    colorbar;
 end

@@ -15,7 +15,7 @@ if method == 1
     plot_n = 2;
 elseif method == 2
     % FDTD 1ord
-    lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8]/2;
+    lambda_arr = [0.1, 0.2, 0.4, 0.6, 0.8];
     plot_m = 3;
     plot_n = 2;
 elseif method == 3
@@ -113,7 +113,7 @@ for n = 1:length(lambda_arr)
     lambda = lambda_arr(n);
     dt = dh * lambda / c;
     % Run simulation
-    [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss);
+    [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss, false);
 
     p_last = p(round(left_last/dh):round(right_last/dh),end);
 

@@ -1,4 +1,4 @@
-function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss)
+function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss, db_plot)
 %SIMULATION Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -275,38 +275,40 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             sgtitle(['instant [s]: ' num2str((n+1)*dt, '%4.3f') ' / ' ...
                 num2str(len_t, '%4.3f') ' ( ' num2str((n+1)/N_t*100, '%4.1f') '% )']);
         
-%             % Plot p
-%             subplot(2,1,1);
-%             plot(x_axis, p(:,n+1));
-%             title('Pressure');
-%             xlim([0,len_x]);
-%             ylim([-1,1]*2e-1);
-%         
-%             % Plot v
-%             subplot(2,1,2);
-%             plot(x_axis, v(:,n+1));
-%             title('Velocity');
-%             xlim([0,len_x]);
-%             ylim([-c0,c0]*5e-1);
-
             if mod(n,10) == 1
-                % Plot p
-                subplot(211);
-                plot(x_axis, db(p(:,n+1)));
-                title('Pressure');
-                grid on;
-                xlim([0,len_x]);
-                ylim([-150 0]);
-                yticks(-150:10:0);
-        
-                % Plot v
-                subplot(212);
-                plot(x_axis, db(v(:,n+1)));
-                title('Velocity');
-                grid on;
-                xlim([0,len_x]);
-                ylim([-150 0]);
-                yticks(-150:10:0);
+	            if db_plot == false
+		            % Plot p
+		            subplot(2,1,1);
+		            plot(x_axis, p(:,n+1));
+		            title('Pressure');
+		            xlim([0,len_x]);
+		            ylim([-1,1]*2e-1);
+            
+		            % Plot v
+		            subplot(2,1,2);
+		            plot(x_axis, v(:,n+1));
+		            title('Velocity');
+		            xlim([0,len_x]);
+		            ylim([-c0,c0]*5e-1);
+	            else
+                    % Plot p
+                    subplot(211);
+                    plot(x_axis, db(p(:,n+1)));
+                    title('Pressure');
+                    grid on;
+                    xlim([0,len_x]);
+                    ylim([-150 0]);
+                    yticks(-150:10:0);
+            
+                    % Plot v
+                    subplot(212);
+                    plot(x_axis, db(v(:,n+1)));
+                    title('Velocity');
+                    grid on;
+                    xlim([0,len_x]);
+                    ylim([-150 0]);
+                    yticks(-150:10:0);
+                end
             end
         else
             clc;

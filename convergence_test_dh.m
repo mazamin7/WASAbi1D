@@ -17,7 +17,7 @@ if method == 1
     dt = 1e-4;
 elseif method == 2
     % FDTD 1ord
-    lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8]/2;
+    lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
     theory_order = 1;
     dt = 1e-4;
 elseif method == 3
@@ -45,7 +45,7 @@ for i = 1:length(lambda_arr)
     dh = dh_arr(i);
 
     % Run simulation
-    [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, false, diss);
+    [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, false, diss, false);
 
     % Evaluate the ground truth on the grid
     [X, T] = meshgrid(x_axis, t_axis);

@@ -1,4 +1,4 @@
-function plot_ground_truth(test_case_data)
+function plot_ground_truth(test_case_data, db_plot)
     % Extracting test case data
     len_x = test_case_data.len_x;
     len_t = test_case_data.len_t;
@@ -14,5 +14,5 @@ function plot_ground_truth(test_case_data)
     p_gt = p_gt_fun(X, T)';
     v_gt = v_gt_fun(X, T)';
 
-    plot_spacetime(t_axis, x_axis, p_gt, v_gt, 'Ground Truth');
+    plot_spacetime(t_axis, x_axis, p_gt, v_gt, 'Ground Truth', db_plot);
 end
