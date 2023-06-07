@@ -45,7 +45,11 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plo
     else
         % Plot p
         fig_p = figure();
-        surf(t_axis, x_axis, db(p),'EdgeColor','none','FaceColor','interp');
+        surf(t_axis, x_axis, max(db(p), -200),'EdgeColor','none','FaceColor','interp');
+        hold on;
+        z_line = max(db(p(:))) + 10;  % Adjust the value 10 as needed to raise the line
+        line([min(t_axis), max(t_axis)], [5, 5], [z_line, z_line], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--');
+        hold off;
         xlabel('Time [s]');
         ylabel('Space [m]');
         zlabel('Pressure (dB)');
@@ -60,7 +64,11 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plo
         
         % Plot v
         fig_v = figure();
-        surf(t_axis, x_axis, db(v),'EdgeColor','none','FaceColor','interp');
+        surf(t_axis, x_axis, max(db(v), -200),'EdgeColor','none','FaceColor','interp');
+        hold on;
+        z_line = max(db(v(:))) + 10;  % Adjust the value 10 as needed to raise the line
+        line([min(t_axis), max(t_axis)], [5, 5], [z_line, z_line], 'Color', 'red', 'LineWidth', 2, 'LineStyle', '--');
+        hold off;
         xlabel('Time [s]');
         ylabel('Space [m]');
         zlabel('Velocity (dB)');
