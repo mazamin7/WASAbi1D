@@ -63,8 +63,9 @@ function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
         % we could use: v_next_dct(n) = v_prev_dct(n) + 2 * dt * force_dct(n);
         v_next_dct(n) = 0;
     elseif order == 1
+        % the simulation code handles the correct instant of the force
         p_next_dct(n) = p_curr_dct(n) + dt * v_curr_dct(n);
-        v_next_dct(n) = v_curr_dct(n) * (1 - 2 * dt * alpha_abs) + dt * force_dct(n);
+        v_next_dct(n) = (v_curr_dct(n) + dt * force_dct(n)) / (1 + 2 * dt * alpha_abs);
     end
 
     % perform IDCT
