@@ -49,6 +49,7 @@ function [p_next, v_next] = update_Fourier(Fourier_data, p_curr, p_prev, force, 
         %    .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
         v_next_dct(n) = 0;
     elseif order == 1
+        % the simulation code handles the correct instant of the force
         xe = force_dct(n) .* inv_w2(n);
         p_next_dct(n) = xe + eatm * ((p_curr_dct(n) - xe) .* (cwt(n) + alpha_abs * inv_w(n) .* swt(n)) + swt(n) .* inv_w(n) .* v_curr_dct(n));
         v_next_dct(n) = eatm * (v_curr_dct(n) .* (cwt(n) - alpha_abs * inv_w(n) .* swt(n)) - (w(n) + alpha2 * inv_w(n)) .* (p_curr_dct(n) - xe) .* swt(n));
