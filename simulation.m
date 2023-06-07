@@ -118,33 +118,6 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     
     % Simulation loop
     for n = 2:N_t-1
-        % Step 0 (prediction correction, only if DD and pre-merge and first order)
-%         if DD && order_left == 1 && merge == 1
-%             % first guess
-%             residual = (c0 * dt / dh)^2 * C * v(:,n) + (c0 / dh)^2 * C * p(:,n);
-%             force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
-% 
-%             % iterative refinement
-%             for it = 1:10 % min 1
-%                 % Update left
-%                 if method_left <= 2 || method_left == 5
-%                     [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
-%                 elseif method_left >= 3
-%                     [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
-%                 end
-%     
-%                 % Update right
-%                 if method_right <= 2 || method_right == 5
-%                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
-%                 elseif method_right >= 3
-%                     [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
-%                 end
-% 
-%                 residual = (c0 / dh)^2 * C * p(:,n+1);
-%                 force_now = force(:,n+force_n_offset) + transmittivity^2 * residual;
-%             end
-%         end
-
         if DD
             % Compute residual
             if order_left == 2
