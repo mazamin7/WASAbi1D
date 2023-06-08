@@ -6,6 +6,7 @@ function simulation_parameters = get_simulation_parameters()
     DD = choice4 == 1;
 
     choice_merge_left = 0; % placeholder
+    choice_merge_right = 0; % placeholder
 
     if DD
         msg_merge_left = "Choose the merge approach for left";
