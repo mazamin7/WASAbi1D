@@ -160,25 +160,20 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % Compute residual
             residual = (c0 / dh)^2 * C * p(:,n+1);
             
+            % Impose force
+            force_now = force(:,n+1);
+            % Will be used in the next step for second order:
+            %                    using r^n, on f^n
+            %              in the current step for first order
+            %                    using r^{n+1}, on f^{n+1}
+
             % Pre-merge
             if merge_left == 1
-                % Will be used in the next step for second order:
-                %                    using r^n, on f^n
-                %              in the current step for first order
-                %                    using r^{n+1}, on f^{n+1}
-                force_now(1:N_x/2) = force(1:N_x/2,n+1) + transmittivity^2 * residual(1:N_x/2);
-            else
-                force_now(1:N_x/2) = force(1:N_x/2,n+1);
+                force_now(1:N_x/2) = force_now(1:N_x/2) + transmittivity^2 * residual(1:N_x/2);
             end
 
             if merge_right == 1
-                % Will be used in the next step for second order:
-                %                    using r^n, on f^n
-                %              in the current step for first order
-                %                    using r^{n+1}, on f^{n+1}
-                force_now(N_x/2+1:N_x) = force(N_x/2+1:N_x,n+1) + transmittivity^2 * residual(N_x/2+1:N_x);
-            else
-                force_now(N_x/2+1:N_x) = force(N_x/2+1:N_x,n+1);
+                force_now(N_x/2+1:N_x) = force_now(N_x/2+1:N_x) + transmittivity^2 * residual(N_x/2+1:N_x);
             end
             
             % Artificial dissipation for stability
@@ -221,7 +216,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
                 p(:,n+1) = update_pressure_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), override_order);
             end
 
-            % Imposing force
+            % Impose force
             force_now = force(:,n+1);
 
             % Artificial dissipation for stability
