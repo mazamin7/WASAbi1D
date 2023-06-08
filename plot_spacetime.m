@@ -1,4 +1,4 @@
-function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plot)
+function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, db_plot, title_str)
 %PLOT_SPACETIME Plots the spacetime solutions for pressure and velocity
 %   [fig_p, fig_v] = PLOT_SPACETIME(t_axis, x_axis, p, v, title_str) takes
 %   in the time axis t_axis, the space axis x_axis, the pressure solution p
@@ -53,7 +53,7 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plo
         xlabel('Time [s]');
         ylabel('Space [m]');
         zlabel('Pressure (dB)');
-        if nargin == 5
+        if nargin == 6
             title(['Pressure Solution: ', title_str]);
         else
             title('Pressure Solution');
@@ -72,7 +72,7 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plo
         xlabel('Time [s]');
         ylabel('Space [m]');
         zlabel('Velocity (dB)');
-        if nargin == 5
+        if nargin == 6
             title(['Velocity Solution: ', title_str]);
         else
             title('Velocity Solution');

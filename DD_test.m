@@ -23,7 +23,7 @@ debug = false;
 [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss, true);
 
 % Plotting simulation
-[fig_p, fig_v] = plot_spacetime(t_axis,x_axis,p,v,'Simulation',true);
+[fig_p, fig_v] = plot_spacetime(t_axis,x_axis,p,v,true,'Simulation');
 
 % Save simulation as figures and animation
 % save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v);

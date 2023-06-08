@@ -14,5 +14,5 @@ function plot_ground_truth(test_case_data, db_plot)
     p_gt = p_gt_fun(X, T)';
     v_gt = v_gt_fun(X, T)';
 
-    plot_spacetime(t_axis, x_axis, p_gt, v_gt, 'Ground Truth', db_plot);
+    plot_spacetime(t_axis, x_axis, p_gt, v_gt, db_plot, 'Ground Truth');
 end
