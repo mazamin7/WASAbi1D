@@ -120,9 +120,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     % Simulation loop
     for n = 2:N_t-1
         if DD
-            if merge == 2 % Any order DD post merge
-
-%                 disp("First order DD post merge");
+            if merge == 2 % DD post merge
 
                 force_now = force(:,n+1);
 
@@ -178,10 +176,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
                     v(N_x/2+1:N_x,n+1) = v(N_x/2+1:N_x,n+1) + transmittivity^2 * dt * residual(N_x/2+1:N_x) / (1 + 2*dt*alpha_abs);
                 end
 
-            elseif merge == 1 % Any order DD pre merge
+            elseif merge == 1 % DD pre merge
 
-%                 disp("Hybrid order DD pre merge");
-                
                 % Update pressure left
                 if method_left <= 2 || method_left == 5
                     p(1:N_x/2,n+1) = update_pressure_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
@@ -224,8 +220,6 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             end
         else % no DD
 
-%             disp("No DD");
-
             force_now = force(:,n+force_n_offset);
 
             % Update pressure
@@ -244,6 +238,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             elseif method_left >= 3
                 v(:,n+1) = update_Fourier(data_left, p(:,n+1), p(:,n), p(:,n-1), force_now(:), v(:,n));
             end
+            
         end
         
         if debug == true
