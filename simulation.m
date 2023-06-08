@@ -236,56 +236,16 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
         end
         
-        if debug == true
-            % Plot
+        info_str = ['Instant [s]: ' num2str(n*dt, '%4.3f') ' / ' ...
+                num2str(len_t, '%4.3f') ' ( ' num2str(n/N_t*100, '%4.1f') '% )'];
+
+        if debug == true && mod(n-1,10) == 1
+	        plot_snapshot(x_axis,len_x,p(:,n+1),v(:,n+1),f,db_plot);
             figure(f);
-            sgtitle(['instant [s]: ' num2str((n)*dt, '%4.3f') ' / ' ...
-                num2str(len_t, '%4.3f') ' ( ' num2str((n)/N_t*100, '%4.1f') '% )']);
-        
-            if mod(n-1,10) == 1
-	            if db_plot == false
-		            % Plot p
-		            subplot(2,1,1);
-		            plot(x_axis, p(:,n+1));
-		            title('Pressure');
-		            xlim([0,len_x]);
-		            ylim([-1,1]*2e-1);
-            
-		            % Plot v
-		            subplot(2,1,2);
-		            plot(x_axis, v(:,n+1));
-		            title('Velocity');
-		            xlim([0,len_x]);
-		            ylim([-c0,c0]*5e-1);
-	            else
-                    % Plot p
-                    subplot(211);
-                    plot(x_axis, db(p(:,n+1)));
-                    hold on;
-                    line([5 5], [-150 0], 'Color', 'red', 'LineStyle', '--');
-                    hold off;
-                    title('Pressure');
-                    grid on;
-                    xlim([0,len_x]);
-                    ylim([-150 0]);
-                    yticks(-150:10:0);
-            
-                    % Plot v
-                    subplot(212);
-                    plot(x_axis, db(v(:,n+1)));
-                    hold on;
-                    line([5 5], [-150 0], 'Color', 'red', 'LineStyle', '--');
-                    hold off;
-                    title('Velocity');
-                    grid on;
-                    xlim([0,len_x]);
-                    ylim([-150 0]);
-                    yticks(-150:10:0);
-                end
-            end
+            sgtitle(info_str);
         else
             clc;
-            disp(['Simulation: ' num2str((n)/N_t*100) '%']);
+            disp(info_str);
         end
     
     end
