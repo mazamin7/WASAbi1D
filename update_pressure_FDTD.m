@@ -1,4 +1,4 @@
-function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, g1, g2)
+function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, g1, g2)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -71,18 +71,12 @@ function [p_next, v_next] = update_FDTD(data, p_curr, p_prev, force, v_curr, g1,
             p_next = (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
                 + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);
         end
-    
-        % we will update after post-merge
-        % we could use: v_next = (p_next - p_curr)/dt;
-        v_next = v_curr * 0;
     elseif order == 1
         % the simulation code handles the correct instant of the force
         p_next = p_curr + dt * v_curr;
-        v_next = (v_curr + c^2 * dt / dh^2 * A * p_next + dt * force)/(1 + 2*dt*alpha_abs);
     end
 
     % Truncating ghost points
     p_next = p_next(3:end-2);
-    v_next = v_next(3:end-2);
 
 end

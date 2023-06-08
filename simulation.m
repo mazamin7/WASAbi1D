@@ -113,183 +113,112 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         f = figure();
         f.Position = [100, 100, 1200, 700];
     end
+
+    force_now = force(:,2) * 0; % stub
+    residual = (c0 / dh)^2 * C * p(:,2);
     
     % Simulation loop
     for n = 2:N_t-1
         if DD
-            if order_left == 2 && order_right == 2  % Second order DD
-
-%                 disp("Second order DD");
-
-                % Compute residual
-                residual = (c0 / dh)^2 * C * p(:,n);
-
-                % Pre-merge
-                if merge == 1
-                    force_now = force(:,n) + transmittivity^2 * residual;
-                else
-                    force_now = force(:,n);
-                end
-    
-                % Update left
-                if method_left <= 2 || method_left == 5
-                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
-                elseif method_left >= 3
-                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
-                end
-        
-                % Update right
-                if method_right <= 2 || method_right == 5
-                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
-                elseif method_right >= 3
-                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
-                end
-                
-                % Post-merge
-                if merge == 2
-                    p(:,n+1) = p(:,n+1) + transmittivity^2 * dt*dt * residual / (1 + dt*alpha_abs);
-                end
-
-            elseif order_left == 1 && order_right == 1 && merge == 2 % First order DD post merge
+            if merge == 2 % Any order DD post merge
 
 %                 disp("First order DD post merge");
 
                 force_now = force(:,n+1);
 
-                % Update left
-                if method_left <= 2 || method_left == 5
-                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
-                elseif method_left >= 3
-                    [p(1:N_x/2,n+1),v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
-                end
-        
-                % Update right
-                if method_right <= 2 || method_right == 5
-                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
-                elseif method_right >= 3
-                    [p(N_x/2+1:N_x,n+1),v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
-                end
-                
-                % Compute residual
-                residual = (c0 / dh)^2 * C * p(:,n+1);
-
-                % Post-merge
-                v(:,n+1) = v(:,n+1) + transmittivity^2 * dt * residual / (1 + 2*dt*alpha_abs);
-
-            elseif order_left == 1 && order_right == 1 && merge == 1 % First order DD pre merge
-
-%                 disp("First order DD pre merge");
-
-                force_now = force(:,n+1) * 0; % stub
-                
                 % Update pressure left
                 if method_left <= 2 || method_left == 5
-                    [p(1:N_x/2,n+1),~] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
+                    p(1:N_x/2,n+1) = update_pressure_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
                 elseif method_left >= 3
-                    [p(1:N_x/2,n+1),~] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
+                    p(1:N_x/2,n+1) = update_pressure_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
                 end
                 
                 % Update pressure right
                 if method_right <= 2 || method_right == 5
-                    [p(N_x/2+1:N_x,n+1),~] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
+                    p(N_x/2+1:N_x,n+1) = update_pressure_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
                 elseif method_right >= 3
-                    [p(N_x/2+1:N_x,n+1),~] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
+                    p(N_x/2+1:N_x,n+1) = update_pressure_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
+                end
+
+                % Post-merge second order
+                if order_left == 2
+                    p(1:N_x/2,n+1) = p(1:N_x/2,n+1) + transmittivity^2 * dt*dt * residual(1:N_x/2) / (1 + dt*alpha_abs);
+                end
+
+                if order_right == 2
+                    p(N_x/2+1:N_x,n+1) = p(N_x/2+1:N_x,n+1) + transmittivity^2 * dt*dt * residual(N_x/2+1:N_x) / (1 + dt*alpha_abs);
+                end
+
+                % Compute residual
+                residual = (c0 / dh)^2 * C * p(:,n+1);
+
+                % Artificial dissipation for stability
+                p(:,n+1) = diss * p(:,n+1);
+
+                % Update velocity left
+                if method_left <= 2 || method_left == 5
+                    v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
+                elseif method_left >= 3
+                    v(1:N_x/2,n+1) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
+                end
+                
+                % Update velocity right
+                if method_right <= 2 || method_right == 5
+                    v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
+                elseif method_right >= 3
+                    v(N_x/2+1:N_x,n+1) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
+                end
+
+                % Post-merge first order
+                if order_left == 1
+                    v(1:N_x/2,n+1) = v(1:N_x/2,n+1) + transmittivity^2 * dt * residual(1:N_x/2) / (1 + 2*dt*alpha_abs);
+                end
+
+                if order_right == 1
+                    v(N_x/2+1:N_x,n+1) = v(N_x/2+1:N_x,n+1) + transmittivity^2 * dt * residual(N_x/2+1:N_x) / (1 + 2*dt*alpha_abs);
+                end
+
+            elseif merge == 1 % Any order DD pre merge
+
+%                 disp("Hybrid order DD pre merge");
+                
+                % Update pressure left
+                if method_left <= 2 || method_left == 5
+                    p(1:N_x/2,n+1) = update_pressure_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
+                elseif method_left >= 3
+                    p(1:N_x/2,n+1) = update_pressure_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
+                end
+                
+                % Update pressure right
+                if method_right <= 2 || method_right == 5
+                    p(N_x/2+1:N_x,n+1) = update_pressure_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
+                elseif method_right >= 3
+                    p(N_x/2+1:N_x,n+1) = update_pressure_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
                 end
                 
                 % Compute residual
                 residual = (c0 / dh)^2 * C * p(:,n+1);
 
                 % Pre-merge
+                % Will be used in the next step for second order
+                %              in the current step for first order
                 force_now = force(:,n+1) + transmittivity^2 * residual;
 
+                % Artificial dissipation for stability
+                p(:,n+1) = diss * p(:,n+1);
+
                 % Update velocity left
                 if method_left <= 2 || method_left == 5
-                    [~,v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
+                    v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
                 elseif method_left >= 3
-                    [~,v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
+                    v(1:N_x/2,n+1) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
                 end
                 
                 % Update velocity right
                 if method_right <= 2 || method_right == 5
-                    [~,v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
+                    v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
                 elseif method_right >= 3
-                    [~,v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
-                end
-
-            elseif order_left ~= order_right && merge == 1 % Hybrid order DD pre merge
-
-%                 disp("Hybrid order DD pre merge");
-
-%                 residual = force(:,n) * 0;
-
-                % Compute residual second order
-                if order_left == 2
-                    residual = (c0 / dh)^2 * C * p(:,n);
-                end
-
-                if order_right == 2
-                    residual = (c0 / dh)^2 * C * p(:,n);
-                end
-
-                force_now = force(:,n) * 0;
-
-                % Pre-merge second order
-                if order_left == 2
-                    force_now(1:N_x/2) = force(1:N_x/2,n) + transmittivity^2 * residual(1:N_x/2);
-                else
-                    force_now(1:N_x/2) = force(1:N_x/2,n+1) * 0; % stub
-                end
-
-                if order_right == 2
-                    force_now(N_x/2+1:N_x) = force(N_x/2+1:N_x,n) + transmittivity^2 * residual(N_x/2+1:N_x);
-                else
-                    force_now(N_x/2+1:N_x) = force(N_x/2+1:N_x,n+1) * 0; % stub
-                end
-                
-                % Update pressure left
-                if method_left <= 2 || method_left == 5
-                    [p(1:N_x/2,n+1),~] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
-                elseif method_left >= 3
-                    [p(1:N_x/2,n+1),~] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
-                end
-                
-                % Update pressure right
-                if method_right <= 2 || method_right == 5
-                    [p(N_x/2+1:N_x,n+1),~] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
-                elseif method_right >= 3
-                    [p(N_x/2+1:N_x,n+1),~] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
-                end
-                
-                % Compute residual first order
-                if order_left == 1
-                    residual = (c0 / dh)^2 * C * p(:,n+1);
-                end
-
-                if order_right == 1
-                    residual = (c0 / dh)^2 * C * p(:,n+1);
-                end
-
-                % Pre-merge first order
-                if order_left == 1
-                    force_now(1:N_x/2) = force(1:N_x/2,n+1) + transmittivity^2 * residual(1:N_x/2);
-                end
-
-                if order_right == 1
-                    force_now(N_x/2+1:N_x) = force(N_x/2+1:N_x,n+1) + transmittivity^2 * residual(N_x/2+1:N_x);
-                end
-
-                % Update velocity left
-                if method_left <= 2 || method_left == 5
-                    [~,v(1:N_x/2,n+1)] = update_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0);
-                elseif method_left >= 3
-                    [~,v(1:N_x/2,n+1)] = update_Fourier(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n));
-                end
-                
-                % Update velocity right
-                if method_right <= 2 || method_right == 5
-                    [~,v(N_x/2+1:N_x,n+1)] = update_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n));
-                elseif method_right >= 3
-                    [~,v(N_x/2+1:N_x,n+1)] = update_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
+                    v(N_x/2+1:N_x,n+1) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n));
                 end
 
             end
@@ -299,24 +228,22 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
             force_now = force(:,n+force_n_offset);
 
-            % Update
+            % Update pressure
             if method_left <= 2 || method_left == 5
-                [p(:,n+1),v(:,n+1)] = update_FDTD(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), g1(n), 0);
+                p(:,n+1) = update_FDTD(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), g1(n), 0);
             elseif method_left >= 3
-                [p(:,n+1),v(:,n+1)] = update_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n));
+                p(:,n+1) = update_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n));
             end
-        end
 
-        % Artificial dissipation for stability
-        p(:,n+1) = diss * p(:,n+1);
-    
-        % Computing velocity if second order
-        if order_left == 2
-            v(1:N_x/2,n+1) = (p(1:N_x/2,n+1) - p(1:N_x/2,n-1))/2/dt;
-        end
+            % Artificial dissipation for stability
+            p(:,n+1) = diss * p(:,n+1);
 
-        if order_right == 2
-            v(N_x/2+1:N_x,n+1) = (p(N_x/2+1:N_x,n+1) - p(N_x/2+1:N_x,n-1))/2/dt;
+            % Update velocity
+            if method_left <= 2 || method_left == 5
+                v(:,n+1) = update_FDTD(data_left, p(:,n+1), p(:,n), p(:,n-1), force_now(:), v(:,n), g1(n), 0);
+            elseif method_left >= 3
+                v(:,n+1) = update_Fourier(data_left, p(:,n+1), p(:,n), p(:,n-1), force_now(:), v(:,n));
+            end
         end
         
         if debug == true

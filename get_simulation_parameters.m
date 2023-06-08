@@ -30,9 +30,6 @@ function simulation_parameters = get_simulation_parameters()
         else
             order_right = 2;
         end
-    
-        assert(choice == 1 || order_left == order_right, 'The order of left and right method must be the same with post-merge');
-        % otherwise domain decomposition doesn't work
     else
         msg2 = "Choose the update method";
         opts2 = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
