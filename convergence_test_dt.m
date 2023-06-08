@@ -66,7 +66,7 @@ hold on;
 % Compute theoretical convergence curve
 max_dt = max(dt_arr);
 theory_curve = L1Err(end) * (dt_arr / max_dt) .^ theory_order;
-plot(dt_arr, theory_curve, 'r-');
+plot(dt_arr, theory_curve, 'r--');
 hold off;
 
 str = sprintf("Theory - dt^%d", theory_order);
@@ -82,7 +82,7 @@ hold on;
 
 % Compute theoretical convergence curve
 theory_curve = L2Err(end) * (dt_arr / max_dt) .^ theory_order;
-plot(dt_arr, theory_curve, 'r-');
+plot(dt_arr, theory_curve, 'r--');
 hold off;
 
 title('L2 Error');
@@ -97,7 +97,7 @@ hold on;
 
 % Compute theoretical convergence curve
 theory_curve = LinfErr(end) * (dt_arr / max_dt) .^ theory_order;
-plot(dt_arr, theory_curve, 'r-');
+plot(dt_arr, theory_curve, 'r--');
 hold off;
 
 title('Linf Error');

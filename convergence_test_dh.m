@@ -13,13 +13,13 @@ v_gt_fun = test_case_data.v_gt_fun;
 if method == 1
     % FDTD 2ord
     lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
-    theory_order = 1;
-    dt = 1e-4;
+    theory_order = 3;
+    dt = 1e-3;
 elseif method == 2
     % FDTD 1ord
     lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
-    theory_order = 1;
-    dt = 1e-4;
+    theory_order = 3;
+    dt = 1e-3;
 elseif method == 3
     % Fourier 2ord
     lambda_arr = [0.01 0.02 0.05 0.1 0.2 0.5 1 2 5];
@@ -68,7 +68,7 @@ hold on;
 % Compute theoretical convergence curve
 max_dh = max(dh_arr);
 theory_curve = L1Err(1) * (dh_arr / max_dh) .^ theory_order;
-plot(dh_arr, theory_curve, 'r-');
+plot(dh_arr, theory_curve, 'r--');
 hold off;
 
 str = sprintf("Theory - dh^%d", theory_order);
@@ -84,7 +84,7 @@ hold on;
 
 % Compute theoretical convergence curve
 theory_curve = L2Err(1) * (dh_arr / max_dh) .^ theory_order;
-plot(dh_arr, theory_curve, 'r-');
+plot(dh_arr, theory_curve, 'r--');
 hold off;
 
 title('L2 Error');
@@ -99,7 +99,7 @@ hold on;
 
 % Compute theoretical convergence curve
 theory_curve = LinfErr(1) * (dh_arr / max_dh) .^ theory_order;
-plot(dh_arr, theory_curve, 'r-');
+plot(dh_arr, theory_curve, 'r--');
 hold off;
 
 title('Linf Error');
