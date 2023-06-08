@@ -162,12 +162,12 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Impose force
             force_now = force(:,n+1);
+            
+            % Pre-merge
             % Will be used in the next step for second order:
             %                    using r^n, on f^n
-            %              in the current step for first order
+            %              in the current step for first order:
             %                    using r^{n+1}, on f^{n+1}
-
-            % Pre-merge
             if merge_left == 1
                 force_now(1:N_x/2) = force_now(1:N_x/2) + transmittivity^2 * residual(1:N_x/2);
             end
