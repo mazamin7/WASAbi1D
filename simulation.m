@@ -3,7 +3,8 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 %   Detailed explanation goes here
 
     % Extracting simulation parameters
-    merge = simulation_parameters.merge;
+    merge_left = simulation_parameters.merge_left;
+    merge_right = simulation_parameters.merge_right;
     method_left = simulation_parameters.method_left;
     method_right = simulation_parameters.method_right;
     order_left = simulation_parameters.order_left;
@@ -144,11 +145,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Post-merge second order
             % using r^n, on p^{n+1}
-            if merge == 2
+            if merge_left == 2
                 if order_left == 2 && override_order == false
                     p(1:N_x/2,n+1) = p(1:N_x/2,n+1) + transmittivity^2 * dt*dt * residual(1:N_x/2) / (1 + dt*alpha_abs);
                 end
-            
+            end
+
+            if merge_right == 2
                 if order_right == 2 && override_order == false
                     p(N_x/2+1:N_x,n+1) = p(N_x/2+1:N_x,n+1) + transmittivity^2 * dt*dt * residual(N_x/2+1:N_x) / (1 + dt*alpha_abs);
                 end
@@ -158,14 +161,24 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             residual = (c0 / dh)^2 * C * p(:,n+1);
             
             % Pre-merge
-            if merge == 1
+            if merge_left == 1
                 % Will be used in the next step for second order:
                 %                    using r^n, on f^n
                 %              in the current step for first order
                 %                    using r^{n+1}, on f^{n+1}
-                force_now = force(:,n+1) + transmittivity^2 * residual;
+                force_now(1:N_x/2) = force(1:N_x/2,n+1) + transmittivity^2 * residual(1:N_x/2);
             else
-                force_now = force(:,n+1);
+                force_now(1:N_x/2) = force(1:N_x/2,n+1);
+            end
+
+            if merge_right == 1
+                % Will be used in the next step for second order:
+                %                    using r^n, on f^n
+                %              in the current step for first order
+                %                    using r^{n+1}, on f^{n+1}
+                force_now(N_x/2+1:N_x) = force(N_x/2+1:N_x,n+1) + transmittivity^2 * residual(N_x/2+1:N_x);
+            else
+                force_now(N_x/2+1:N_x) = force(N_x/2+1:N_x,n+1);
             end
             
             % Artificial dissipation for stability
@@ -187,11 +200,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Post-merge first order
             % using r^{n+1}, on v^{n+1}
-            if merge == 2
+            if merge_left == 2
                 if order_left == 1 || override_order == true
                     v(1:N_x/2,n+1) = v(1:N_x/2,n+1) + transmittivity^2 * dt * residual(1:N_x/2) / (1 + 2*dt*alpha_abs);
                 end
-            
+            end
+
+            if merge_right == 2
                 if order_right == 1 || override_order == true
                     v(N_x/2+1:N_x,n+1) = v(N_x/2+1:N_x,n+1) + transmittivity^2 * dt * residual(N_x/2+1:N_x) / (1 + 2*dt*alpha_abs);
                 end

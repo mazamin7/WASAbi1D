@@ -5,38 +5,41 @@ function simulation_parameters = get_simulation_parameters()
 
     DD = choice4 == 1;
 
-    choice = 0; % placeholder
+    choice_merge_left = 0; % placeholder
 
     if DD
-        msg = "Choose the merge approach";
-        opts = ["Pre 7 points" "Post 7 points"];
-        choice = menu(msg, opts);
+        msg_merge_left = "Choose the merge approach for left";
+        opts_merge = ["Pre-merge" "Post-merge"];
+        choice_merge_left = menu(msg_merge_left, opts_merge);
 
-        msg2 = "Choose the update method for left";
-        opts2 = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
-        choice2 = menu(msg2, opts2);
+        msg_merge_right = "Choose the merge approach for right";
+        choice_merge_right = menu(msg_merge_right, opts_merge);
+
+        msg_method_left = "Choose the update method for left";
+        opts_method = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
+        choice_method_left = menu(msg_method_left, opts_method);
     
-        msg3 = "Choose the update method for right";
-        choice3 = menu(msg3, opts2);
+        msg_method_right = "Choose the update method for right";
+        choice_method_right = menu(msg_method_right, opts_method);
     
-        if (choice2 == 2) || (choice2 == 4)
+        if (choice_method_left == 2) || (choice_method_left == 4)
             order_left = 1;
         else
             order_left = 2;
         end
     
-        if (choice3 == 2) || (choice3 == 4)
+        if (choice_method_right == 2) || (choice_method_right == 4)
             order_right = 1;
         else
             order_right = 2;
         end
     else
-        msg2 = "Choose the update method";
-        opts2 = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
-        choice2 = menu(msg2, opts2);
-        choice3 = choice2; % placeholder
+        msg_method_left = "Choose the update method";
+        opts_method = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
+        choice_method_left = menu(msg_method_left, opts_method);
+        choice_method_right = choice_method_left; % placeholder
     
-        if (choice2 == 2) || (choice2 == 4)
+        if (choice_method_left == 2) || (choice_method_left == 4)
             order_left = 1;
             order_right = order_left;
         else
@@ -45,9 +48,10 @@ function simulation_parameters = get_simulation_parameters()
         end
     end
 
-    simulation_parameters.merge = choice;
-    simulation_parameters.method_left = choice2;
-    simulation_parameters.method_right = choice3;
+    simulation_parameters.merge_left = choice_merge_left;
+    simulation_parameters.merge_right = choice_merge_right;
+    simulation_parameters.method_left = choice_method_left;
+    simulation_parameters.method_right = choice_method_right;
     simulation_parameters.order_left = order_left;
     simulation_parameters.order_right = order_right;
     simulation_parameters.DD = DD;
