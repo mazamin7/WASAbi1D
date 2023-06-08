@@ -1,4 +1,4 @@
-function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, force, v_curr)
+function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, force, v_curr, override)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -40,11 +40,11 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
 	n = 2:N;
 
     % update solution in Fourier domain
-    if order == 2
+    if order == 2 && override == false
         v_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
             .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
 %         v_next_dct(n) = -w(n) .* swt(n) .* p_curr_dct(n) + cwt(n) .* v_curr_dct(n) + inv_w(n) .* swt(n) .* force_dct(n);
-    elseif order == 1
+    else
         % the simulation code handles the correct instant of the force
         xe = force_dct(n) .* inv_w2(n);
         v_next_dct(n) = eatm * (v_curr_dct(n) .* (cwt(n) - alpha_abs * inv_w(n) .* swt(n)) - (w(n) + alpha2 * inv_w(n)) .* (p_curr_dct(n) - xe) .* swt(n));
@@ -52,10 +52,10 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
 
     n = 1;
 
-    if order == 2
+    if order == 2 && override == false
         v_next_dct(n) = v_curr_dct(n) + dt * force_dct(n);
 %         v_next_dct(n) = (p_next_dct(n) - p_curr_dct(n))/dt;
-    elseif order == 1
+    else
         % the simulation code handles the correct instant of the force
         v_next_dct(n) = (v_curr_dct(n) + dt * force_dct(n)) / (1 + 2 * dt * alpha_abs);
     end

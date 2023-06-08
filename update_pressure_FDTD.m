@@ -1,4 +1,4 @@
-function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, g1, g2)
+function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, g1, g2, override)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -62,7 +62,7 @@ function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, g1, 
         p_curr(end-3) = p_curr(end-3) - 2.5 * dh * g2;
     end
 
-    if order == 2
+    if order == 2 && override == false
         % Compute p_next using the formula
         if isPML == false
             p_next = (2 * p_curr - (1 - dt*alpha_abs) * p_prev ...
@@ -71,7 +71,7 @@ function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, g1, 
             p_next = (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
                 + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);
         end
-    elseif order == 1
+    else
         % the simulation code handles the correct instant of the force
         p_next = p_curr + dt * v_curr;
     end

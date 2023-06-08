@@ -1,4 +1,4 @@
-function p_next = update_pressure_Fourier(Fourier_data, p_curr, p_prev, force, v_curr)
+function p_next = update_pressure_Fourier(Fourier_data, p_curr, p_prev, force, v_curr, override)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -39,10 +39,10 @@ function p_next = update_pressure_Fourier(Fourier_data, p_curr, p_prev, force, v
 	n = 2:N;
 
     % update solution in Fourier domain
-    if order == 2
+    if order == 2 && override == false
         p_next_dct(n) = 2 * p_curr_dct(n) .* cwt(n) - p_prev_dct(n) ...
             + (2 * force_dct(n) ./ w2(n) ) .* (1 - cwt(n));
-    elseif order == 1
+    else
         % the simulation code handles the correct instant of the force
         xe = force_dct(n) .* inv_w2(n);
         p_next_dct(n) = xe + eatm * ((p_curr_dct(n) - xe) .* (cwt(n) + alpha_abs * inv_w(n) .* swt(n)) + swt(n) .* inv_w(n) .* v_curr_dct(n));
@@ -50,9 +50,9 @@ function p_next = update_pressure_Fourier(Fourier_data, p_curr, p_prev, force, v
 
     n = 1;
 
-    if order == 2
+    if order == 2 && override == false
         p_next_dct(n) = 2 * p_curr_dct(n) - p_prev_dct(n) + dt*dt * force_dct(n);
-    elseif order == 1
+    else
         % the simulation code handles the correct instant of the force
         p_next_dct(n) = p_curr_dct(n) + dt * v_curr_dct(n);
     end

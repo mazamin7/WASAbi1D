@@ -26,7 +26,7 @@ debug = false;
 [fig_p, fig_v] = plot_spacetime(t_axis,x_axis,p,v,'Simulation',false);
 
 % Save simulation as figures and animation
-save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v);
+% save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v);
 
 
 

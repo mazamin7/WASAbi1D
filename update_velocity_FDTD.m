@@ -1,4 +1,4 @@
-function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force, v_curr, g1, g2)
+function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force, v_curr, g1, g2, override)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -66,9 +66,9 @@ function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force, v_cu
         p_curr(end-3) = p_curr(end-3) - 2.5 * dh * g2;
     end
 
-    if order == 2
+    if order == 2 && override == false
         v_next = (p_next - p_curr)/dt;
-    elseif order == 1
+    else
         % the simulation code handles the correct instant of the force
         v_next = (v_curr + c^2 * dt / dh^2 * A * p_next + dt * force)/(1 + 2*dt*alpha_abs);
     end

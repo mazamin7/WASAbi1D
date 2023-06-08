@@ -21,7 +21,7 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plo
         xlabel('Time [s]');
         ylabel('Space [m]');
         zlabel('Pressure');
-        if nargin == 5
+        if nargin == 6
             title(['Pressure Solution: ', title_str]);
         else
             title('Pressure Solution');
@@ -35,7 +35,7 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, title_str, db_plo
         xlabel('Time [s]');
         ylabel('Space [m]');
         zlabel('Velocity');
-        if nargin == 5
+        if nargin == 6
             title(['Velocity Solution: ', title_str]);
         else
             title('Velocity Solution');
