@@ -182,6 +182,27 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Impose new force
             force_next = force(:,n+1);
+
+            % Artificial dissipation for stability
+            p(:,n+1) = diss * p(:,n+1);
+
+            if order_left == 2
+                % Update velocity left
+                if method_left <= 2 || method_left == 5
+                    v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
+                elseif method_left >= 3
+                    v(1:N_x/2,n+1) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), override_order);
+                end
+            end
+
+            if order_right == 2
+                % Update velocity right
+                if method_right <= 2 || method_right == 5
+                    v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
+                elseif method_right >= 3
+                    v(N_x/2+1:N_x,n+1) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
+                end
+            end
             
             % Pre-merge
             % Will be used in the next step for second order:
@@ -196,21 +217,22 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
                 force_next(N_x/2+1:N_x) = force_next(N_x/2+1:N_x) + transmittivity^2 * residual(N_x/2+1:N_x);
             end
             
-            % Artificial dissipation for stability
-%             p(:,n+1) = diss * p(:,n+1);
-            
-            % Update velocity left
-            if method_left <= 2 || method_left == 5
-                v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
-            elseif method_left >= 3
-                v(1:N_x/2,n+1) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), override_order);
+            if order_left == 1
+                % Update velocity left
+                if method_left <= 2 || method_left == 5
+                    v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
+                elseif method_left >= 3
+                    v(1:N_x/2,n) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), override_order);
+                end
             end
             
-            % Update velocity right
-            if method_right <= 2 || method_right == 5
-                v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
-            elseif method_right >= 3
-                v(N_x/2+1:N_x,n+1) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
+            if order_right == 1
+                % Update velocity right
+                if method_right <= 2 || method_right == 5
+                    v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
+                elseif method_right >= 3
+                    v(N_x/2+1:N_x,n) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
+                end
             end
             
             % Post-merge first order
