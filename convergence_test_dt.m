@@ -10,15 +10,15 @@ p_gt_fun = test_case_data.p_gt_fun;
 v_gt_fun = test_case_data.v_gt_fun;
 
 % Simulation parameters
-dh = 1e-1;
+dh = 1e-2;
 
 if method == 1
     % FDTD 2ord
-    lambda_arr = [0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
+    lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
     theory_order = 1;
 elseif method == 2
     % FDTD 1ord
-    lambda_arr = [0.001 0.002 0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
+    lambda_arr = [0.004 0.008 0.01 0.02 0.04 0.08 0.1 0.2 0.4 0.8];
     theory_order = 1;
 elseif method == 3
     % Fourier 2ord
