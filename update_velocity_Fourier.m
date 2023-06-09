@@ -43,9 +43,9 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
     % update solution in Fourier domain
     if order == 2 && override == false
         % current force
-        v_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
-            .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_curr_dct(n);
-%         v_next_dct(n) = -w(n) .* swt(n) .* p_curr_dct(n) + cwt(n) .* v_curr_dct(n) + inv_w(n) .* swt(n) .* force_dct(n);
+%         v_curr_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
+%             .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_curr_dct(n);
+        v_next_dct(n) = -w(n) .* swt(n) .* p_curr_dct(n) + cwt(n) .* v_curr_dct(n) + inv_w(n) .* swt(n) .* force_dct(n);
     else
         % next force
         xe = force_next_dct(n) .* inv_w2(n);
