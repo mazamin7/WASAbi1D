@@ -197,7 +197,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             end
             
             % Artificial dissipation for stability
-            p(:,n+1) = diss * p(:,n+1);
+%             p(:,n+1) = diss * p(:,n+1);
             
             % Update velocity left
             if method_left <= 2 || method_left == 5
@@ -254,8 +254,10 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         info_str = ['Instant [s]: ' num2str(n*dt, '%4.3f') ' / ' ...
                 num2str(len_t, '%4.3f') ' ( ' num2str(n/N_t*100, '%4.1f') '% )'];
 
-        if debug == true && mod(n-1,10) == 1
-	        plot_snapshot(x_axis,len_x,p(:,n+1),v(:,n+1),f,db_plot);
+        if debug == true
+            if mod(n-1,10) == 1
+	            plot_snapshot(x_axis,len_x,p(:,n+1),v(:,n+1),f,db_plot);
+            end
             figure(f);
             sgtitle(info_str);
         else
