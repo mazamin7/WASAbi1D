@@ -1,4 +1,4 @@
-function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force_curr, force_next, v_curr, g1, g2, override)
+function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force_next, v_curr, g1, g2, override)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -40,10 +40,6 @@ function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force_curr,
     v_curr = zeros(N+4,1);
     v_curr(3:end-2) = v_curr_old;
 
-    force_curr_old = force_curr';
-    force_curr = zeros(N+4,1);
-    force_curr(3:end-2) = force_curr_old;
-
     force_next_old = force_next';
     force_next = zeros(N+4,1);
     force_next(3:end-2) = force_next_old;
@@ -71,7 +67,7 @@ function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force_curr,
     end
 
     if order == 2 && override == false
-        % any force (we choose current)
+        % no force
         v_next = (p_next - p_curr)/dt;
     else
         % next force

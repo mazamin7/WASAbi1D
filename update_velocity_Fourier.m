@@ -1,4 +1,4 @@
-function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, force_curr, force_next, v_curr, override)
+function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, force_next, v_curr, override)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -32,7 +32,6 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
     p_curr_dct = dct(p_curr,'Type',DCT_type);
     p_next_dct = dct(p_next,'Type',DCT_type);
 
-    force_curr_dct = dct(force_curr);
     force_next_dct = dct(force_next);
 
     v_curr_dct = dct(v_curr,'Type',DCT_type);

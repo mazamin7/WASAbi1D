@@ -74,7 +74,7 @@ function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, g1, 
                 + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);
         end
     else
-        % current force
+        % no force
         p_next = p_curr + dt * v_curr;
     end
 
