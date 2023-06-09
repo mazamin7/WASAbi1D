@@ -1,4 +1,4 @@
-function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, force, v_curr, override)
+function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, force_curr, force_next, v_curr, override)
 % Computes p_next given p_curr, p_prev, force and Fourier_data
 %
 % Inputs:
@@ -32,7 +32,8 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
     p_curr_dct = dct(p_curr,'Type',DCT_type);
     p_next_dct = dct(p_next,'Type',DCT_type);
 
-    force_dct = dct(force);
+    force_curr_dct = dct(force_curr);
+    force_next_dct = dct(force_next);
 
     v_curr_dct = dct(v_curr,'Type',DCT_type);
     v_next_dct = zeros(N,1);
@@ -41,23 +42,25 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
 
     % update solution in Fourier domain
     if order == 2 && override == false
+        % current force
         v_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
-            .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
+            .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_curr_dct(n);
 %         v_next_dct(n) = -w(n) .* swt(n) .* p_curr_dct(n) + cwt(n) .* v_curr_dct(n) + inv_w(n) .* swt(n) .* force_dct(n);
     else
-        % the simulation code handles the correct instant of the force
-        xe = force_dct(n) .* inv_w2(n);
+        % next force
+        xe = force_next_dct(n) .* inv_w2(n);
         v_next_dct(n) = eatm * (v_curr_dct(n) .* (cwt(n) - alpha_abs * inv_w(n) .* swt(n)) - (w(n) + alpha2 * inv_w(n)) .* (p_curr_dct(n) - xe) .* swt(n));
     end
 
     n = 1;
 
     if order == 2 && override == false
-        v_next_dct(n) = v_curr_dct(n) + dt * force_dct(n);
+        % current force
+        v_next_dct(n) = v_curr_dct(n) + dt * force_curr_dct(n);
 %         v_next_dct(n) = (p_next_dct(n) - p_curr_dct(n))/dt;
     else
-        % the simulation code handles the correct instant of the force
-        v_next_dct(n) = (v_curr_dct(n) + dt * force_dct(n)) / (1 + 2 * dt * alpha_abs);
+        % next force
+        v_next_dct(n) = (v_curr_dct(n) + dt * force_next_dct(n)) / (1 + 2 * dt * alpha_abs);
     end
 
     % perform IDCT

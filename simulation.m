@@ -116,16 +116,36 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
         f.Position = [100, 100, 1200, 700];
     end
 
-    
-    % Steps 1:N_t-1 (shifted by 1 to simplify code)
-    force_now = force(:,2) * 0; % stub
+
+    % Impose force
+    force_next = force(:,2);
+
     if DD
+        % Compute residual
         residual = (c0 / dh)^2 * C * p(:,2);
+        
+        % Pre-merge
+        % Will be used in the next step for second order:
+        %                    using r^n, on f^n
+        %              in the current step for first order:
+        %                    using r^{n+1}, on f^{n+1}
+        if merge_left == 1
+            force_next(1:N_x/2) = force_next(1:N_x/2) + transmittivity^2 * residual(1:N_x/2);
+        end
+
+        if merge_right == 1
+            force_next(N_x/2+1:N_x) = force_next(N_x/2+1:N_x) + transmittivity^2 * residual(N_x/2+1:N_x);
+        end
     end
+
+    % Steps 1:N_t-1 (shifted by 1 to simplify code)
     
     % Simulation loop
     for n = 2:N_t
         override_order = n == 2;
+
+        % Update force
+        force_now = force_next;
 
         if DD
 
@@ -157,11 +177,11 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
                 end
             end
             
-            % Compute residual
+            % Compute new residual
             residual = (c0 / dh)^2 * C * p(:,n+1);
             
-            % Impose force
-            force_now = force(:,n+1);
+            % Impose new force
+            force_next = force(:,n+1);
             
             % Pre-merge
             % Will be used in the next step for second order:
@@ -169,11 +189,11 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             %              in the current step for first order:
             %                    using r^{n+1}, on f^{n+1}
             if merge_left == 1
-                force_now(1:N_x/2) = force_now(1:N_x/2) + transmittivity^2 * residual(1:N_x/2);
+                force_next(1:N_x/2) = force_next(1:N_x/2) + transmittivity^2 * residual(1:N_x/2);
             end
 
             if merge_right == 1
-                force_now(N_x/2+1:N_x) = force_now(N_x/2+1:N_x) + transmittivity^2 * residual(N_x/2+1:N_x);
+                force_next(N_x/2+1:N_x) = force_next(N_x/2+1:N_x) + transmittivity^2 * residual(N_x/2+1:N_x);
             end
             
             % Artificial dissipation for stability
@@ -181,16 +201,16 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Update velocity left
             if method_left <= 2 || method_left == 5
-                v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
+                v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
             elseif method_left >= 3
-                v(1:N_x/2,n+1) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), override_order);
+                v(1:N_x/2,n+1) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), force_next(1:N_x/2), v(1:N_x/2,n), override_order);
             end
             
             % Update velocity right
             if method_right <= 2 || method_right == 5
-                v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
+                v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
             elseif method_right >= 3
-                v(N_x/2+1:N_x,n+1) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
+                v(N_x/2+1:N_x,n+1) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), force_next(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
             end
             
             % Post-merge first order
@@ -216,17 +236,17 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
                 p(:,n+1) = update_pressure_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), override_order);
             end
 
-            % Impose force
-            force_now = force(:,n+1);
+            % Impose next force
+            force_next = force(:,n+1);
 
             % Artificial dissipation for stability
             p(:,n+1) = diss * p(:,n+1);
 
             % Update velocity
             if method_left <= 2 || method_left == 5
-                v(:,n+1) = update_velocity_FDTD(data_left, p(:,n+1), p(:,n), p(:,n-1), force_now(:), v(:,n), g1(n), 0, override_order);
+                v(:,n+1) = update_velocity_FDTD(data_left, p(:,n+1), p(:,n), p(:,n-1), force_now(:), force_next(:), v(:,n), g1(n), 0, override_order);
             elseif method_left >= 3
-                v(:,n+1) = update_velocity_Fourier(data_left, p(:,n+1), p(:,n), p(:,n-1), force_now(:), v(:,n), override_order);
+                v(:,n+1) = update_velocity_Fourier(data_left, p(:,n+1), p(:,n), p(:,n-1), force_now(:), force_next(:), v(:,n), override_order);
             end
 
         end

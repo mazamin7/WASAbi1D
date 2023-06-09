@@ -65,14 +65,16 @@ function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, g1, 
     if order == 2 && override == false
         % Compute p_next using the formula
         if isPML == false
+            % current force
             p_next = (2 * p_curr - (1 - dt*alpha_abs) * p_prev ...
                 + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + dt*alpha_abs);
         else % isPML == true
+            % current force
             p_next = (2 * p_curr - p_prev + (c * dt / dh)^2 * A * p_curr ...
                 + dt * sigma .* p_prev - dt^2 * sigma^2 .* p_curr) ./ (1 + dt * sigma);
         end
     else
-        % the simulation code handles the correct instant of the force
+        % current force
         p_next = p_curr + dt * v_curr;
     end
 

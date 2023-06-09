@@ -1,4 +1,4 @@
-function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force, v_curr, g1, g2, override)
+function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force_curr, force_next, v_curr, g1, g2, override)
 % Computes p_next given p_curr, p_prev, force and FDTD_data
 %
 % Inputs:
@@ -40,9 +40,13 @@ function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force, v_cu
     v_curr = zeros(N+4,1);
     v_curr(3:end-2) = v_curr_old;
 
-    force_old = force';
-    force = zeros(N+4,1);
-    force(3:end-2) = force_old;
+    force_curr_old = force_curr';
+    force_curr = zeros(N+4,1);
+    force_curr(3:end-2) = force_curr_old;
+
+    force_next_old = force_next';
+    force_next = zeros(N+4,1);
+    force_next(3:end-2) = force_next_old;
 
     sigma_old = sigma';
     sigma = zeros(N+4,1);
@@ -67,10 +71,11 @@ function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force, v_cu
     end
 
     if order == 2 && override == false
+        % any force (we choose current)
         v_next = (p_next - p_curr)/dt;
     else
-        % the simulation code handles the correct instant of the force
-        v_next = (v_curr + c^2 * dt / dh^2 * A * p_next + dt * force)/(1 + 2*dt*alpha_abs);
+        % next force
+        v_next = (v_curr + c^2 * dt / dh^2 * A * p_next + dt * force_next)/(1 + 2*dt*alpha_abs);
     end
 
     % Truncating ghost points
