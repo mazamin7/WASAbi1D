@@ -228,13 +228,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             force_use = force_now * 0;
 
             if order_left == 2
-                force_use(1:N_x/2) = force_next(1:N_x/2);
+                force_use(1:N_x/2) = force_now(1:N_x/2);
             else
                 force_use(1:N_x/2) = force_next_corr(1:N_x/2);
             end
 
             if order_right == 2
-                force_use(N_x/2+1:N_x) = force_next(N_x/2+1:N_x);
+                force_use(N_x/2+1:N_x) = force_now(N_x/2+1:N_x);
             else
                 force_use(N_x/2+1:N_x) = force_next_corr(N_x/2+1:N_x);
             end
@@ -242,11 +242,11 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Update velocity left
             if method_left <= 2 || method_left == 5
-                % (unused) next force not corrected in second order
+                % (unused) curr force not corrected in second order
                 % next force corrected in first order
                 v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_use(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
             elseif method_left >= 3
-                % next force not corrected in second order
+                % curr force not corrected in second order
                 % next force corrected in first order
                 v(1:N_x/2,n+1) = update_velocity_Fourier(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_use(1:N_x/2), v(1:N_x/2,n), override_order);
             end
