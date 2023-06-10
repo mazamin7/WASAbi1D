@@ -156,13 +156,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % If order == 2, use pre-merge force in pressure
             force_use = force_now * 0;
 
-            if order_left == 1
+            if order_left == 1 || override_order
                 force_use(1:N_x/2) = force_now(1:N_x/2);
             else
                 force_use(1:N_x/2) = force_now_corr(1:N_x/2);
             end
 
-            if order_right == 1
+            if order_right == 1 || override_order
                 force_use(N_x/2+1:N_x) = force_now(N_x/2+1:N_x);
             else
                 force_use(N_x/2+1:N_x) = force_now_corr(N_x/2+1:N_x);
@@ -172,7 +172,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             if method_left <= 2 || method_left == 5
                 % current force corrected in second order
                 % (unused) current force not corrected in first order
-                p(1:N_x/2,n+1) = update_pressure_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_now(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
+                p(1:N_x/2,n+1) = update_pressure_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_use(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
             elseif method_left >= 3
                 % current force corrected in second order
                 % current force not corrected in first order
@@ -181,7 +181,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Update pressure right
             if method_right <= 2 || method_right == 5
-                p(N_x/2+1:N_x,n+1) = update_pressure_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_now(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
+                p(N_x/2+1:N_x,n+1) = update_pressure_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
             elseif method_right >= 3
                 p(N_x/2+1:N_x,n+1) = update_pressure_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
             end
