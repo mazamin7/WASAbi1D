@@ -87,7 +87,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
     if DD
         % Building residue matrix
-        C = get_residue_matrix(N_x, 6);
+        C = get_residue_matrix(N_x, 2);
         
         % Initializing update methods
         if fourier_left == false

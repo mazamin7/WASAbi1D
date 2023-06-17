@@ -1,6 +1,8 @@
 function plot_snapshot(x_axis,len_x,p,v,f,db_plot)
 %PLOT_SNAPSHOT Summary of this function goes here
 %   Detailed explanation goes here
+    small_font = true;
+
     % Plot
     figure(f);
 
@@ -33,7 +35,16 @@ function plot_snapshot(x_axis,len_x,p,v,f,db_plot)
         grid on;
         xlim([0,len_x]);
         ylim([-150 0]);
-        yticks(-150:10:0);
+        if small_font == true
+            yticks(-150:10:0);
+        else
+            yticks(-150:30:0);
+
+            ax = gca;
+            ax.XAxis.FontSize = 20;
+            ax.YAxis.FontSize = 20;
+            ax.Title.FontSize = 20;
+        end
         xlabel("x");
         ylabel("p (dB)");
     
@@ -47,7 +58,16 @@ function plot_snapshot(x_axis,len_x,p,v,f,db_plot)
         grid on;
         xlim([0,len_x]);
         ylim([-150 0]);
-        yticks(-150:10:0);
+        if small_font == true
+            yticks(-150:10:0);
+        else
+            yticks(-150:30:0);
+
+            ax = gca;
+            ax.XAxis.FontSize = 20;
+            ax.YAxis.FontSize = 20;
+            ax.Title.FontSize = 20;
+        end
         xlabel("x");
         ylabel("v (dB)");
     end
