@@ -16,7 +16,7 @@ function p_next = update_pressure_Fourier(Fourier_data, p_curr, p_prev, force, v
     w2 = Fourier_data.w2;
     cwt = Fourier_data.cwt;
     dt = Fourier_data.dt;
-    order = Fourier_data.order;
+    temp_order = Fourier_data.temp_order;
     swt = Fourier_data.swt;
     alpha_abs = Fourier_data.alpha_abs;
     alpha2 = Fourier_data.alpha2;
@@ -39,7 +39,7 @@ function p_next = update_pressure_Fourier(Fourier_data, p_curr, p_prev, force, v
 	n = 2:N;
 
     % update solution in Fourier domain
-    if order == 2 && override == false
+    if temp_order == 2 && override == false
         % current force
         p_next_dct(n) = 2 * p_curr_dct(n) .* cwt(n) - p_prev_dct(n) ...
             + (2 * force_dct(n) ./ w2(n) ) .* (1 - cwt(n));
@@ -51,7 +51,7 @@ function p_next = update_pressure_Fourier(Fourier_data, p_curr, p_prev, force, v
 
     n = 1;
 
-    if order == 2 && override == false
+    if temp_order == 2 && override == false
         % current force
         p_next_dct(n) = 2 * p_curr_dct(n) - p_prev_dct(n) + dt*dt * force_dct(n);
     else

@@ -1,9 +1,9 @@
-function C = get_residue_matrix(N_x, order)
+function C = get_residue_matrix(N_x, space_order)
 
     assert(N_x == 2*floor(N_x/2), 'N_x is odd');
 
-    assert(order == 2 || order == 4 || order == 6 || order == 8);
-    n = order/2;
+    assert(space_order == 2 || space_order == 4 || space_order == 6 || space_order == 8);
+    n = space_order/2;
 
     if n == 1
         coefs = [1];

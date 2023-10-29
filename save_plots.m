@@ -3,24 +3,33 @@ function save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v)
     % Extracting test case data
     test_case = test_case_data.test_case;
     alpha_abs = test_case_data.alpha_abs;
-    bc_left = test_case_data.bc_left;
-    bc_right = test_case_data.bc_right;
 
     % Extracting simulation parameters
-    merge = simulation_parameters.merge;
+    merge_left = simulation_parameters.merge_left;
+    merge_right = simulation_parameters.merge_right;
     method_left = simulation_parameters.method_left;
     method_right = simulation_parameters.method_right;
     DD = simulation_parameters.DD;
+    space_order = simulation_parameters.space_order;
     
     damped = alpha_abs ~= 0;
 
     % Save figures as images
-    if merge == 1
-        merge_str = 'pre_merge';
-    elseif merge == 2
-        merge_str = 'post_merge';
-    elseif DD == false
-        merge_str = 'noDD';
+    if DD == false
+        merge_left_str = 'noDD';
+        merge_right_str = 'noDD';
+    else
+        if merge_left == 1
+            merge_left_str = 'pre_merge';
+        else
+            merge_left_str = 'post_merge';
+        end
+
+        if merge_right == 1
+            merge_right_str = 'pre_merge';
+        else
+            merge_right_str = 'post_merge';
+        end
     end
     
     if method_left == 1
@@ -53,20 +62,8 @@ function save_plots(test_case_data, simulation_parameters, dt, dh, fig_p, fig_v)
         damping_str = 'undamped';
     end
     
-    if bc_left == 'D'
-        bc_left_str = 'Dirichlet';
-    elseif bc_left == 'N'
-        bc_left_str = 'Neumann';
-    end
-    
-    if bc_right == 'D'
-        bc_right_str = 'Dirichlet';
-    elseif bc_right == 'N'
-        bc_right_str = 'Neumann';
-    end
-    
     % Create folder with current filename
-    foldername = sprintf('test=%s__dh=%.4f_dt=%.4f__%s_%s__left=%s_%s__right=%s_%s', num2str(test_case), dh, dt, merge_str, damping_str, method_left_str, bc_left_str, method_right_str, bc_right_str);
+    foldername = sprintf('test=%s__dh=%.4f_dt=%.4f__%s__left=%s_%s__right=%s_%s__space_order=%d', num2str(test_case), dh, dt, damping_str, method_left_str, merge_left_str, method_right_str, merge_right_str, space_order);
 
     % Create images folder if not exists
     if ~exist('images', 'dir')

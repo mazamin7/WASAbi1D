@@ -7,8 +7,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     merge_right = simulation_parameters.merge_right;
     method_left = simulation_parameters.method_left;
     method_right = simulation_parameters.method_right;
-    order_left = simulation_parameters.order_left;
-    order_right = simulation_parameters.order_right;
+    space_order = simulation_parameters.space_order;
+    temp_order_left = simulation_parameters.temp_order_left;
+    temp_order_right = simulation_parameters.temp_order_right;
     DD = simulation_parameters.DD;
 
     % Extracting test case data
@@ -17,35 +18,26 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     c0 = test_case_data.c0;
     alpha_abs = test_case_data.alpha_abs;
     transmittivity = test_case_data.transmittivity;
-    bc_left = test_case_data.bc_left;
-    bc_right = test_case_data.bc_right;
     force_fun = test_case_data.force_fun;
-    g1_time_fun = test_case_data.g1_time_fun;
-    g2_time_fun = test_case_data.g2_time_fun;
     p_gt_fun = test_case_data.p_gt_fun;
     v_gt_fun = test_case_data.v_gt_fun;
 
 
     fourier_left = method_left == 3 || method_left == 4;
     fourier_right = method_right == 3 || method_right == 4;
-
-    
-    % Checking compatibility between simulation parameters and test case
-    assert(~((method_left == 3 || method_left == 4) && (bc_left == "D" || bc_right == "D")), ...
-        'Boundary conditions must be NEUMANN homogeneous with Fourier method')
     
     damped = alpha_abs ~= 0;
     
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
     if DD == true
-        stable = check_stability(c0, dt, dh, order_left, fourier_left, diss, DD);
+        stable = check_stability(c0, dt, dh, temp_order_left, fourier_left, diss, DD);
         assert(stable, 'Stability condition not satisfied on the left');
     
-        stable = check_stability(c0, dt, dh, order_right, fourier_right, diss, DD);
+        stable = check_stability(c0, dt, dh, temp_order_right, fourier_right, diss, DD);
         assert(stable, 'Stability condition not satisfied on the right');
     elseif DD == false
-        stable = check_stability(c0, dt, dh, order_left, fourier_left, diss, DD);
+        stable = check_stability(c0, dt, dh, temp_order_left, fourier_left, diss, DD);
         assert(stable, 'Stability condition not satisfied');
     end
     
@@ -62,15 +54,11 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     p = zeros(N_x,N_t+1);
     v = zeros(N_x,N_t+1);
     force = zeros(N_x,N_t+1);
-    g1 = zeros(N_t+1,1);
-    g2 = zeros(N_t+1,1);
     p_gt = zeros(N_x,N_t+1);
     v_gt = zeros(N_x,N_t+1);
     
     for n = 2:N_t+1
         force(:,n) = force_fun(x_axis, t_axis(n-1));
-        g1(n) = g1_time_fun(t_axis(n-1));
-        g2(n) = g2_time_fun(t_axis(n-1));
         p_gt(:,n) = p_gt_fun(x_axis, t_axis(n-1));
         v_gt(:,n) = v_gt_fun(x_axis, t_axis(n-1));
     end
@@ -79,34 +67,29 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     % Imposing initial conditions (in position 1 we have stub)
     p(:,2) = p_gt(:,2);
     v(:,2) = v_gt(:,2);
-    
-    if (method_left == 3 || method_left == 4 || method_right == 3 || method_right == 4)
-        assert(all(g1 == 0), 'Boundary conditions must be Neumann HOMOGENEOUS with Fourier method');
-        assert(all(g2 == 0), 'Boundary conditions must be Neumann HOMOGENEOUS with Fourier method');
-    end
 
     if DD
         % Building residue matrix
-        C = get_residue_matrix(N_x, 6);
+        C = get_residue_matrix(N_x, space_order);
         
         % Initializing update methods
         if fourier_left == false
-            data_left = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, bc_left, "N", method_left == 5, order_left);
+            data_left = init_FDTD(len_x/2, c0, dt, dh, space_order, temp_order_left, alpha_abs);
         else
-            data_left = init_Fourier(len_x/2, c0, dt, dh, order_left, alpha_abs);
+            data_left = init_Fourier(len_x/2, c0, dt, dh, temp_order_left, alpha_abs);
         end
         
         if fourier_right == false
-            data_right = init_FDTD(len_x/2, c0, dt, dh, alpha_abs, "N", bc_right, method_right == 5, order_right);
+            data_right = init_FDTD(len_x/2, c0, dt, dh, space_order, temp_order_right, alpha_abs);
         else
-            data_right = init_Fourier(len_x/2, c0, dt, dh, order_right, alpha_abs);
+            data_right = init_Fourier(len_x/2, c0, dt, dh, temp_order_right, alpha_abs);
         end
     else
         % Initializing update methods
         if fourier_left == false
-            data_left = init_FDTD(len_x, c0, dt, dh, alpha_abs, bc_left, bc_right, method_left == 5, order_left);
+            data_left = init_FDTD(len_x, c0, dt, dh, space_order, temp_order_left, alpha_abs);
         else
-            data_left = init_Fourier(len_x, c0, dt, dh, order_left, alpha_abs);
+            data_left = init_Fourier(len_x, c0, dt, dh, temp_order_left, alpha_abs);
         end
     end
 
@@ -156,13 +139,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % If order == 2, use pre-merge force in pressure
             force_use = force_now * 0;
 
-            if order_left == 1 || override_order
+            if temp_order_left == 1 || override_order
                 force_use(1:N_x/2) = force_now(1:N_x/2);
             else
                 force_use(1:N_x/2) = force_now_corr(1:N_x/2);
             end
 
-            if order_right == 1 || override_order
+            if temp_order_right == 1 || override_order
                 force_use(N_x/2+1:N_x) = force_now(N_x/2+1:N_x);
             else
                 force_use(N_x/2+1:N_x) = force_now_corr(N_x/2+1:N_x);
@@ -172,7 +155,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             if method_left <= 2 || method_left == 5
                 % current force corrected in second order
                 % (unused) current force not corrected in first order
-                p(1:N_x/2,n+1) = update_pressure_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_use(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
+                p(1:N_x/2,n+1) = update_pressure_FDTD(data_left, p(1:N_x/2,n), p(1:N_x/2,n-1), force_use(1:N_x/2), v(1:N_x/2,n), override_order);
             elseif method_left >= 3
                 % current force corrected in second order
                 % current force not corrected in first order
@@ -181,7 +164,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Update pressure right
             if method_right <= 2 || method_right == 5
-                p(N_x/2+1:N_x,n+1) = update_pressure_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
+                p(N_x/2+1:N_x,n+1) = update_pressure_FDTD(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
             elseif method_right >= 3
                 p(N_x/2+1:N_x,n+1) = update_pressure_Fourier(data_right, p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
             end
@@ -189,13 +172,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % Post-merge second order
             % using r^n, on p^{n+1}
             if merge_left == 2
-                if order_left == 2 && override_order == false
+                if temp_order_left == 2 && override_order == false
                     p(1:N_x/2,n+1) = p(1:N_x/2,n+1) + transmittivity^2 * dt*dt * residual(1:N_x/2) / (1 + dt*alpha_abs);
                 end
             end
 
             if merge_right == 2
-                if order_right == 2 && override_order == false
+                if temp_order_right == 2 && override_order == false
                     p(N_x/2+1:N_x,n+1) = p(N_x/2+1:N_x,n+1) + transmittivity^2 * dt*dt * residual(N_x/2+1:N_x) / (1 + dt*alpha_abs);
                 end
             end
@@ -227,13 +210,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % If order == 1, use pre-merge force in velocity
             force_use = force_now * 0;
 
-            if order_left == 2
+            if temp_order_left == 2
                 force_use(1:N_x/2) = force_now(1:N_x/2);
             else
                 force_use(1:N_x/2) = force_next_corr(1:N_x/2);
             end
 
-            if order_right == 2
+            if temp_order_right == 2
                 force_use(N_x/2+1:N_x) = force_now(N_x/2+1:N_x);
             else
                 force_use(N_x/2+1:N_x) = force_next_corr(N_x/2+1:N_x);
@@ -244,7 +227,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             if method_left <= 2 || method_left == 5
                 % (unused) curr force not corrected in second order
                 % next force corrected in first order
-                v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_use(1:N_x/2), v(1:N_x/2,n), g1(n), 0, override_order);
+                v(1:N_x/2,n+1) = update_velocity_FDTD(data_left, p(1:N_x/2,n+1), p(1:N_x/2,n), p(1:N_x/2,n-1), force_use(1:N_x/2), v(1:N_x/2,n), override_order);
             elseif method_left >= 3
                 % curr force not corrected in second order
                 % next force corrected in first order
@@ -253,7 +236,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             
             % Update velocity right
             if method_right <= 2 || method_right == 5
-                v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), 0, g2(n), override_order);
+                v(N_x/2+1:N_x,n+1) = update_velocity_FDTD(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
             elseif method_right >= 3
                 v(N_x/2+1:N_x,n+1) = update_velocity_Fourier(data_right, p(N_x/2+1:N_x,n+1), p(N_x/2+1:N_x,n), p(N_x/2+1:N_x,n-1), force_use(N_x/2+1:N_x), v(N_x/2+1:N_x,n), override_order);
             end
@@ -261,13 +244,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
             % Post-merge first order
             % using r^{n+1}, on v^{n+1}
             if merge_left == 2
-                if order_left == 1 || override_order == true
+                if temp_order_left == 1 || override_order == true
                     v(1:N_x/2,n+1) = v(1:N_x/2,n+1) + transmittivity^2 * dt * residual(1:N_x/2) / (1 + 2*dt*alpha_abs);
                 end
             end
 
             if merge_right == 2
-                if order_right == 1 || override_order == true
+                if temp_order_right == 1 || override_order == true
                     v(N_x/2+1:N_x,n+1) = v(N_x/2+1:N_x,n+1) + transmittivity^2 * dt * residual(N_x/2+1:N_x) / (1 + 2*dt*alpha_abs);
                 end
             end
@@ -279,7 +262,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
             % Update pressure
             if method_left <= 2 || method_left == 5
-                p(:,n+1) = update_pressure_FDTD(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), g1(n), 0, override_order);
+                p(:,n+1) = update_pressure_FDTD(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), override_order);
             elseif method_left >= 3
                 p(:,n+1) = update_pressure_Fourier(data_left, p(:,n), p(:,n-1), force_now(:), v(:,n), override_order);
             end
@@ -292,7 +275,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
             % Update velocity
             if method_left <= 2 || method_left == 5
-                v(:,n+1) = update_velocity_FDTD(data_left, p(:,n+1), p(:,n), p(:,n-1), force_next(:), v(:,n), g1(n), 0, override_order);
+                v(:,n+1) = update_velocity_FDTD(data_left, p(:,n+1), p(:,n), p(:,n-1), force_next(:), v(:,n), override_order);
             elseif method_left >= 3
                 v(:,n+1) = update_velocity_Fourier(data_left, p(:,n+1), p(:,n), p(:,n-1), force_next(:), v(:,n), override_order);
             end

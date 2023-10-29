@@ -1,4 +1,4 @@
-function Fourier_data = init_Fourier(len_x, c, dt, dh, order, alpha)
+function Fourier_data = init_Fourier(len_x, c, dt, dh, temp_order, alpha_abs)
 
     % modal analysis
     inv_lx = 1 / len_x;
@@ -12,7 +12,6 @@ function Fourier_data = init_Fourier(len_x, c, dt, dh, order, alpha)
     inv_w = zeros(N, 1);
     inv_w2 = zeros(N, 1);
 
-    alpha_abs = alpha;
     alpha2 = alpha_abs * alpha_abs;
     eatm = exp(- alpha_abs * dt);
     
@@ -31,7 +30,7 @@ function Fourier_data = init_Fourier(len_x, c, dt, dh, order, alpha)
     Fourier_data.w2 = w2;
     Fourier_data.cwt = cwt;
     Fourier_data.dt = dt;
-    Fourier_data.order = order;
+    Fourier_data.temp_order = temp_order;
     Fourier_data.swt = swt;
     Fourier_data.alpha_abs = alpha_abs;
     Fourier_data.alpha2 = alpha2;

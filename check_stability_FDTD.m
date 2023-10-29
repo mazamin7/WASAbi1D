@@ -1,4 +1,7 @@
-function [stable] = check_stability_FDTD(c, dt, dh, order, diss, asymptotic)
+function [stable] = check_stability_FDTD(c, dt, dh, space_order, diss, asymptotic)
+%
+% Only works for space_order == 6
+%
 
     alpha = 1/90;
     beta = -3/20;

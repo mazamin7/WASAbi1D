@@ -17,43 +17,50 @@ function simulation_parameters = get_simulation_parameters()
         choice_merge_right = menu(msg_merge_right, opts_merge);
 
         msg_method_left = "Choose the update method for left";
-        opts_method = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
+        opts_method = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord"];
         choice_method_left = menu(msg_method_left, opts_method);
     
         msg_method_right = "Choose the update method for right";
         choice_method_right = menu(msg_method_right, opts_method);
     
         if (choice_method_left == 2) || (choice_method_left == 4)
-            order_left = 1;
+            temp_order_left = 1;
         else
-            order_left = 2;
+            temp_order_left = 2;
         end
     
         if (choice_method_right == 2) || (choice_method_right == 4)
-            order_right = 1;
+            temp_order_right = 1;
         else
-            order_right = 2;
+            temp_order_right = 2;
         end
     else
         msg_method_left = "Choose the update method";
-        opts_method = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord" "PML"];
+        opts_method = ["FDTD 2ord" "FDTD 1ord" "Fourier 2ord" "Fourier 1ord"];
         choice_method_left = menu(msg_method_left, opts_method);
         choice_method_right = choice_method_left; % placeholder
     
         if (choice_method_left == 2) || (choice_method_left == 4)
-            order_left = 1;
-            order_right = order_left;
+            temp_order_left = 1;
+            temp_order_right = temp_order_left;
         else
-            order_left = 2;
-            order_right = order_left;
+            temp_order_left = 2;
+            temp_order_right = temp_order_left;
         end
     end
+
+    msg_space_order = "Choose the spatial FDTD/residual order";
+    opts_space = ["2" "4" "6" "8"];
+    choice_space = menu(msg_space_order, opts_space);
+
+    space_order = 2 * choice_space;
 
     simulation_parameters.merge_left = choice_merge_left;
     simulation_parameters.merge_right = choice_merge_right;
     simulation_parameters.method_left = choice_method_left;
     simulation_parameters.method_right = choice_method_right;
-    simulation_parameters.order_left = order_left;
-    simulation_parameters.order_right = order_right;
+    simulation_parameters.temp_order_left = temp_order_left;
+    simulation_parameters.temp_order_right = temp_order_right;
     simulation_parameters.DD = DD;
+    simulation_parameters.space_order = space_order;
 end

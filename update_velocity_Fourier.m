@@ -16,7 +16,7 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
     w2 = Fourier_data.w2;
     cwt = Fourier_data.cwt;
     dt = Fourier_data.dt;
-    order = Fourier_data.order;
+    temp_order = Fourier_data.temp_order;
     swt = Fourier_data.swt;
     alpha_abs = Fourier_data.alpha_abs;
     alpha2 = Fourier_data.alpha2;
@@ -40,7 +40,7 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
 	n = 2:N;
 
     % update solution in Fourier domain
-    if order == 2 && override == false
+    if temp_order == 2 && override == false
         % curr force
         v_next_dct(n) = w(n) ./ swt(n) .* (p_next_dct(n) - cwt(n) ...
             .* p_curr_dct(n)) - inv_w(n) .* tan(w(n) * dt/2) .* force_dct(n);
@@ -53,7 +53,7 @@ function v_next = update_velocity_Fourier(Fourier_data, p_next, p_curr, p_prev, 
 
     n = 1;
 
-    if order == 2 && override == false
+    if temp_order == 2 && override == false
         % no force
 %         v_next_dct(n) = v_curr_dct(n) + dt * force_now_dct(n);
         v_next_dct(n) = (p_next_dct(n) - p_curr_dct(n))/dt;

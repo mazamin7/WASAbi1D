@@ -2,7 +2,7 @@ function [test_case_data] = get_test_case()
 
 % User menu
 msg = "Choose the test case";
-opts = ["1" "2" "3" "4" "5" "6" "7"];
+opts = ["Forced" "Standing waves" "Propagating waves" "Damped propagating waves" "Dispersion test" "DD test"];
 test_case = menu(msg, opts);
 
 switch test_case
@@ -20,10 +20,6 @@ switch test_case
         % Transmittance of the middle boundary
         transmittivity = 1;
         
-        % Boundary conditions
-        bc_left = "N";
-        bc_right = "N";
-        
         % Defining force time evolution
         freq_force = 1;
         force_time_fun = @(t) sin(2*pi*freq_force*t) * (t <= 1/freq_force);
@@ -37,44 +33,12 @@ switch test_case
 
         % Defining force
         force_fun = @(x, t) force_time_fun(t) * force_envelope(x);
-        
-        % Defining boundary conditions time evolution
-        g1_time_fun = @(t) 0;
-        g2_time_fun = @(t) 0;
-
-        % Defining initial conditions
-        p_gt_fun = @(x,t) 0 * x * t;
-        v_gt_fun = @(x,t) 0 * x * t;
-    
-    case 2 % "string" driven on the left
-        len_x = 10; % Domain length
-        len_t = 10; % Simulation duration
-
-        % Speed of propagation
-        c0 = 1;
-
-        % Absorption coefficients
-        alpha_abs = 0.3;
-
-        % Transmittance of the middle boundary
-        transmittivity = 1;
-        
-        % Boundary conditions
-        bc_left = "D";
-        bc_right = "D";
-        
-        % Defining force
-        force_fun = @(x, t) 0;
-        
-        % Defining boundary conditions time evolution
-        g1_time_fun = @(t) 0.1*cos(2*pi*1*t);
-        g2_time_fun = @(t) 0;
 
         % Defining initial conditions
         p_gt_fun = @(x,t) 0 * x * t;
         v_gt_fun = @(x,t) 0 * x * t;
 
-    case 3 % standing wave
+    case 2 % standing wave
         len_x = 1; % Domain length
         len_t = 2; % Simulation duration
 
@@ -87,10 +51,6 @@ switch test_case
         % Transmittance of the middle boundary
         transmittivity = 1;
         
-        % Boundary conditions
-        bc_left = "N";
-        bc_right = "N";
-        
         % Defining ground truth solution
         k_force = pi;
         omega_force = k_force * c0;
@@ -99,12 +59,8 @@ switch test_case
 
         % Defining force
         force_fun = @(x, t) 0;
-        
-        % Defining boundary conditions time evolution
-        g1_time_fun = @(t) 0;
-        g2_time_fun = @(t) 0;
 
-    case 4 % propagating wave
+    case 3 % propagating wave
         len_x = 10; % Domain length
         len_t = 4; % Simulation duration
 
@@ -116,10 +72,6 @@ switch test_case
 
         % Transmittance of the middle boundary
         transmittivity = 1;
-        
-        % Boundary conditions
-        bc_left = "N";
-        bc_right = "N";
 
         % Defining wave envelope
         source_sigma_ratio_x = 1/20;
@@ -135,12 +87,8 @@ switch test_case
 
         % Defining force
         force_fun = @(x, t) 0;
-        
-        % Defining boundary conditions time evolution
-        g1_time_fun = @(t) 0;
-        g2_time_fun = @(t) 0;
 
-    case 5 % damped propagating wave (BAD GROUND TRUTH)
+    case 4 % damped propagating wave (BAD GROUND TRUTH)
         len_x = 10; % Domain length
         len_t = 4; % Simulation duration
 
@@ -152,10 +100,6 @@ switch test_case
 
         % Transmittance of the middle boundary
         transmittivity = 1;
-        
-        % Boundary conditions
-        bc_left = "N";
-        bc_right = "N";
 
         % Defining wave envelope
         source_sigma_ratio_x = 1/20;
@@ -175,12 +119,8 @@ switch test_case
 
         % Defining force
         force_fun = @(x, t) 0;
-        
-        % Defining boundary conditions time evolution
-        g1_time_fun = @(t) 0;
-        g2_time_fun = @(t) 0;
 
-    case 6 % dispersion test
+    case 5 % dispersion test
         len_x = 4; % Domain length
         len_t = 1; % Simulation duration
 
@@ -192,10 +132,6 @@ switch test_case
 
         % Transmittance of the middle boundary
         transmittivity = 1;
-        
-        % Boundary conditions
-        bc_left = "N";
-        bc_right = "N";
 
         % Defining wave envelope
         source_sigma_ratio_x = 1/800;
@@ -213,12 +149,8 @@ switch test_case
 
         % Defining force
         force_fun = @(x, t) 0;
-        
-        % Defining boundary conditions time evolution
-        g1_time_fun = @(t) 0;
-        g2_time_fun = @(t) 0;
 
-    case 7 % propagating wave not centered
+    case 6 % propagating wave not centered
         len_x = 10; % Domain length
         len_t = 4; % Simulation duration
 
@@ -230,10 +162,6 @@ switch test_case
 
         % Transmittance of the middle boundary
         transmittivity = 1;
-        
-        % Boundary conditions
-        bc_left = "N";
-        bc_right = "N";
 
         % Defining wave envelope
         source_sigma_ratio_x = 1/20;
@@ -249,10 +177,6 @@ switch test_case
 
         % Defining force
         force_fun = @(x, t) 0;
-        
-        % Defining boundary conditions time evolution
-        g1_time_fun = @(t) 0;
-        g2_time_fun = @(t) 0;
 
     otherwise
         error("Invalid test case number");
@@ -265,11 +189,7 @@ test_case_data.len_t = len_t;
 test_case_data.c0 = c0;
 test_case_data.alpha_abs = alpha_abs;
 test_case_data.transmittivity = transmittivity;
-test_case_data.bc_left = bc_left;
-test_case_data.bc_right = bc_right;
 test_case_data.force_fun = force_fun;
-test_case_data.g1_time_fun = g1_time_fun;
-test_case_data.g2_time_fun = g2_time_fun;
 test_case_data.p_gt_fun = p_gt_fun;
 test_case_data.v_gt_fun = v_gt_fun;
 
