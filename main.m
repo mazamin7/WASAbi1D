@@ -15,13 +15,13 @@ plot_ground_truth(test_case_data, false);
 
 % Simulation parameters
 dh = 1e-2;
-dt = dh * 0.7 / c;
+dt = dh * 0.8 / c;
 
 % Artificial dissipation factor
 diss = 1 - eps(1);
 
 % Show debug plot?
-debug = false;
+debug = true;
 
 % Run simulation
 [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_parameters, dt, dh, debug, diss, false);

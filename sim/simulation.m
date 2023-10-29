@@ -290,7 +290,7 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 
         if debug == true
             if mod(n-1,10) == 1
-	            plot_snapshot(x_axis,len_x,p(:,n+1),v(:,n+1),f,db_plot);
+	            plot_snapshot(x_axis,len_x,p(:,n+1),v(:,n+1),c0,f,db_plot);
             end
             figure(f);
             sgtitle(info_str);

@@ -1,4 +1,4 @@
-function plot_snapshot(x_axis,len_x,p,v,f,db_plot)
+function plot_snapshot(x_axis,len_x,p,v,c0,f,db_plot)
 %PLOT_SNAPSHOT Summary of this function goes here
 %   Detailed explanation goes here
     small_font = true;
