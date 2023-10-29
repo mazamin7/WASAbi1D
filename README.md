@@ -1,6 +1,6 @@
-
-![Logo](logo.png)
-
+<p align="center">
+  <img src="logo.png">
+</p>
 
 # WASAbi 1D
 
