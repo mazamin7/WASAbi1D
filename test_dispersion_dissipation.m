@@ -1,5 +1,9 @@
 clear all, close all, clc;
 
+addpath utils\
+addpath sim\
+addpath plot\
+
 simulation_parameters = get_simulation_parameters();
 test_case_data = get_test_case();
 c = test_case_data.c0;

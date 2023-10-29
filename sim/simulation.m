@@ -2,6 +2,9 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
 %SIMULATION Summary of this function goes here
 %   Detailed explanation goes here
 
+    addpath sim\FDTD\
+    addpath sim\Fourier\
+
     % Extracting simulation parameters
     merge_left = simulation_parameters.merge_left;
     merge_right = simulation_parameters.merge_right;
@@ -31,13 +34,13 @@ function [t_axis, x_axis, p, v] = simulation(test_case_data, simulation_paramete
     assert(~((method_left == 3 || method_right == 3) && damped), 'Fourier 2ord does not support damping');
     
     if DD == true
-        stable = check_stability(c0, dt, dh, temp_order_left, fourier_left, diss, DD);
+        stable = check_stability(c0, dt, dh, space_order, temp_order_left, fourier_left, diss, DD);
         assert(stable, 'Stability condition not satisfied on the left');
     
-        stable = check_stability(c0, dt, dh, temp_order_right, fourier_right, diss, DD);
+        stable = check_stability(c0, dt, dh, space_order, temp_order_right, fourier_right, diss, DD);
         assert(stable, 'Stability condition not satisfied on the right');
     elseif DD == false
-        stable = check_stability(c0, dt, dh, temp_order_left, fourier_left, diss, DD);
+        stable = check_stability(c0, dt, dh, space_order, temp_order_left, fourier_left, diss, DD);
         assert(stable, 'Stability condition not satisfied');
     end
     

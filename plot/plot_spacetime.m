@@ -79,6 +79,6 @@ function [fig_p, fig_v] = plot_spacetime(t_axis, x_axis, p, v, db_plot, title_st
         end
         view(0, 90);  % set view to show from the top
         colorbar;
-        clim([-150 0]);
+        clim([-100 10]);
     end
 end

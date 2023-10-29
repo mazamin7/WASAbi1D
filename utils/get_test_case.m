@@ -172,8 +172,8 @@ switch test_case
         % Defining ground truth solution
         k_force = pi;
         omega_force = k_force * c0;
-        p_gt_fun = @(x,t) 0.1 * ( wave_envelope(omega_force*t - k_force*(x-len_x/4)) + wave_envelope(omega_force*t + k_force*(x-len_x/4)) );
-        v_gt_fun = @(x,t) 0.1 * omega_force * ( wave_envelope_d(omega_force*t - k_force*(x-len_x/4)) + wave_envelope_d(omega_force*t + k_force*(x-len_x/4)) );
+        p_gt_fun = @(x,t) (sigma * sqrt(2 * pi)) * ( wave_envelope(omega_force*t - k_force*(x-len_x/4)) + wave_envelope(omega_force*t + k_force*(x-len_x/4)) );
+        v_gt_fun = @(x,t) (sigma * sqrt(2 * pi)) * omega_force * ( wave_envelope_d(omega_force*t - k_force*(x-len_x/4)) + wave_envelope_d(omega_force*t + k_force*(x-len_x/4)) );
 
         % Defining force
         force_fun = @(x, t) 0;

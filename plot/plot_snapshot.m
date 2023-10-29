@@ -34,11 +34,11 @@ function plot_snapshot(x_axis,len_x,p,v,f,db_plot)
         title('Pressure (dB)');
         grid on;
         xlim([0,len_x]);
-        ylim([-150 0]);
+        ylim([-140 10]);
         if small_font == true
-            yticks(-150:10:0);
+            yticks(-140:10:10);
         else
-            yticks(-150:30:0);
+            yticks(-140:30:10);
 
             ax = gca;
             ax.XAxis.FontSize = 20;
@@ -57,11 +57,11 @@ function plot_snapshot(x_axis,len_x,p,v,f,db_plot)
         title('Velocity (dB)');
         grid on;
         xlim([0,len_x]);
-        ylim([-150 0]);
+        ylim([-130 20]);
         if small_font == true
-            yticks(-150:10:0);
+            yticks(-140:10:10);
         else
-            yticks(-150:30:0);
+            yticks(-140:30:10);
 
             ax = gca;
             ax.XAxis.FontSize = 20;

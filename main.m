@@ -1,5 +1,9 @@
 clear all, close all, clc;
 
+addpath utils\
+addpath sim\
+addpath plot\
+
 simulation_parameters = get_simulation_parameters();
 test_case_data = get_test_case();
 c = test_case_data.c0;
@@ -11,7 +15,7 @@ plot_ground_truth(test_case_data, false);
 
 % Simulation parameters
 dh = 1e-2;
-dt = dh * 0.8 / c;
+dt = dh * 0.7 / c;
 
 % Artificial dissipation factor
 diss = 1 - eps(1);
