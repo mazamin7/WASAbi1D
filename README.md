@@ -6,6 +6,10 @@
 
 One-dimensional Matlab implementation of WASAbi, a Wave-based Acoustic Simulation Algorithm.
 
+Theory:
+> Raghuvanshi, Nikunj, Rahul Narain, and Ming C. Lin. "Efficient and accurate sound propagation using adaptive rectangular decomposition." IEEE Transactions on Visualization and Computer Graphics 15.5 (2009): 789-801.
+>
+> Coming Soon
 
 ## Features
 
