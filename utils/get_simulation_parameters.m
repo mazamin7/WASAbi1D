@@ -49,9 +49,13 @@ function simulation_parameters = get_simulation_parameters()
         end
     end
 
-    msg_space_order = "Choose the spatial FDTD/residual order";
-    opts_space = ["2" "4" "6" "8"];
-    choice_space = menu(msg_space_order, opts_space);
+    if (DD == true || choice_method_left == 1 || choice_method_left == 2)
+        msg_space_order = "Choose the spatial FDTD/residual order";
+        opts_space = ["2" "4" "6" "8"];
+        choice_space = menu(msg_space_order, opts_space);
+    else
+        choice_space = 3;
+    end
 
     space_order = 2 * choice_space;
 

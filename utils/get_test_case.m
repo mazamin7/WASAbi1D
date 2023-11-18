@@ -90,13 +90,13 @@ switch test_case
 
     case 4 % damped propagating wave (BAD GROUND TRUTH)
         len_x = 10; % Domain length
-        len_t = 4; % Simulation duration
+        len_t = 8; % Simulation duration
 
         % Speed of propagation
         c0 = 1;
 
         % Absorption coefficients
-        alpha_abs = 0.5;
+        alpha_abs = 2;
 
         % Transmittance of the middle boundary
         transmittivity = 1;
