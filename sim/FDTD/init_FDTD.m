@@ -1,11 +1,8 @@
 function data = init_FDTD(len_x, c, dt, dh, space_order, temp_order, alpha_abs)
 
-    N = floor(len_x/dh);
+    laplacian = get_laplacian_kernel(space_order);
 
-    A = get_stiffness_matrix(N, space_order);
-
-    data.N = N;
-    data.A = A;
+    data.laplacian = laplacian;
     data.c = c;
     data.dt = dt;
     data.dh = dh;

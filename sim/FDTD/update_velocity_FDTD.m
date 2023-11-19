@@ -11,8 +11,7 @@ function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force_next,
 % Output:
 %   - p_next: the next pressure values (a column vector)
 
-    N = data.N;
-    A = data.A;
+    laplacian = data.laplacian;
     c = data.c;
     dt = data.dt;
     dh = data.dh;
@@ -24,7 +23,13 @@ function v_next = update_velocity_FDTD(data, p_next, p_curr, p_prev, force_next,
         v_next = (p_next - p_curr)/dt;
     else
         % next force
-        v_next = (v_curr + c^2 * dt / dh^2 * A * p_next + dt * force_next)/(1 + 2*dt*alpha_abs);
+
+        % Perform symmetrization on the boundaries
+        p_next_symm = symmetrize(p_next, (length(laplacian)- 1)/2);
+
+        laplacian_p_next = conv(p_next_symm, laplacian, 'valid');
+
+        v_next = (v_curr + c^2 * dt / dh^2 * laplacian_p_next + dt * force_next)/(1 + 2*dt*alpha_abs);
     end
 
 end

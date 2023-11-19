@@ -11,8 +11,7 @@ function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, over
 % Output:
 %   - p_next: the next pressure values (a column vector)
 
-    N = data.N;
-    A = data.A;
+    laplacian = data.laplacian;
     c = data.c;
     dt = data.dt;
     dh = data.dh;
@@ -22,8 +21,14 @@ function p_next = update_pressure_FDTD(data, p_curr, p_prev, force, v_curr, over
     if temp_order == 2 && override == false
         % Compute p_next using the formula
         % current force
+
+        % Perform symmetrization on the boundaries
+        p_curr_symm = symmetrize(p_curr, (length(laplacian)- 1)/2);
+
+        laplacian_p_curr = conv(p_curr_symm, laplacian, 'valid');
+
         p_next = (2 * p_curr - (1 - dt*alpha_abs) * p_prev ...
-            + (c * dt / dh)^2 * A * p_curr + dt^2 * force)/(1 + dt*alpha_abs);
+            + (c * dt / dh)^2 * laplacian_p_curr + dt^2 * force)/(1 + dt*alpha_abs);
     else
         % no force
         p_next = p_curr + dt * v_curr;
