@@ -19,7 +19,7 @@ function Fourier_data = init_Fourier(len_x, c, dt, dh, temp_order, alpha_abs)
 	n = 2:N;
 	
     w_0 = pi * (n-1) * c * inv_lx;
-    w(n) = sqrt(w_0.^2 - alpha2);
+    w(n) = w_0;
     inv_w(n) = 1./w(n);
     inv_w2(n) = inv_w(n) .* inv_w(n);
     w2(n) = w(n) .* w(n);
